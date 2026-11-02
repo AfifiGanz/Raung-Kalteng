@@ -55,11 +55,11 @@
  { id: 'tangkiling', nama: 'Bukit Tangkiling', zone: 3, tags: ['alam', 'hiking', 'foto'], indoor: false, lowland: false, cost: 20000, jam: '06.00 sampai 17.30', slot: 'day',
  x: -0.24, y: -0.46, lat: -2.3211, lng: 113.9339,
  desc: 'Bukit granit yang didaki pendek tapi pandangannya jauh. Danau dan kota kelihatan semua dari atas.',
- tips: 'Bawa air se liter, sepatu yang berpenggenggam. Jalannya licin setelah hujan, tunggu dulu kalau baru turun.', etika: 'Sebagian areanya dipakai ritual kampung. Ikuti papan dan arahan warga.' },
+ tips: 'Bawa air seliter dan sepatu bersol kasar. Jalannya licin setelah hujan, tunggu dulu kalau baru turun.', etika: 'Sebagian areanya dipakai ritual kampung. Ikuti papan dan arahan warga.' },
 
  { id: 'bukitbatu', nama: 'Bukit Batu', zone: 3, tags: ['alam', 'hiking'], indoor: false, lowland: false, cost: 20000, jam: '06.00 sampai 17.00', slot: 'day',
  x: -0.34, y: -0.52, lat: -2.3300, lng: 113.9500,
- desc: 'Deretan batu raksasa yang bisa dipanjang sebentar, tapi pandangannya memutar tiga ratus enam puluh derajat.',
+ desc: 'Deretan batu raksasa yang bisa dipanjat sebentar, tapi pandangannya memutar tiga ratus enam puluh derajat.',
  tips: 'Satukan dengan Bukit Tangkiling dalam satu hari, jaraknya dekat.', etika: null },
 
  { id: 'seigohong', nama: 'Sei Gohong, gerbang Sebangau', zone: 3, tags: ['alam', 'air', 'keluarga', 'kuliner'], indoor: false, lowland: true, cost: 25000, jam: '08.00 sampai 16.00', slot: 'any',
@@ -69,7 +69,7 @@
 
  { id: 'warungseigohong', nama: 'Warung Ikan Desa Sei Gohong', zone: 3, tags: ['kuliner', 'keluarga'], indoor: true, lowland: true, cost: 30000, jam: '09.00 sampai 17.00', slot: 'noon',
  x: -0.40, y: -0.31, lat: -2.3110, lng: 113.8460,
- desc: 'Ikan sungai dimasak gaya desa, segar karena tangkapan tetangga sendiri. Satu satunya tempat makan sebelum jalur Sebangau.',
+ desc: 'Ikan sungai dimasak gaya desa, segar karena tangkapan tetangga sendiri. Satu-satunya tempat makan sebelum jalur Sebangau.',
  tips: 'Ikan gabus bakarnya yang dicari orang. Cek lampu Si Buru saat musim luapan.', etika: null },
 
  { id: 'kedaitangkiling', nama: 'Kedai Kopi Tangkiling', zone: 3, tags: ['kuliner', 'indoor', 'keluarga'], indoor: true, lowland: false, cost: 20000, jam: '08.00 sampai 21.00', slot: 'any',
@@ -80,7 +80,7 @@
  { id: 'pulaukaja', nama: 'Pulau Kaja, dermaga pandang', zone: 3, tags: ['alam', 'keluarga'], indoor: false, lowland: true, cost: 50000, jam: '08.00 sampai 15.00', slot: 'day',
  x: -0.42, y: -0.28, lat: -2.3150, lng: 113.8300,
  desc: 'Pulau tempat orangutan belajar hidup liar lagi. Semua dilihat dari atas perahu, di jarak yang wajib dijaga.',
- tips: 'Peluang terlihat paling besar sekitar jam sembilan sampai sebelas, saat buah dibagikan.', etika: 'Orangutan adalah satwa dilindungi. Melarang mendekat dan memberi makan itu aturan, bukan pilihan.' },
+ tips: 'Peluang terlihat paling besar sekitar jam sembilan sampai sebelas, saat buah dibagikan.', etika: 'Orangutan adalah satwa dilindungi. Dilarang mendekat dan memberi makan. Itu aturan, bukan pilihan.' },
 
  { id: 'kereng', nama: 'Kereng Bangkirai', zone: 3, tags: ['alam', 'air', 'foto'], indoor: false, lowland: true, cost: 30000, jam: '08.00 sampai 16.30', slot: 'any',
  x: -0.30, y: -0.62, lat: -2.3939, lng: 113.8639,
@@ -94,7 +94,7 @@
 
  { id: 'nyarumenteng', nama: 'Nyaru Menteng', zone: 3, tags: ['alam', 'budaya'], indoor: true, lowland: false, cost: 0, jam: 'sesuai jadwal, hubungi dulu', slot: 'day',
  x: -0.36, y: -0.20, lat: -2.2950, lng: 113.8650,
- desc: 'Pusat rehabilitasi orangutan. Kunjungannya terbatas dan lewat kesepakatan, dan justru itu yang membuat rencanamu harus rapi.',
+ desc: 'Pusat rehabilitasi orangutan. Kunjungannya terbatas dan lewat janji lebih dulu, jadi rencanakan dengan rapi.',
  tips: 'Hubungi dulu sebelum masuk jadwal. Kalau gagal, Pulau Kaja tetap buka.', etika: 'Semua protokol kesehatan satwa wajib diikuti.' },
 
  { id: 'kopisore', nama: 'Kopi Sore Kota Lama', zone: 1, tags: ['kuliner'], indoor: true, lowland: false, cost: 20000, jam: '08.00 sampai 22.00', slot: 'any',
@@ -102,14 +102,14 @@
  desc: 'Kedai tua yang jadi ruang tamu kota. Kopi tubruk, roti bakar, dan obrolan yang bisa panjang.',
  tips: 'Tempat paling nyaman menunggu hujan atau asap reda sambil menyusun ulang rencana.', etika: null },
 
- { id: 'oleholeh', nama: 'Pusat Oleh Oleh', zone: 1, tags: ['kuliner', 'keluarga'], indoor: true, lowland: false, cost: 50000, jam: '08.00 sampai 20.00', slot: 'any',
+ { id: 'oleholeh', nama: 'Pusat Oleh-oleh', zone: 1, tags: ['kuliner', 'keluarga'], indoor: true, lowland: false, cost: 50000, jam: '08.00 sampai 20.00', slot: 'any',
  x: 0.10, y: 0.02, lat: -2.2060, lng: 113.9200,
  desc: 'Garam basah basi untuk yang mau memasak, kerajinan rotan untuk yang mau menghias rumah, batu akik untuk yang sekadar penasaran.',
  tips: 'Garam basah basi dibungkus rapat kalau naik pesawat. Beberapa lapak sudah terima QRIS.', etika: null },
 
  { id: 'wisataair', nama: 'Susur Kahayan', zone: 2, tags: ['air', 'alam', 'foto'], indoor: false, lowland: true, cost: 40000, jam: '07.00 sampai 17.00', slot: 'any',
  x: -0.06, y: 0.30, lat: -2.2250, lng: 113.9130,
- desc: 'Naik jukung pelan pelan menyusuri sungai. Kota terlihat lain dari sisi air, dan harganya seikhlasnya masuk akal.',
+ desc: 'Naik jukung pelan-pelan menyusuri sungai. Kota terlihat lain dari sisi air, dan harganya masuk akal.',
  tips: 'Tunda kalau hujan deras atau arah arus naik. Pelampung dipakai, bukan dibiarkan.', etika: null },
 
  { id: 'flamboyan', nama: 'Kampung Flamboyan', zone: 2, tags: ['budaya', 'keluarga', 'foto'], indoor: false, lowland: true, cost: 10000, jam: '09.00 sampai 17.00', slot: 'day',
@@ -125,7 +125,7 @@
  { id: 'kuliner1', nama: 'Kuliner riverfront, satu hari kenyang', hari: 1, tema: 'kuliner',
  plan: [['oleholeh'], ['kulinerpatin'], ['wisataair'], ['pasarmalam']] },
  { id: 'danau1', nama: 'Danau dan sunset, satu hari pelan', hari: 1, tema: 'alam',
- plan: ['tumbangtahai', ['kulinerpatin'], ['flamboyan'], ['danautahai']] },
+ plan: [['tumbangtahai'], ['kulinerpatin'], ['flamboyan'], ['danautahai']] },
  { id: 'tangkiling1', nama: 'Tangkiling hike, satu hari keringat', hari: 1, tema: 'alam',
  plan: [['tangkiling'], ['kulinerpatin'], ['bukitbatu'], ['riverfront']] },
  { id: 'sebangau1', nama: 'Gerbang Sebangau, satu hari hutan', hari: 1, tema: 'alam',
@@ -133,21 +133,21 @@
  { id: 'budaya1', nama: 'Budaya dan museum, satu hari cerita', hari: 1, tema: 'budaya',
  plan: [['balanga', 'tamanisen'], ['kopisore'], ['flamboyan'], ['bundaran']] },
  { id: 'bukitrawi1', nama: 'Bukit Rawi, satu hari ke masa lalu', hari: 1, tema: 'sejarah',
- plan: [['bukitrawi'], ['kulinerpatin'], ['bukitrawi', 'tumbangtahai'], ['riverfront']] },
+ plan: [['bukitrawi'], ['kulinerpatin'], ['tumbangtahai'], ['riverfront']] },
  { id: 'keluarga2', nama: 'Keluarga weekend, dua hari santai', hari: 2, tema: 'keluarga',
  plan: [['balanga', 'tamanisen'], ['kulinerpatin'], ['riverfront', 'bundaran'], ['danautahai'], ['tumbangtahai'], ['oleholeh', 'kopisore'], ['wisataair'], ['pasarmalam']] },
  { id: 'best2', nama: 'Terbaik PKY, dua hari lengkap', hari: 2, tema: 'campur',
- plan: [['tugu', 'balanga'], ['kulinerpatin'], ['tangkiling'], ['riverfront'], ['seigohong'], ['kulinerpatin'], ['pulaukaja'], ['danautahai']] },
+ plan: [['tugu', 'balanga'], ['kulinerpatin'], ['tangkiling'], ['riverfront'], ['seigohong'], ['warungseigohong'], ['pulaukaja'], ['danautahai']] },
  { id: 'indoor1', nama: 'Satu hari indoor, aman dari asap dan hujan', hari: 1, tema: 'indoor',
  plan: [['balanga', 'oleholeh'], ['kulinerpatin'], ['nyarumenteng'], ['kopisore']] }
  ];
 
  // Menginap dan ngopi. Kurasi demo awal, cocokkan rating terkini di Google Maps.
  const HOTEL = [
- { nama: 'Hotel Pusat Kota', area: 'Pusat, dekat tugu', rentang: 'sekitar Rp250 sampai 450 ribu semalam', lat: -2.2092, lng: 113.9155, catatan: 'Langkah ke kuliner malam dan riverfront. Praktis untuk perjalanan singkat.' },
+ { nama: 'Hotel Pusat Kota', area: 'Pusat, dekat tugu', rentang: 'sekitar Rp250 sampai 450 ribu semalam', lat: -2.2092, lng: 113.9155, catatan: 'Jalan kaki ke kuliner malam dan riverfront. Praktis untuk perjalanan singkat.' },
  { nama: 'Penginapan Tepi Kahayan', area: 'Tepian sungai', rentang: 'sekitar Rp150 sampai 300 ribu semalam', lat: -2.2210, lng: 113.9168, catatan: 'Jendelanya menghadap jembatan, dermaga perahu dekat.' },
  { nama: 'Homestay Tumbang Tahai', area: 'Kampung tepi danau', rentang: 'sekitar Rp100 sampai 200 ribu semalam', lat: -2.2340, lng: 113.9090, catatan: 'Suasana kampung, Danau Tahai bisa ditempuh jalan kaki.' },
- { nama: 'Guesthouse Area Tangkiling', area: 'Kaki bukit', rentang: 'sekitar Rp120 sampai 250 ribu semalam', lat: -2.3170, lng: 113.9290, catatan: 'Untuk yang mau mendaki Bukit Tangkiling pagi pagi.' }
+ { nama: 'Guesthouse Area Tangkiling', area: 'Kaki bukit', rentang: 'sekitar Rp120 sampai 250 ribu semalam', lat: -2.3170, lng: 113.9290, catatan: 'Untuk yang mau mendaki Bukit Tangkiling pagi-pagi.' }
  ];
  const KAFE = [
  { nama: 'Kedai Kopi Riverfront', area: 'Tepian', rentang: 'sekitar Rp15 sampai 30 ribu', lat: -2.2205, lng: 113.9155, catatan: 'Kopi sambil menunggu matahari turun.' },
@@ -174,11 +174,11 @@
 
  const KULINER = [
  { nama: 'Ikan patin bakar', desc: 'Dibakar di atas arang, dimakan dengan sambal dan lalap. Kalau bicara kuliner Kahayan, ini yang pertama disebut.', tips: 'Cari di Tumbang Tahai dan tepian riverfront.' },
- { nama: 'Ikan terubuk asap', desc: 'DiAsap perlahan sampai gurihnya masuk ke tulang. Tahan lama, cocok jadi buah tangan.', tips: 'Banyak di kios oleh oleh dekat pasar.' },
- { nama: 'Garam basah basi', desc: 'Ikan fermentasi yang jadi bumbu identitas Kalteng. Gurihnya keras, aroma nya jujur.', tips: 'Bungkus rapat kalau dibawa naik pesawat.' },
+ { nama: 'Ikan terubuk asap', desc: 'Diasap perlahan sampai gurihnya masuk ke tulang. Tahan lama, cocok jadi buah tangan.', tips: 'Banyak di kios oleh-oleh dekat pasar.' },
+ { nama: 'Garam basah basi', desc: 'Ikan fermentasi yang jadi bumbu identitas Kalteng. Gurihnya keras, aromanya jujur.', tips: 'Bungkus rapat kalau dibawa naik pesawat.' },
  { nama: 'Wadi ikan', desc: 'Fermentasi tradisional Dayak, tajam dan asin. Dipadankan dengan patin tempoyak, rasanya lupa pulang.', tips: 'Mulai dari porsi kecil kalau lidah belum biasa.' },
  { nama: 'Iwak kalumang', desc: 'Ikan asin gurih dari pedalaman. Digoreng atau dibakar sama enaknya.', tips: 'Pasar tradisional pagi hari punya yang terbaik.' },
- { nama: 'Lempok durian', desc: 'Durian dimasak berjam jam sampai jadi kental dan legit. Manisnya tanpa campuran.', tips: 'Perhatikan tanggal buat sebelum dibawa jauh.' },
+ { nama: 'Lempok durian', desc: 'Durian dimasak berjam-jam sampai jadi kental dan legit. Manisnya tanpa campuran.', tips: 'Perhatikan tanggal produksi sebelum dibawa jauh.' },
  { nama: 'Sambal tempoyak', desc: 'Durian fermentasi diulek dengan cabai. Pendamping patin bakar yang paling benar.', tips: 'Pedasnya tidak bercanda, minta porsi kecil dulu.' },
  { nama: 'Kue cucur dan wadai pasar', desc: 'Manis gula merah, lembut di tengah, wajib ada di meja tamu rumah Kalteng.', tips: 'Cari di pasar pagi, sorenya biasanya sudah habis.' }
  ];
@@ -189,10 +189,10 @@
  { nama: 'Kumai', wilayah: 'Kotawaringin Barat', desc: 'Gerbang menuju Tanjung Puting. Penyedia klotok dan penginapan sederhana banyak di sini.', akses: 'Dari Bandara Iskandar, Pangkalan Bun.' },
  { nama: 'Danau Sembuluh', wilayah: 'Kotawaringin Timur', desc: 'Danau besar dengan kampung tepian dan ikan sungai. Jalurnya lewat jalan trans.', akses: 'Dari Pangkalan Bun arah timur.' },
  { nama: 'Kuala Pembuang', wilayah: 'Seruyan', desc: 'Muara kecil dengan hidangan laut dan tempo kota yang pelan.', akses: 'Jalan darat dari Pangkalan Bun.' },
- { nama: 'Bukit Sepat', wilayah: 'Pulang Pisau', desc: 'Tebing pendek untuk dipanjat, pandangannya membentang. Pas untuk trip pagi dari PKY.', akses: 'Kira kira satu jam dari PKY.' },
+ { nama: 'Bukit Sepat', wilayah: 'Pulang Pisau', desc: 'Tebing pendek untuk dipanjat, pandangannya membentang. Pas untuk trip pagi dari PKY.', akses: 'Kira-kira satu jam dari PKY.' },
  { nama: 'Rumah Betang Tumbang Malahoi', wilayah: 'Gunung Mas', desc: 'Rumah panjang tradisional yang masih dihuni. Cara paling dekat memahami hidup Dayak pedalaman.', akses: 'Jauh dari PKY, sisihkan satu hari penuh.' },
  { nama: 'Susur Sungai Katingan', wilayah: 'Katingan', desc: 'Sungai tenang, kampung tepian, hutan gambut. Versi yang lebih sepi dari Kahayan.', akses: 'Dari PKY menuju Kasongan.' },
- { nama: 'Pos Tanjung Harapan', wilayah: 'Tanjung Puting', desc: 'Pos pertama kawasan, ada perkampungan kecil dan informasi klotok.', akses: 'Kira kira setengah jam klotok dari Kumai.' },
+ { nama: 'Pos Tanjung Harapan', wilayah: 'Tanjung Puting', desc: 'Pos pertama kawasan, ada perkampungan kecil dan informasi klotok.', akses: 'Kira-kira setengah jam klotok dari Kumai.' },
  { nama: 'Pondok Tanggui', wilayah: 'Tanjung Puting', desc: 'Stasiun pakan orangutan. Jam pakannya jadi momen terbaik melihat mereka dari dekat.', akses: 'Klotok dari Kumai, biasanya satu jalur dengan Camp Leakey.' }
  ];
 

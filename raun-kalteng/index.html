@@ -2,411 +2,455 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://unpkg.com; style-src 'self' 'unsafe-inline' https://unpkg.com https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://tile.openstreetmap.org https://unpkg.com; connect-src 'self' https://air-quality-api.open-meteo.com https://api.open-meteo.com; object-src 'none'; base-uri 'self'; form-action 'self'">
 <title>Raun Kalteng, kawan raun Palangka Raya</title>
-<meta name="description" content="Susun itinerary Palangka Raya sesuai budget dan kondisi langit. Ada rencana cadangan saat asap atau banjir. Demo Tambun Bungai Ideathon 2026.">
+<meta name="description" content="Susun rencana jalan-jalan di Palangka Raya sesuai budget dan kondisi langit. Ada rencana cadangan saat asap atau banjir.">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#8B1E1E" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#16120F" media="(prefers-color-scheme: dark)">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<link rel="stylesheet" href="styles.css?v=11">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&display=swap">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<link rel="stylesheet" href="styles.css?v=12">
 </head>
 <body>
+<a class="skip" href="#main">Langsung ke konten</a>
 
-<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
   <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h13v-9.5"/></symbol>
   <symbol id="i-compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2.2 4.8-4.8 2.2 2.2-4.8z"/></symbol>
   <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-6.5-5.2-6.5-10a6.5 6.5 0 0 1 13 0c0 4.8-6.5 10-6.5 10z"/><circle cx="12" cy="11" r="2.4"/></symbol>
   <symbol id="i-ticket" viewBox="0 0 24 24"><path d="M4 8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-4z"/><path d="M13 6v12" stroke-dasharray="2 2.4"/></symbol>
   <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20h16"/><path d="M7 20v-7M12 20V6M17 20v-10"/></symbol>
-  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M18.4 5.6 17 7M7 17l-1.4 1.4"/></symbol>
-  <symbol id="i-rain" viewBox="0 0 24 24"><path d="M7 15a4.5 4.5 0 0 1 .8-8.9A5.5 5.5 0 0 1 18.4 8 3.7 3.7 0 0 1 17.5 15z"/><path d="M9 18.5v1.8M13 17.5v1.8M17 18.5v1.8"/></symbol>
   <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 4 3.5 19h17z"/><path d="M12 10v4M12 16.6v.4"/></symbol>
   <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-7.5-4.6-9-9.3C1.9 7.2 4 4.5 7 4.5c2 0 3.6 1.1 5 3 1.4-1.9 3-3 5-3 3 0 5.1 2.7 4 6.2-1.5 4.7-9 9.3-9 9.3z"/></symbol>
-  <symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="18" r="2.4"/><circle cx="18" cy="6" r="2.4"/><path d="M8.4 18H15a3.5 3.5 0 0 0 0-7H9a3.5 3.5 0 0 1 0-7h6.6" /></symbol>
   <symbol id="i-share" viewBox="0 0 24 24"><circle cx="6" cy="12" r="2.4"/><circle cx="17.5" cy="5.5" r="2.4"/><circle cx="17.5" cy="18.5" r="2.4"/><path d="M8.2 10.8 15.3 6.7M8.2 13.2l7.1 4.1"/></symbol>
   <symbol id="i-print" viewBox="0 0 24 24"><path d="M7 8V4h10v4"/><rect x="4" y="8" width="16" height="8" rx="2"/><path d="M7 14h10v6H7z"/></symbol>
   <symbol id="i-edit" viewBox="0 0 24 24"><path d="m14.5 5.5 4 4L8 20l-4.6 1L4.5 16z"/></symbol>
   <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 3.5 2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8L3.5 9.7l5.9-.9z"/></symbol>
   <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4h11A2.5 2.5 0 0 1 20 6.5v7a2.5 2.5 0 0 1-2.5 2.5H10l-4.5 4v-4H6.5A2.5 2.5 0 0 1 4 13.5z"/></symbol>
-  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6"/><path d="m15.5 15.5 5 5"/></symbol>
-  <symbol id="i-leaf" viewBox="0 0 24 24"><path d="M5 19C5 9 12 4 20 4c0 9-5 15-13 15h-2z"/><path d="M5 19c2-5 5-8 9-10"/></symbol>
-  <symbol id="i-go" viewBox="0 0 24 24"><path d="M4 12h13"/><path d="m12 6 6 6-6 6"/></symbol>
-  <symbol id="i-back" viewBox="0 0 24 24"><path d="M20 12H7"/><path d="m12 6-6 6 6 6"/></symbol>
-  <symbol id="i-food" viewBox="0 0 24 24"><path d="M4 12h16a8 8 0 0 1-16 0z"/><path d="M9 8c0-1.4 1-1.6 1-3M13 8c0-1.4 1-1.6 1-3"/></symbol>
-  <symbol id="i-bed" viewBox="0 0 24 24"><path d="M3 18v-8h13a4 4 0 0 1 4 4v4"/><path d="M3 14h18M3 18v2M21 18v2"/><circle cx="7.5" cy="12.5" r="1.6"/></symbol>
-  <symbol id="i-cup" viewBox="0 0 24 24"><path d="M5 9h11v6a5 5 0 0 1-10 0z"/><path d="M16 10h2.2a2.2 2.2 0 0 1 0 4.4H16"/><path d="M8 6c0-1.2.8-1.4.8-2.6M12 6c0-1.2.8-1.4.8-2.6"/></symbol>
-  <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3.5c3.5 4.4 6 7.6 6 10.6a6 6 0 0 1-12 0c0-3 2.5-6.2 6-10.6z"/></symbol>
-  <symbol id="i-mountain" viewBox="0 0 24 24"><path d="m3 19 6-11 4 7 2.5-4L21 19z"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></symbol>
+  <symbol id="i-send" viewBox="0 0 24 24"><path d="M4 12 20 4l-5 16-3-7z"/><path d="m12 13 8-9"/></symbol>
 </svg>
 
-<nav class="nav" aria-label="Navigasi utama">
-  <a class="brand" href="#home" data-nav>
+<header class="topbar">
+  <a class="brand" href="#beranda" translate="no">
     <svg class="logo" viewBox="0 0 48 48" aria-hidden="true">
       <rect x="2" y="2" width="44" height="44" rx="12" fill="#8B1E1E"/>
-      <circle cx="33" cy="14" r="6.5" fill="#E8A93B"/>
-      <path d="M8 34l5-5 5 5 5-5 5 5 5-5 5 5" stroke="#E8A93B" stroke-width="3.2" fill="none" stroke-linecap="round"/>
-      <path d="M10 41h28" stroke="#FAF6EE" stroke-width="3.2" stroke-linecap="round"/>
+      <circle cx="33" cy="14" r="6.5" fill="#D9A13B"/>
+      <path d="M8 34l5-5 5 5 5-5 5 5 5-5 5 5" stroke="#D9A13B" stroke-width="3.2" fill="none" stroke-linecap="round"/>
+      <path d="M10 41h28" stroke="#EEF0EA" stroke-width="3.2" stroke-linecap="round"/>
     </svg>
-    <span>RAUN <em>KALTENG</em></span>
+    <span>Raun Kalteng</span>
   </a>
-  <div class="nav-links">
-    <a href="#home" data-nav>Beranda</a>
-    <a href="#destinasi" data-nav>Jelajah</a>
-    <a href="#budaya" data-nav>Budaya</a>
-    <a href="#umkm" data-nav>Paspor dan UMKM</a>
-    <a href="#data" data-nav>Data</a>
-  </div>
-  <span class="nav-badge" title="Prototipe Tambun Bungai Ideathon, Borneo DECAFEST 2026">v0.4 demo</span>
-</nav>
+  <nav class="toplinks" aria-label="Navigasi utama">
+    <a href="#beranda">Beranda</a>
+    <a href="#jelajah">Jelajah</a>
+    <a href="#rencana">Rencanaku</a>
+    <a href="#budaya">Budaya</a>
+    <a href="#paspor">Paspor</a>
+    <a href="#data">Data</a>
+  </nav>
+  <a class="stamp-pill" href="#paspor" aria-label="Pas Raun, stempel terkumpul"><svg class="ic" aria-hidden="true"><use href="#i-ticket"/></svg><span id="stamp-count">0/5</span></a>
+</header>
 
-<main>
-  <!-- ============ OPENING ============ -->
-  <section id="view-home" class="view">
- <header class="hero">
- <div class="hero-art" aria-hidden="true">
- <svg viewBox="0 0 1200 480" preserveAspectRatio="xMidYMid slice">
- <defs>
- <linearGradient id="hsky" x1="0" y1="0" x2="0" y2="1">
- <stop offset="0" stop-color="#3A0D0D"/><stop offset=".45" stop-color="#8B1E1E"/><stop offset=".78" stop-color="#C4552D"/><stop offset="1" stop-color="#E8A93B"/>
- </linearGradient>
- <linearGradient id="hwater" x1="0" y1="0" x2="0" y2="1">
- <stop offset="0" stop-color="#2A0B0B"/><stop offset="1" stop-color="#120404"/>
- </linearGradient>
- </defs>
- <rect width="1200" height="480" fill="url(#hsky)"/>
- <circle cx="920" cy="200" r="150" fill="#FFD98A" opacity=".22"/>
- <circle cx="920" cy="200" r="64" fill="#FFD98A"/>
- <ellipse cx="240" cy="120" rx="150" ry="14" fill="#5F1212" opacity=".35"/>
- <ellipse cx="620" cy="80" rx="190" ry="12" fill="#5F1212" opacity=".28"/>
- <path d="M0 300 q80 -40 180 -28 q120 -46 240 -20 q140 -50 280 -18 q150 -40 300 -10 q100 -20 200 6 L1200 330 L0 330 Z" fill="#4A1010"/>
- <g fill="#1F0808">
- <rect x="330" y="150" width="16" height="190"/>
- <rect x="820" y="150" width="16" height="190"/>
- <rect x="0" y="330" width="1200" height="12"/>
- </g>
- <path d="M338 160 Q579 262 828 160" stroke="#1F0808" stroke-width="7" fill="none"/>
- <path d="M338 160 Q579 252 828 160" stroke="#1F0808" stroke-width="4" fill="none"/>
- <path d="M400 162 v168 M460 168 v162 M520 180 v150 M580 192 v138 M640 198 v132 M700 196 v134 M760 184 v146" stroke="#1F0808" stroke-width="2.4"/>
- <rect x="0" y="342" width="1200" height="138" fill="url(#hwater)"/>
- <rect x="880" y="352" width="80" height="5" rx="2.5" fill="#E8A93B" opacity=".5"/>
- <rect x="895" y="368" width="50" height="4" rx="2" fill="#E8A93B" opacity=".4"/>
- <rect x="885" y="384" width="66" height="4" rx="2" fill="#E8A93B" opacity=".3"/>
- <path d="M300 402 q14 -12 30 -12 q16 0 30 12 z" fill="#120404"/>
- <rect x="329" y="372" width="2" height="22" fill="#120404"/>
- <path d="M0 480 L0 432 q140 -26 300 -10 q220 -30 460 -6 L1200 480 Z" fill="#1A0505"/>
- </svg>
- </div>
- <div class="haze-layer" aria-hidden="true"></div>
- <p class="hero-eyebrow">Isen Mulang. Palangka Raya, Kalteng.</p>
-      <h1>Rencana raun yang <span class="hl">tahu kapan langitnya boleh dipercaya</span>.</h1>
-      <p class="hero-sub">Bilang mau pergi kapan, bawa siapa, dan budgetnya berapa. Raun yang menyusun rencananya. Kalau asap turun atau Kahayan naik, Raun yang kasih tahu bagian mana yang perlu diganti. Mau makan di warung lokal juga gampang, tinggal pindai QRIS.</p>
-      <div class="hero-cta">
-        <button class="btn btn-primary" id="btn-wizard"><svg class="ic"><use href="#i-compass"/></svg>Susun itineraryku</button>
-        <a class="btn btn-ghost" href="#siappakai" data-nav>Lihat pilihan yang sudah jadi</a>
+<main id="main" tabindex="-1">
+  <!-- ============ BERANDA ============ -->
+  <section id="view-beranda" class="view" aria-labelledby="hero-title">
+    <div class="hero" data-env="ok">
+      <div class="hero-art" aria-hidden="true">
+        <svg viewBox="0 0 1200 520" preserveAspectRatio="xMidYMid slice">
+          <defs>
+            <linearGradient id="hsky" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" style="stop-color:var(--sky-1)"/><stop offset=".5" style="stop-color:var(--sky-2)"/><stop offset=".82" style="stop-color:var(--sky-3)"/><stop offset="1" style="stop-color:var(--sky-4)"/>
+            </linearGradient>
+            <filter id="kabut" x="-20%" y="-200%" width="140%" height="500%"><feGaussianBlur stdDeviation="26"/></filter>
+          </defs>
+          <rect width="1200" height="520" fill="url(#hsky)"/>
+          <circle class="sun-glow" cx="930" cy="220" r="150"/>
+          <circle class="sun" cx="930" cy="220" r="62"/>
+          <g class="haze" filter="url(#kabut)"><rect x="-100" y="90" width="1400" height="70" rx="35"/><rect x="-100" y="230" width="1400" height="110" rx="55"/><ellipse cx="300" cy="420" rx="520" ry="60"/></g>
+          <path d="M0 320 q80 -40 180 -28 q120 -46 240 -20 q140 -50 280 -18 q150 -40 300 -10 q100 -20 200 6 L1200 350 L0 350 Z" class="hills"/>
+          <g class="bridge">
+            <rect x="330" y="170" width="16" height="190"/><rect x="820" y="170" width="16" height="190"/><rect x="0" y="350" width="1200" height="12"/>
+            <path d="M338 180 Q579 282 828 180" stroke-width="7" fill="none"/>
+            <path d="M400 182 v168 M460 188 v162 M520 200 v150 M580 212 v138 M640 218 v132 M700 216 v134 M760 204 v146" stroke-width="2.4"/>
+          </g>
+          <rect class="river" x="0" y="362" width="1200" height="158"/>
+          <path class="river-light" d="M880 378h80M895 394h50M885 410h66" stroke-width="4" stroke-linecap="round"/>
+          <path class="jukung" d="M300 428 q14 -12 30 -12 q16 0 30 12 z"/>
+        </svg>
       </div>
 
-      <div class="siburu-card">
-        <div class="siburu-row">
-          <span class="siburu-dot" id="siburu-dot"></span>
-          <span id="siburu-text">Si Buru lagi baca langit.</span>
-          <span class="siburu-actions">
-            <button class="chip" id="btn-replay" title="Pakai data asap 14 Oktober 2026">Replay asap 14 Okt</button>
-            <button class="chip" id="btn-flood" title="Simulasi hujan ekstrem dan luapan Kahayan">Mode Banjir</button>
-            <button class="chip" id="btn-live" hidden>Kembali live</button>
-            <button class="chip" id="btn-waalert" title="Ingatkan saya kalau langit berubah">Pantau langit</button>
-          </span>
+      <div class="hero-inner">
+        <div class="hero-copy">
+          <h1 id="hero-title">Rencana raun yang tahu kapan langitnya boleh dipercaya.</h1>
+          <p class="hero-sub">Sebut tanggal, rombongan, dan budget. Raun menyusun rencana jalan di Palangka Raya, lalu memberi tahu bagian mana yang perlu diganti saat asap turun atau Kahayan naik.</p>
+          <div class="hero-cta">
+            <button class="btn btn-gold" type="button" data-act="openwizard"><svg class="ic" aria-hidden="true"><use href="#i-compass"/></svg>Susun rencana</button>
+            <a class="btn btn-glass" href="#beranda/siap">Pakai rencana jadi</a>
+          </div>
         </div>
-        <div id="hours-chips" class="chipsheet" aria-label="Cuaca per jam hari ini"></div>
-        <div id="events-home" class="chipsheet" aria-label="Event terdekat"></div>
-        <div class="acts">
-          <button class="chip" id="btn-darurat"><svg class="ic"><use href="#i-alert"/></svg>Nomor darurat</button>
-          <button class="chip" id="btn-wastatus" title="Kirim kondisi langit ke WhatsApp">Kirim langit ke WA</button>
-        </div>
-      </div>
-    </header>
 
-    <section class="stats-row" aria-label="Konteks data">
-      <div class="stat"><b>285.396</b><span>perjalanan wisatawan ke PKY per tahun (BPS)</span></div>
-      <div class="stat"><b>80%</b><span>destinasi bisa kosong saat episode asap</span></div>
-      <div class="stat"><b>390</b><span>penerbangan terganggu asap sepanjang 2026</span></div>
-      <div class="stat"><b>2 musim</b><span>El Nino asap, transisi La Nina banjir</span></div>
+        <section class="langit" aria-labelledby="langit-h">
+          <div class="langit-top">
+            <h2 id="langit-h">Langit Palangka Raya</h2>
+            <span class="langit-src" id="langit-src">Membaca data…</span>
+          </div>
+          <p class="langit-state" id="langit-state" aria-live="polite">Membaca langit…</p>
+          <svg class="gerigi" viewBox="0 0 240 12" preserveAspectRatio="none" aria-hidden="true"><path d="M0 9 l10-6 10 6 10-6 10 6 10-6 10 6 10-6 10 6 10-6 10 6 10-6 10 6 10-6 10 6 10-6 10 6 10-6 10 6 10-6 10 6 10-6 10 6 10-6 10 6"/></svg>
+          <p class="langit-advice" id="langit-advice"></p>
+          <ol class="langit-days" id="langit-days" aria-label="Tiga hari ke depan"></ol>
+          <div class="hours" id="hours" aria-label="Perkiraan per jam"></div>
+          <div class="seg" role="group" aria-label="Sumber data langit">
+            <button type="button" class="seg-btn" data-mode="live" aria-pressed="true">Live</button>
+            <button type="button" class="seg-btn" data-mode="replay" aria-pressed="false">Asap 14 Okt</button>
+            <button type="button" class="seg-btn" data-mode="flood" aria-pressed="false">Banjir</button>
+          </div>
+          <div class="langit-acts">
+            <button type="button" class="chip" id="btn-watch" aria-pressed="false"><svg class="ic" aria-hidden="true"><use href="#i-bell"/></svg>Pantau langit</button>
+            <button type="button" class="chip" id="btn-wastatus"><svg class="ic" aria-hidden="true"><use href="#i-send"/></svg>Kirim ke WhatsApp</button>
+            <button type="button" class="chip chip-alert" data-act="darurat"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>Nomor darurat</button>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <section class="wrap why" aria-labelledby="why-h">
+      <h2 id="why-h" class="sr-only">Kenapa langit penting di sini</h2>
+      <dl class="facts">
+        <div><dt>285.396</dt><dd>perjalanan wisatawan ke Palangka Raya per tahun (BPS)</dd></div>
+        <div><dt>80%</dt><dd>destinasi bisa sepi saat episode asap</dd></div>
+        <div><dt>390</dt><dd>penerbangan terganggu asap sepanjang 2026</dd></div>
+        <div><dt>2 musim</dt><dd>El Niño membawa asap, La Niña membawa banjir</dd></div>
+      </dl>
     </section>
 
-    <section class="block">
-      <div class="sec-head"><h2>Mau raun yang begini?</h2></div>
-      <div class="chipsheet" id="kat-rail">
-        <button class="chip" data-kat="alam">Alam dan hutan</button>
-        <button class="chip" data-kat="budaya">Budaya Dayak</button>
-        <button class="chip" data-kat="kuliner">Kuliner lokal</button>
-        <button class="chip" data-kat="sunset">Sunset danau</button>
-        <button class="chip" data-kat="keluarga">Bawa keluarga</button>
-        <button class="chip" data-kat="hiking">Pendakian</button>
-        <button class="chip" data-kat="air">Wisata air</button>
-        <button class="chip" data-kat="indoor">Tetap nyaman saat asap</button>
+    <section class="wrap" aria-labelledby="kat-h">
+      <h2 id="kat-h">Mau raun yang seperti apa?</h2>
+      <div class="rail" id="kat-rail">
+        <a class="chip" href="#jelajah/alam">Alam dan hutan</a>
+        <a class="chip" href="#jelajah/budaya">Budaya Dayak</a>
+        <a class="chip" href="#jelajah/kuliner">Kuliner lokal</a>
+        <a class="chip" href="#jelajah/sunset">Senja di danau</a>
+        <a class="chip" href="#jelajah/keluarga">Bawa keluarga</a>
+        <a class="chip" href="#jelajah/hiking">Mendaki</a>
+        <a class="chip" href="#jelajah/air">Wisata air</a>
+        <a class="chip" href="#jelajah/indoor">Aman saat asap</a>
       </div>
     </section>
 
-    <section id="siappakai" class="block">
-      <div class="sec-head"><h2>Belum tahu mau mulai dari mana?</h2><a href="#destinasi" data-nav>Lihat semua destinasi</a></div>
-      <p class="muted">Pilih satu, langsung jalan. Kalau langitnya sedang jelek, ada versi amannya.</p>
-      <div class="filters" id="siap-filters">
-        <button class="chip active" data-tema="semua">Semua</button>
-        <button class="chip" data-tema="alam">Alam</button>
-        <button class="chip" data-tema="budaya">Budaya</button>
-        <button class="chip" data-tema="kuliner">Kuliner</button>
-        <button class="chip" data-tema="keluarga">Keluarga</button>
-        <button class="chip" data-tema="indoor">Indoor</button>
+    <section id="siap" class="wrap" aria-labelledby="siap-h">
+      <div class="sec-head">
+        <h2 id="siap-h">Rencana jadi, tinggal berangkat</h2>
+        <a href="#jelajah">Lihat semua tempat</a>
       </div>
-      <div class="grid cards" id="siap-grid"></div>
+      <p class="lede">Pilih satu dan langsung jalan. Raun menandai titik yang langitnya sedang kurang bersahabat.</p>
+      <div class="filters" id="siap-filters" role="group" aria-label="Saring rencana jadi">
+        <button type="button" class="chip" data-tema="semua" aria-pressed="true">Semua</button>
+        <button type="button" class="chip" data-tema="alam" aria-pressed="false">Alam</button>
+        <button type="button" class="chip" data-tema="budaya" aria-pressed="false">Budaya</button>
+        <button type="button" class="chip" data-tema="sejarah" aria-pressed="false">Sejarah</button>
+        <button type="button" class="chip" data-tema="kuliner" aria-pressed="false">Kuliner</button>
+        <button type="button" class="chip" data-tema="keluarga" aria-pressed="false">Keluarga</button>
+        <button type="button" class="chip" data-tema="indoor" aria-pressed="false">Indoor</button>
+      </div>
+      <div class="grid" id="siap-grid"></div>
     </section>
 
-    <section class="block dua-kolom">
-      <div class="card info">
-        <h3>Tombol replay untuk demo</h3>
-        <p><b>Replay asap 14 Okt</b> memakai data episode karhutla 2026, jadi juri bisa lihat sendiri Si Buru mengubah itinerary saat langit merah. <b>Mode Banjir</b> menyimulasikan hujan ekstrem pasca El Nino, titik rawan seperti Jl. Anoi dan bantaran rendah dihindari otomatis.</p>
+    <section class="wrap notes" aria-label="Catatan demo">
+      <div class="note">
+        <h3>Coba mode demo</h3>
+        <p><b>Asap 14 Okt</b> memutar ulang data karhutla 2026, jadi Anda bisa melihat Raun mengganti tempat outdoor saat langit merah. <b>Banjir</b> menyimulasikan hujan ekstrem, dan bantaran rendah seperti tepi Danau Tahai dihindari otomatis.</p>
       </div>
-      <div class="card info">
-        <h3>Datanya dari mana?</h3>
-        <p>Kualitas udara dan cuaca dari Open-Meteo secara live. Peta dari OpenStreetMap. Titik api dari NASA FIRMS. Banjir masih simulasi lokal, di v1 disambungkan ke kanal resmi BMKG dan BNPB.</p>
+      <div class="note">
+        <h3>Sumber data</h3>
+        <p>Kualitas udara dan cuaca dari Open-Meteo, peta dari OpenStreetMap. Banjir masih simulasi lokal. Versi berikutnya tersambung ke kanal resmi BMKG dan BNPB.</p>
         <p class="muted small">Prototipe untuk lomba, bukan layanan publik.</p>
       </div>
     </section>
   </section>
 
-  <!-- ============ ITINERARY ============ -->
-  <section id="view-plan" class="view" hidden>
-    <div class="plan-toolbar">
-      <div class="variant-tabs" id="variant-tabs" role="tablist"></div>
-      <div class="plan-actions">
-        <button class="chip" id="btn-share"><svg class="ic"><use href="#i-share"/></svg>Bagikan</button>
-        <button class="chip" id="btn-print"><svg class="ic"><use href="#i-print"/></svg>PDF</button>
-        <button class="chip" id="btn-edit"><svg class="ic"><use href="#i-edit"/></svg>Ubah</button>
+  <!-- ============ RENCANA ============ -->
+  <section id="view-rencana" class="view" hidden aria-labelledby="rencana-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 id="rencana-h">Rencanaku</h2>
       </div>
-    </div>
-    <div id="plan-meta" class="plan-meta"></div>
-    <div class="dualpane">
-      <div id="timeline" class="timeline" aria-label="Itinerary per hari"></div>
-      <aside class="mapwrap">
-        <div id="map" aria-label="Peta Palangka Raya"></div>
-        <div class="map-legend">
-          <span><span class="legend-dot" style="background:#8B1E1E"></span>di itinerary</span>
-          <span><span class="legend-dot" style="background:#C9BFA8"></span>katalog</span>
-          <span class="muted">Peta OpenStreetMap</span>
+      <div id="plan-empty" class="empty">
+        <p>Belum ada rencana. Susun dari tanggal dan budget, atau pakai rencana jadi di beranda.</p>
+        <button class="btn btn-maroon" type="button" data-act="openwizard"><svg class="ic" aria-hidden="true"><use href="#i-compass"/></svg>Susun rencana</button>
+      </div>
+      <div id="plan-body" hidden>
+        <div class="plan-toolbar">
+          <div class="variants" id="variant-tabs" role="group" aria-label="Pilih versi rencana"></div>
+          <div class="plan-actions">
+            <button class="chip" type="button" id="btn-share"><svg class="ic" aria-hidden="true"><use href="#i-share"/></svg>Bagikan</button>
+            <button class="chip" type="button" id="btn-print"><svg class="ic" aria-hidden="true"><use href="#i-print"/></svg>Cetak</button>
+            <button class="chip" type="button" data-act="openwizard"><svg class="ic" aria-hidden="true"><use href="#i-edit"/></svg>Ubah</button>
+          </div>
         </div>
-        <div id="map-fallback" hidden></div>
-      </aside>
+        <p id="plan-meta" class="plan-meta" aria-live="polite"></p>
+        <div class="dualpane">
+          <div id="timeline" class="timeline"></div>
+          <aside class="mapwrap" aria-label="Peta rencana">
+            <div id="map" role="region" aria-label="Peta Palangka Raya"></div>
+            <div id="map-fallback" hidden></div>
+            <p class="map-legend"><span><i class="legend-dot on"></i>di rencana</span><span><i class="legend-dot"></i>tempat lain</span><span class="muted">Peta © kontributor OpenStreetMap</span></p>
+          </aside>
+        </div>
+      </div>
     </div>
   </section>
 
   <!-- ============ JELAJAH ============ -->
-  <section id="view-destinasi" class="view" hidden>
-    <div class="sec-head"><h2>Jelajah</h2><span class="muted small">Tekan ikon hati untuk menyimpan favorit</span></div>
-    <div class="filters" id="dest-filters">
-      <button class="chip active" data-tag="semua">Semua</button>
-      <button class="chip" data-tag="favorit">Favoritku</button>
-      <button class="chip" data-tag="alam">Alam</button>
-      <button class="chip" data-tag="budaya">Budaya</button>
-      <button class="chip" data-tag="kuliner">Kuliner</button>
-      <button class="chip" data-tag="keluarga">Keluarga</button>
-      <button class="chip" data-tag="indoor">Indoor</button>
+  <section id="view-jelajah" class="view" hidden aria-labelledby="jelajah-h">
+    <div class="wrap">
+      <div class="sec-head"><h2 id="jelajah-h">Jelajah Palangka Raya</h2><span class="muted small">Ketuk ikon hati untuk menyimpan favorit</span></div>
+      <div class="filters" id="dest-filters" role="group" aria-label="Saring tempat">
+        <button type="button" class="chip" data-tag="semua" aria-pressed="true">Semua</button>
+        <button type="button" class="chip" data-tag="favorit" aria-pressed="false">Favoritku</button>
+        <button type="button" class="chip" data-tag="alam" aria-pressed="false">Alam</button>
+        <button type="button" class="chip" data-tag="budaya" aria-pressed="false">Budaya</button>
+        <button type="button" class="chip" data-tag="kuliner" aria-pressed="false">Kuliner</button>
+        <button type="button" class="chip" data-tag="keluarga" aria-pressed="false">Keluarga</button>
+        <button type="button" class="chip" data-tag="sunset" aria-pressed="false">Senja</button>
+        <button type="button" class="chip" data-tag="hiking" aria-pressed="false">Mendaki</button>
+        <button type="button" class="chip" data-tag="air" aria-pressed="false">Wisata air</button>
+        <button type="button" class="chip" data-tag="indoor" aria-pressed="false">Indoor</button>
+      </div>
+      <div class="grid" id="dest-grid" aria-live="polite"></div>
+
+      <h2 class="sec-gap">Kuliner Kalteng</h2>
+      <p class="lede">Masakan dan jajanan yang wajib dicoba. Cari penjual terdekat lewat Google Maps.</p>
+      <div class="grid grid-tight" id="kuliner-grid"></div>
+
+      <h2 class="sec-gap">Menginap</h2>
+      <div class="grid grid-tight" id="hotel-grid"></div>
+
+      <h2 class="sec-gap">Ngopi dan nongkrong</h2>
+      <div class="grid grid-tight" id="kafe-grid"></div>
+
+      <h2 class="sec-gap">Kalteng lebih luas dari Palangka Raya</h2>
+      <p class="lede">Tujuan di luar kota. Untuk sekarang hanya info, belum masuk penyusun rencana.</p>
+      <div class="grid grid-tight" id="regional-grid"></div>
     </div>
-    <div class="grid cards" id="dest-grid"></div>
-
-    <h2 style="margin-top:2.4rem">Kuliner Kalteng</h2>
-    <p class="muted">Masakan dan jajanan yang wajib dicoba saat di sini. Cek lokasi terdekat lewat Google Maps.</p>
-    <div class="grid cards" id="kuliner-grid"></div>
-
-    <h2 style="margin-top:2.4rem">Menginap</h2>
-    <div class="grid cards" id="hotel-grid"></div>
-
-    <h2 style="margin-top:2.4rem">Ngopi dan nongkrong</h2>
-    <div class="grid cards" id="kafe-grid"></div>
-
-    <h2 style="margin-top:2.4rem">Kalteng lebih luas dari PKY</h2>
-    <p class="muted">Destinasi di luar Palangka Raya. Masih tampilan info, jalannya di v1 biar mesin itinerary bisa memakai rencana perjalanan jauh.</p>
-    <div class="grid cards" id="regional-grid"></div>
   </section>
 
   <!-- ============ BUDAYA ============ -->
-  <section id="view-budaya" class="view" hidden>
-    <div class="sec-head"><h2>Budaya companion</h2></div>
-    <div class="grid cards">
-      <div class="card info">
-        <h3>Adab di situs dan kampung</h3>
-        <ul>
-          <li><b>Sandung</b> di Bukit Rawi adalah situs sakral. Pakai pakaian sopan, jangan duduk atau bersandar, dan izin dulu ke warga.</li>
-          <li>Ritual adat seperti tiwah sengaja tidak dijadikan konten rekreasi. Ini keputusan etis Raun.</li>
-          <li>Rumah betang adalah ruang pribadi warga. Minta izin dulu sebelum memotret.</li>
-        </ul>
+  <section id="view-budaya" class="view" hidden aria-labelledby="budaya-h">
+    <div class="wrap">
+      <h2 id="budaya-h">Teman budaya</h2>
+      <div class="notes notes-3">
+        <div class="note">
+          <h3>Adab di situs dan kampung</h3>
+          <ul>
+            <li><b>Sandung</b> di Bukit Rawi adalah situs sakral. Berpakaian sopan, jangan duduk atau bersandar, dan minta izin warga.</li>
+            <li>Ritual adat seperti tiwah sengaja tidak dijadikan tontonan wisata.</li>
+            <li>Rumah betang adalah ruang pribadi warga. Minta izin sebelum memotret.</li>
+          </ul>
+        </div>
+        <div class="note">
+          <h3>Sedikit bahasa</h3>
+          <ul>
+            <li><b translate="no">Isen Mulang</b>: kira-kira berarti pantang mundur, semboyan Kalteng.</li>
+            <li><b translate="no">Hapak</b>: sapaan umum. Ragamnya perlu dicek ke penutur asli.</li>
+            <li><b translate="no">Tarima kasih</b>: terima kasih.</li>
+          </ul>
+          <p class="muted small">Versi berikutnya memuat rekaman suara penutur asli.</p>
+        </div>
+        <div class="note">
+          <h3>Motif dan makna</h3>
+          <p>Merah dan emas di Raun diambil dari tatahan Isen Mulang. Garis bergerigi di bawah status langit meniru riak Sungai Kahayan.</p>
+        </div>
       </div>
-      <div class="card info">
-        <h3>Fragmen bahasa</h3>
-        <ul>
-          <li><b>Isen Mulang</b>, arti kira kira roh yang tak pernah padam, moto Kalteng.</li>
-          <li><b>Hapak</b>, sapaan umum. Ragamnya perlu dicek ke penutur asli.</li>
-          <li><b>Tarima kasih</b>, ungkapan terima kasih.</li>
-        </ul>
-        <p class="muted small">Di v1 ada rekaman suara penutur asli, pola audio guide museum dunia.</p>
-      </div>
-      <div class="card info">
-        <h3>Motif dan makna</h3>
-        <p>Warna merah dan emas pada Raun diambil dari tatahan Isen Mulang. Motif bergerigi pada pin peta mengacu bantaran Sungai Kahayan.</p>
-      </div>
+      <h2 class="sec-gap">Agenda budaya</h2>
+      <p class="lede">Tanggal bisa bergeser tiap tahun. Selalu cek pengumuman resmi penyelenggara.</p>
+      <ul class="agenda" id="events"></ul>
     </div>
   </section>
 
   <!-- ============ PASPOR ============ -->
-  <section id="view-umkm" class="view" hidden>
-    <div class="sec-head"><h2>Paspor dan warung mitra</h2></div>
-    <div class="dua-kolom">
-      <div class="card info">
-        <h3>Cara kerjanya gampang</h3>
-        <p>Tiap titik itinerary yang mengeluarkan uang ada tombol QRIS. Pindai, bayar di warung, lalu tekan "Tandai stempel". Kumpul lima stempel bisa ditukar souvenir oleh olehe. Pola ini memakai pembayaran per transaksi, ringan untuk warung kecil.</p>
-        <p class="muted small">Demo memakai QR berisi teks uji, tanpa dana sungguhan.</p>
+  <section id="view-paspor" class="view" hidden aria-labelledby="paspor-h">
+    <div class="wrap">
+      <h2 id="paspor-h">Pas Raun dan warung mitra</h2>
+      <div class="passport">
+        <div>
+          <h3>Pas Raun kamu</h3>
+          <div id="pasraun-stamps" class="stamps"></div>
+          <p class="muted small">Stempel tersimpan di perangkat ini saja.</p>
+        </div>
+        <button class="btn btn-quiet" type="button" id="pasraun-reset">Mulai paspor baru</button>
       </div>
-      <div class="card info">
-        <h3>Kapasitas pilot</h3>
-        <p>Target pilot lima sampai sepuluh warung di tepian danau, kios oleh oleh, dan pandu lokal. Sejalan dengan target BI Kalteng, 22 ribu pengguna QRIS baru.</p>
+      <div class="notes">
+        <div class="note">
+          <h3>Cara kerjanya</h3>
+          <p>Tiap tempat berbayar punya tombol QRIS. Pindai, bayar di warung, lalu ketuk <b>Tandai stempel</b>. Lima stempel bisa ditukar suvenir di kios oleh-oleh mitra.</p>
+          <p class="muted small">Demo memakai QR berisi teks uji, tanpa uang sungguhan.</p>
+        </div>
+        <div class="note">
+          <h3>Target pilot</h3>
+          <p>Lima sampai sepuluh warung di tepian danau, kios oleh-oleh, dan pemandu lokal. Sejalan dengan target BI Kalteng, 22 ribu pengguna QRIS baru.</p>
+        </div>
       </div>
-    </div>
-    <div class="grid cards" id="umkm-grid"></div>
+      <div class="grid grid-tight" id="umkm-grid"></div>
 
-    <div class="card info" id="pasraun-card" style="margin-top:1rem">
-      <h3>Pas Raun kamu</h3>
-      <div id="pasraun-stamps" class="stamps"></div>
-      <p class="muted small">Stempel tersimpan di perangkat ini. Hapus data situs di browser untuk memulai paspor baru.</p>
-      <button class="btn btn-ghost" id="pasraun-reset" style="margin-top:.5rem">Mulai paspor baru</button>
-    </div>
-
-    <h2 style="margin-top:2.4rem">Transportasi, langsung dari titik</h2>
-    <div class="dua-kolom">
-      <div class="card info">
-        <h3>Gojek, koneksi langsung</h3>
-        <p>Tombol "Panggil Gojek" di tiap titik membuka aplikasi Gojek di HP lewat deep link. Tujuan sudah otomatis tersalin, tinggal tempel.</p>
-        <p class="muted small">Kalau aplikasinya belum terpasang, diarahkan ke Play Store. Di v2 ada kemitraan resmi ekosistem GoTo, dan QRIS dinamisnya lewat Midtrans.</p>
-        <button class="btn btn-primary" data-act="gojek" data-id="tugu">Coba panggil Gojek</button>
+      <h2 class="sec-gap">Transportasi dari tiap titik</h2>
+      <div class="notes">
+        <div class="note">
+          <h3>Gojek</h3>
+          <p>Tombol <b>Gojek</b> membuka aplikasinya di HP dan menyalin tujuan, tinggal tempel. Kalau aplikasinya belum ada, Raun membuka halaman unduhnya.</p>
+          <button class="btn btn-maroon" type="button" data-act="gojek" data-id="tugu">Coba panggil Gojek</button>
+        </div>
+        <div class="note">
+          <h3>Otsok: ojek dan perahu lokal</h3>
+          <p>Hubungi operator perahu dan ojek lewat WhatsApp dengan pesan yang sudah terisi: titik jemput, tujuan, dan perkiraan tarif.</p>
+          <p class="muted small">Nomor masih demo.</p>
+          <button class="btn btn-quiet" type="button" data-act="otsok" data-id="danautahai">Coba Otsok lewat WhatsApp</button>
+        </div>
       </div>
-      <div class="card info">
-        <h3>Otsok, ojek dan perahu lokal lewat WhatsApp</h3>
-        <p>Operator perahu dan ojek destinasi bisa dihubungi satu ketukan dari kartu. Pesannya sudah terisi otomatis, berisi titik jemput, tujuan, dan estimasi tarif. Tarif yang jelas ini bagian dari perlindungan konsumen.</p>
-        <p class="muted small">Nomor masih demo. Di rilis ada registrasi operator, rating, dan pembayaran tarif lewat QRIS.</p>
-        <button class="btn btn-ghost" data-act="otsok" data-id="danautahai">Coba Otsok via WA</button>
+      <div class="table-wrap">
+        <table class="fare">
+          <caption>Perkiraan tarif (angka demo, belum dikalibrasi operator)</caption>
+          <thead><tr><th scope="col">Moda</th><th scope="col">Rute contoh</th><th scope="col">Waktu</th><th scope="col">Perkiraan</th></tr></thead>
+          <tbody>
+            <tr><td>GoRide</td><td>Pusat kota ke Danau Tahai</td><td>12 menit</td><td>Rp18.000</td></tr>
+            <tr><td>GoRide</td><td>Pusat kota ke Bukit Tangkiling</td><td>25 menit</td><td>Rp30.000</td></tr>
+            <tr><td>Perahu Otsok</td><td>Susur danau dari dermaga Tumbang Tahai</td><td>60 menit</td><td>Rp40.000</td></tr>
+            <tr><td>Ojek lokal</td><td>Tangkiling ke Sei Gohong</td><td>20 menit</td><td>Rp25.000</td></tr>
+          </tbody>
+        </table>
       </div>
-    </div>
-    <div class="card info" style="margin-top:1rem">
-      <h3>Estimasi tarif, demo kalibrasi operator</h3>
-      <table class="fare" aria-label="Estimasi tarif transportasi demo">
-        <tr><th>Moda</th><th>Rute contoh</th><th>Waktu</th><th>Estimasi</th></tr>
-        <tr><td>GoRide</td><td>Pusat kota ke Danau Tahai</td><td>12 menit</td><td>Rp18.000</td></tr>
-        <tr><td>GoRide</td><td>Pusat kota ke Bukit Tangkiling</td><td>25 menit</td><td>Rp30.000</td></tr>
-        <tr><td>Perahu Otsok</td><td>Dermaga Tumbang Tahai susur danau</td><td>60 menit</td><td>Rp40.000</td></tr>
-        <tr><td>Ojek lokal</td><td>Tangkiling ke Sei Gohong</td><td>20 menit</td><td>Rp25.000</td></tr>
-      </table>
-      <p class="muted small">Angka demo. Di v1 dikalibrasi dari tarif operator pilot dan ditampilkan jujur per moda.</p>
     </div>
   </section>
 
   <!-- ============ DATA ============ -->
-  <section id="view-data" class="view" hidden>
-    <div class="sec-head"><h2>Dashboard mini untuk pemda</h2></div>
-    <div class="stats-row">
-      <div class="stat"><b id="d-gen">0</b><span>itinerary dibuat sesi ini</span></div>
-      <div class="stat"><b id="d-q">0</b><span>permintaan asisten, anonim</span></div>
-      <div class="stat"><b id="d-qr">0</b><span>tombol QRIS ditekan</span></div>
-      <div class="stat"><b id="d-swap">0</b><span>penyesuaian langit otomatis</span></div>
-      <div class="stat"><b id="d-stamp">0</b><span>stempel paspor terkumpul</span></div>
-      <div class="stat"><b id="d-fav">0</b><span>destinasi favorit tersimpan</span></div>
+  <section id="view-data" class="view" hidden aria-labelledby="data-h">
+    <div class="wrap">
+      <h2 id="data-h">Dasbor mini untuk pemda</h2>
+      <p class="lede">Angka anonim dari perangkat ini saja. Tidak ada data yang dikirim ke server.</p>
+      <dl class="facts facts-6">
+        <div><dt id="d-gen">0</dt><dd>rencana disusun</dd></div>
+        <div><dt id="d-q">0</dt><dd>pertanyaan ke asisten</dd></div>
+        <div><dt id="d-qr">0</dt><dd>QRIS dibuka</dd></div>
+        <div><dt id="d-swap">0</dt><dd>tempat diganti karena langit</dd></div>
+        <div><dt id="d-stamp">0</dt><dd>stempel paspor</dd></div>
+        <div><dt id="d-fav">0</dt><dd>favorit tersimpan</dd></div>
+      </dl>
+      <div class="notes">
+        <div class="note"><h3>Riwayat PM2.5</h3><canvas id="chart-aqi" width="560" height="180" role="img" aria-label="Grafik riwayat PM2.5 belum tersedia"></canvas></div>
+        <div class="note"><h3>Tempat paling sering dibuka</h3><div id="chart-dest"></div></div>
+      </div>
+      <div class="note" id="sim-report"><h3>Simulasi multi-agen</h3><p class="muted">Memuat hasil simulasi…</p></div>
     </div>
-    <div class="dua-kolom">
-      <div class="card info"><h3>Tren kualitas udara PM2.5</h3><canvas id="chart-aqi" width="560" height="180" aria-label="Grafik PM2.5"></canvas></div>
-      <div class="card info"><h3>Minat wisatawan, klik terbanyak</h3><div id="chart-dest"></div></div>
-    </div>
-    <div class="card info" id="sim-report"><h3>Simulasi multi agen, pola MiroFish</h3><p class="muted">Jalankan node sim/agents.mjs lalu buka ulang halaman ini.</p></div>
   </section>
 </main>
 
 <footer class="footer">
-  <p><b>Raun Kalteng v0.4</b>. Prototipe Tambun Bungai Ideathon, Borneo DECAFEST 2026, KPw BI Kalteng. Data demo, tarif dan koordinat perlu verifikasi. Statistik dashboard anonim dan tersimpan lokal. Peta milik para kontributor OpenStreetMap.</p>
+  <nav class="footnav" aria-label="Semua halaman"><a href="#beranda">Beranda</a><a href="#jelajah">Jelajah</a><a href="#rencana">Rencanaku</a><a href="#budaya">Budaya</a><a href="#paspor">Paspor</a><a href="#data">Dasbor</a></nav>
+  <p><b translate="no">Raun Kalteng</b> v0.5. Prototipe Tambun Bungai Ideathon, Borneo DECAFEST 2026, KPw BI Kalteng. Tarif dan koordinat masih perlu verifikasi lapangan. Statistik dasbor anonim dan tersimpan di perangkat ini.</p>
 </footer>
 
-<!-- Wizard -->
-<div class="modal" id="modal-wizard" hidden>
-  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="wz-title">
-    <button class="modal-x" data-close aria-label="Tutup">Tutup</button>
-    <h2 id="wz-title">Susun itinerary</h2>
-    <form id="form-wizard">
-      <label>Tanggal mulai <input type="date" id="wz-date" required></label>
-      <div class="dua-kolom" style="gap:.8rem">
-        <label>Lama jalan <select id="wz-days"><option value="1">1 hari</option><option value="2" selected>2 hari</option><option value="3">3 hari</option></select></label>
-        <label>Jumlah orang <input type="number" id="wz-pax" min="1" max="12" value="2"></label>
-      </div>
-      <label>Budget per orang, sekarang <b id="wz-budget-label">Rp250.000</b>
-        <input type="range" id="wz-budget-range" min="50000" max="1000000" step="25000" value="250000" aria-label="Budget per orang">
-        <input type="number" id="wz-budget" min="50000" max="2000000" step="25000" value="250000" style="margin-top:.4rem">
+<!-- Susun rencana -->
+<dialog class="sheet" id="dlg-wizard" aria-labelledby="wz-title">
+  <div class="sheet-head">
+    <h2 id="wz-title">Susun rencana</h2>
+    <button class="icon-btn" type="button" data-close aria-label="Tutup"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>
+  </div>
+  <form id="form-wizard" class="form">
+    <label class="field">Tanggal mulai<input type="date" id="wz-date" name="date" required></label>
+    <div class="row-2">
+      <label class="field">Lama jalan
+        <select id="wz-days" name="days"><option value="1">1 hari</option><option value="2" selected>2 hari</option><option value="3">3 hari</option></select>
       </label>
-      <fieldset><legend>Minat, boleh lebih dari satu</legend>
-        <div class="chipset" id="wz-prefs">
-          <button type="button" class="chip active" data-pref="alam">Alam</button>
-          <button type="button" class="chip" data-pref="budaya">Budaya</button>
-          <button type="button" class="chip" data-pref="kuliner">Kuliner</button>
-          <button type="button" class="chip" data-pref="keluarga">Keluarga</button>
-          <button type="button" class="chip" data-pref="sunset">Sunset</button>
-          <button type="button" class="chip" data-pref="hiking">Hiking</button>
-          <button type="button" class="chip" data-pref="air">Wisata air</button>
-        </div>
-      </fieldset>
-      <label>Titik awal <select id="wz-start"><option>Tugu Soekarno</option><option>Bandara Tjilik Riwut</option><option>Hotel area pusat kota</option></select></label>
-      <button class="btn btn-primary" type="submit" id="wz-go" style="width:100%;justify-content:center;margin-top:1rem"><svg class="ic"><use href="#i-compass"/></svg>Susun sekarang</button>
-      <p class="muted small center" id="wz-status">Sebentar, minimal 99.999 kemungkinan dipikirkan dulu, ambil tiga yang paling masuk akal.</p>
-    </form>
-  </div>
-</div>
+      <label class="field">Jumlah orang<input type="number" id="wz-pax" name="pax" min="1" max="12" value="2" inputmode="numeric"></label>
+    </div>
+    <div class="field">
+      <label for="wz-budget">Budget per orang</label>
+      <output id="wz-budget-label" for="wz-budget" class="budget-out">Rp 250.000</output>
+      <input type="range" id="wz-budget" name="budget" min="50000" max="2000000" step="25000" value="250000">
+    </div>
+    <fieldset class="field">
+      <legend>Minat (boleh lebih dari satu)</legend>
+      <div class="chipset" id="wz-prefs">
+        <label class="chip check"><input type="checkbox" name="pref" value="alam" checked>Alam</label>
+        <label class="chip check"><input type="checkbox" name="pref" value="budaya">Budaya</label>
+        <label class="chip check"><input type="checkbox" name="pref" value="kuliner">Kuliner</label>
+        <label class="chip check"><input type="checkbox" name="pref" value="keluarga">Keluarga</label>
+        <label class="chip check"><input type="checkbox" name="pref" value="sunset">Senja</label>
+        <label class="chip check"><input type="checkbox" name="pref" value="hiking">Mendaki</label>
+        <label class="chip check"><input type="checkbox" name="pref" value="air">Wisata air</label>
+      </div>
+    </fieldset>
+    <label class="field">Titik berangkat
+      <select id="wz-start" name="start"><option>Tugu Soekarno</option><option>Bandara Tjilik Riwut</option><option>Hotel di pusat kota</option></select>
+    </label>
+    <button class="btn btn-maroon btn-block" type="submit" id="wz-go"><svg class="ic" aria-hidden="true"><use href="#i-compass"/></svg><span>Susun rencana</span></button>
+    <p class="muted small center" id="wz-status" aria-live="polite">Raun menimbang paling sedikit 99.999 kombinasi, lalu memilih tiga yang paling masuk akal.</p>
+  </form>
+</dialog>
 
-<!-- Detail, QRIS, darurat -->
-<div class="modal" id="modal-detail" hidden><div class="modal-card" role="dialog" aria-modal="true" id="modal-detail-body"></div></div>
-<div class="modal" id="modal-darurat" hidden>
-  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="dr-title">
-    <button class="modal-x" data-close aria-label="Tutup">Tutup</button>
-    <h2 id="dr-title">Kalau ada apa apa</h2>
-    <dl class="kv">
-      <dt>Darurat nasional</dt><dd><a href="tel:112">112</a>, bebas pulsa 24 jam</dd>
-      <dt>Kepolisian</dt><dd><a href="tel:110">110</a></dd>
-      <dt>Pemadam kebakaran</dt><dd><a href="tel:113">113</a></dd>
-      <dt>Ambulans</dt><dd><a href="tel:119">119</a></dd>
-      <dt>Basarnas</dt><dd><a href="tel:115">115</a>, kejadian di sungai atau bukit</dd>
-    </dl>
-    <p class="small" style="background:#F6E7D3;border-radius:12px;padding:.65rem">Saat langit sangat pekat, pakai masker N95, kurangi aktivitas di luar, dan cek kanal resmi BPBD Kalteng untuk posko terdekat.</p>
-    <p class="small" style="background:#E3ECF6;border-radius:12px;padding:.65rem">Di sungai pakai pelampung, dan tunda dulu kalau hujan deras di hulu. Di bukit, jalanan licin setelah hujan, tunggu sampai kering.</p>
-    <p class="muted small">Nomor di atas adalah nomor darurat nasional Indonesia. Kontak BPBD daerah disambungkan di v1.</p>
+<!-- Detail tempat dan QRIS -->
+<dialog class="sheet" id="dlg-detail" aria-labelledby="detail-title">
+  <div class="sheet-head">
+    <h2 id="detail-title"></h2>
+    <button class="icon-btn" type="button" data-close aria-label="Tutup"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>
   </div>
-</div>
+  <div id="detail-body"></div>
+</dialog>
 
-<!-- Chat -->
+<!-- Darurat -->
+<dialog class="sheet" id="dlg-darurat" aria-labelledby="dr-title">
+  <div class="sheet-head">
+    <h2 id="dr-title">Nomor darurat</h2>
+    <button class="icon-btn" type="button" data-close aria-label="Tutup"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>
+  </div>
+  <ul class="tel-list">
+    <li><a href="tel:112"><b>112</b><span>Darurat nasional, bebas pulsa 24 jam</span></a></li>
+    <li><a href="tel:110"><b>110</b><span>Polisi</span></a></li>
+    <li><a href="tel:113"><b>113</b><span>Pemadam kebakaran</span></a></li>
+    <li><a href="tel:119"><b>119</b><span>Ambulans</span></a></li>
+    <li><a href="tel:115"><b>115</b><span>Basarnas, kejadian di sungai atau bukit</span></a></li>
+  </ul>
+  <p class="callout warn">Saat langit sangat pekat, pakai masker N95, kurangi kegiatan di luar, dan cek kanal resmi BPBD Kalteng untuk posko terdekat.</p>
+  <p class="callout info">Di sungai, selalu pakai pelampung dan tunda perjalanan kalau hujan deras di hulu. Di bukit, jalur licin setelah hujan. Tunggu sampai kering.</p>
+</dialog>
+
+<!-- Asisten -->
 <div class="chat" id="chat">
-  <button class="chat-fab" id="chat-fab" aria-label="Buka asisten"><svg class="ic"><use href="#i-chat"/></svg></button>
-  <div class="chat-panel" id="chat-panel" hidden>
-    <div class="chat-head">Raun, kawan raun lokal <button id="chat-close" aria-label="Tutup">Tutup</button></div>
-    <div class="chat-log" id="chat-log" aria-live="polite"></div>
-    <form class="chat-form" id="chat-form"><input id="chat-input" placeholder="Tanya langit hari ini, kuliner, Sebangau" autocomplete="off"><button class="btn btn-primary" aria-label="Kirim">Kirim</button></form>
-  </div>
+  <section class="chat-panel" id="chat-panel" hidden aria-labelledby="chat-title">
+    <div class="chat-head"><h2 id="chat-title">Tanya Raun</h2><button class="icon-btn" type="button" id="chat-close" aria-label="Tutup asisten"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button></div>
+    <div class="chat-log" id="chat-log" role="log" aria-live="polite"></div>
+    <form class="chat-form" id="chat-form">
+      <label for="chat-input" class="sr-only">Pertanyaan</label>
+      <input id="chat-input" name="q" placeholder="Misal: langit hari ini, kuliner, Sebangau…" autocomplete="off" maxlength="200">
+      <button class="icon-btn icon-btn-solid" type="submit" aria-label="Kirim"><svg class="ic" aria-hidden="true"><use href="#i-send"/></svg></button>
+    </form>
+  </section>
+  <button class="chat-fab" type="button" id="chat-fab" aria-label="Buka asisten" aria-expanded="false" aria-controls="chat-panel"><svg class="ic" aria-hidden="true"><use href="#i-chat"/></svg></button>
 </div>
 
-<!-- Navigasi bawah, tampil di HP -->
+<!-- Navigasi bawah (HP) -->
 <nav class="bottomnav" aria-label="Navigasi aplikasi">
-  <a class="bn-item active" href="#home" data-nav><svg class="ic"><use href="#i-home"/></svg>Beranda</a>
-  <a class="bn-item" href="#destinasi" data-nav><svg class="ic"><use href="#i-pin"/></svg>Jelajah</a>
-  <a class="bn-raun" href="#raun" id="bn-raun" aria-label="Susun itinerary"><svg class="ic"><use href="#i-compass"/></svg>RAUN</a>
-  <a class="bn-item" href="#umkm" data-nav><svg class="ic"><use href="#i-ticket"/></svg>Paspor</a>
-  <a class="bn-item" href="#data" data-nav><svg class="ic"><use href="#i-chart"/></svg>Data</a>
+  <a class="bn-item" href="#beranda"><svg class="ic" aria-hidden="true"><use href="#i-home"/></svg>Beranda</a>
+  <a class="bn-item" href="#jelajah"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>Jelajah</a>
+  <button class="bn-raun" type="button" data-act="openwizard"><svg class="ic" aria-hidden="true"><use href="#i-compass"/></svg>Susun</button>
+  <a class="bn-item" href="#paspor"><svg class="ic" aria-hidden="true"><use href="#i-ticket"/></svg>Paspor</a>
+  <a class="bn-item" href="#rencana"><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg>Rencana</a>
 </nav>
 
-<div id="net-banner" class="net-banner" hidden>Sedang tanpa internet. Peta, QRIS, Gojek, dan WhatsApp butuh koneksi. Yang lain tetap jalan, termasuk menyusun itinerary.</div>
+<div id="net-banner" class="net-banner" role="status" hidden>Anda sedang offline. Peta, Gojek, dan WhatsApp butuh internet. Menyusun rencana tetap bisa.</div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
 
-<div id="toast" class="toast" hidden></div>
-
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="data.js?v=11"></script>
-<script src="core.js?v=11"></script>
-<script src="app.js?v=11"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script src="data.js?v=12"></script>
+<script src="core.js?v=12"></script>
+<script src="app.js?v=12"></script>
 </body>
 </html>

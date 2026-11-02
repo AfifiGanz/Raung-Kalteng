@@ -15,11 +15,15 @@ const inline = f => read(f).replace(/<\/script>/gi, '<\\/script>');
 html = html.replace(/<script src="data\.js[^"]*"><\/script>/, () => '<script>\n' + inline('data.js') + '\n</script>');
 html = html.replace(/<script src="core\.js[^"]*"><\/script>/, () => '<script>\n' + inline('core.js') + '\n</script>');
 html = html.replace(/<script src="app\.js[^"]*"><\/script>/, () => '<script>\n' + inline('app.js') + '\n</script>');
+// QR offline: sematkan pustaka QR (MIT) agar tombol QRIS jalan tanpa folder vendor/
+html = html.replace(/(<script src="https:\/\/unpkg\.com\/leaflet[^>]*><\/script>)/, m => m + '\n<script>\n' + inline('vendor/qrcode.js') + '\n</script>');
 // Ikon: sematkan SVG data-URI agar tidak 404 di mode file://
-const icon = read('icon.svg').replace(/"/g, "'");
 html = html.replace(/<link rel="icon" href="icon\.svg"[^>]*>/, () => '<link rel="icon" href="data:image/svg+xml,' + encodeURIComponent(read('icon.svg')) + '">');
 // Manifest & SW tidak berlaku di mode file:// — matikan supaya bersih
 html = html.replace(/<link rel="manifest" href="manifest\.json">/, '');
+// CSP meta melarang script inline; versi 1 file justru berisi script inline, jadi CSP dilepas di sini.
+html = html.replace(/<meta http-equiv="Content-Security-Policy"[^>]*>\n?/, '');
+html = html.replace(/<link rel="apple-touch-icon"[^>]*>\n?/, '');
 html = html.replace(/<title>/, '<!-- Raun Kalteng — versi offline 1 file. Data demo; bukan layanan publik. -->\n<title>');
 
 mkdirSync('dist', { recursive: true });
