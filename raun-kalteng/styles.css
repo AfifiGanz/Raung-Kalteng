@@ -1,0 +1,261 @@
+/* RAUN KALTENG v0.3 — desain ala aplikasi travel modern
+ * Pola 2026: visual imersif, nav aplikasi (bottom bar + tombol tengah), kartu berlapis,
+ * bottom-sheet di HP. Palet Isen Mulang: maroon, emas, + hijau eco.
+ */
+:root{
+  --maroon:#8B1E1E; --maroon-d:#5F1212; --gold:#E8A93B; --gold-d:#C4861C;
+  --leaf:#2F6B4F; --sky:#1F6E8C;
+  --ink:#231D14; --ink-soft:#6B6152; --cream:#FAF6EE; --paper:#FFFFFF;
+  --ok:#2E7D32; --warn:#E08A00; --bad:#C62828;
+  --line:#EAE1CE; --r-lg:22px; --r-md:16px; --r-sm:12px;
+  --shadow:0 10px 30px rgba(35,29,20,.10); --shadow-sm:0 4px 14px rgba(35,29,20,.08);
+  --nav-h:60px;
+}
+*{box-sizing:border-box} html{scroll-behavior:smooth}
+[hidden]{display:none!important}
+body{margin:0;font-family:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  background:var(--cream);color:var(--ink);line-height:1.55;font-size:15.5px}
+h1,h2,h3{line-height:1.15;margin:.2em 0 .45em;letter-spacing:-.01em}
+h1{font-size:clamp(1.9rem,5vw,3rem);font-weight:800}
+h2{font-size:1.45rem;font-weight:800}
+h3{font-size:1.05rem;font-weight:700}
+a{color:var(--maroon)}
+img{max-width:100%}
+.muted{color:var(--ink-soft)} .small{font-size:.82rem} .center{text-align:center}
+:focus-visible{outline:3px solid var(--gold-d);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* ===== NAV ATAS (desktop) ===== */
+.nav{position:sticky;top:0;z-index:60;display:flex;align-items:center;gap:1rem;padding:.65rem 1.2rem;
+  background:rgba(250,246,238,.9);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:.55rem;font-weight:800;letter-spacing:.4px;color:var(--ink);text-decoration:none}
+.brand em{color:var(--maroon);font-style:normal}
+.brand-mark{width:20px;height:20px;background:
+  conic-gradient(from 45deg,var(--maroon) 0 25%,var(--gold) 0 50%,var(--maroon) 0 75%,var(--gold) 0);
+  border-radius:6px;transform:rotate(8deg);box-shadow:var(--shadow-sm)}
+.nav-links{display:flex;gap:.35rem;margin-left:.4rem}
+.nav-links a{text-decoration:none;color:var(--ink-soft);font-size:.92rem;font-weight:600;padding:.4rem .75rem;border-radius:99px}
+.nav-links a:hover{background:#F2EADA;color:var(--ink)}
+.nav-badge{margin-left:auto;font-size:.72rem;font-weight:700;background:var(--maroon);color:#fff;padding:.28rem .7rem;border-radius:99px}
+
+/* ===== HERO OPENING: ilustrasi Jembatan Kahayan ===== */
+.hero{position:relative;overflow:hidden;color:#FFF7E8;
+ padding:3.4rem 1.2rem 3.6rem;text-align:center}
+.hero-art{position:absolute;inset:0;z-index:0}
+.hero-art svg{width:100%;height:100%;display:block}
+.haze-layer{position:absolute;inset:0;z-index:1;opacity:0;transition:opacity .9s;
+ background:linear-gradient(180deg,rgba(30,8,5,.6),rgba(30,8,5,.3))}
+.hero[data-env="bad"] .haze-layer{opacity:1}
+.hero::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+ background:linear-gradient(180deg,rgba(26,5,5,.5),rgba(26,5,5,.18) 42%,rgba(26,5,5,.5))}
+.hero-eyebrow{font-weight:800;letter-spacing:.16em;font-size:.78rem;text-transform:uppercase;color:#FFD98A;margin-bottom:.5rem}
+.hero h1{max-width:760px;margin:0 auto}
+.hero h1 .hl{background:linear-gradient(180deg,transparent 62%,rgba(232,169,59,.6) 62%)}
+.hero-sub{max-width:620px;margin:.9rem auto 1.4rem;color:#FFE9C4;font-size:1.02rem}
+.hero-eyebrow{font-weight:800;letter-spacing:.16em;font-size:.78rem;text-transform:uppercase;color:#FFD98A;margin-bottom:.5rem;position:relative;z-index:2}
+.hero h1{max-width:760px;margin:0 auto;position:relative;z-index:2}
+.hero h1 .hl{background:linear-gradient(180deg,transparent 62%,rgba(232,169,59,.6) 62%)}
+.hero-sub{max-width:620px;margin:.9rem auto 1.4rem;color:#FFE9C4;font-size:1.02rem;position:relative;z-index:2}
+.hero-cta{display:flex;gap:.8rem;justify-content:center;flex-wrap:wrap;position:relative;z-index:2}
+.btn{cursor:pointer;border:none;border-radius:14px;padding:.8rem 1.25rem;font-weight:800;font-size:.97rem;text-decoration:none;display:inline-flex;align-items:center;gap:.45rem;transition:transform .12s}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--gold);color:#3D2500;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.btn-primary:hover{filter:brightness(1.05)}
+.btn-ghost{background:rgba(255,255,255,.12);border:1.5px solid rgba(255,237,200,.6);color:#FFF3DC}
+.chip{cursor:pointer;border:1.5px solid var(--line);background:var(--paper);border-radius:99px;padding:.4rem .85rem;font-size:.8rem;font-weight:600;color:var(--ink-soft);transition:transform .1s}
+.chip:hover{transform:translateY(-1px)}
+.chip.active{background:var(--maroon);border-color:var(--maroon);color:#fff}
+.chipset{display:flex;gap:.45rem;flex-wrap:wrap}
+.chipsheet{display:flex;gap:.5rem;overflow-x:auto;padding:.2rem .2rem .5rem;scrollbar-width:none}
+.chipsheet::-webkit-scrollbar{display:none}
+
+/* strip Si Buru = kartu mengambang */
+.siburu-card{max-width:860px;margin:1.6rem auto 0;background:rgba(255,253,248,.97);color:var(--ink);
+  border-radius:var(--r-lg);box-shadow:0 18px 50px rgba(40,10,5,.35);padding:1rem 1.1rem;text-align:left}
+.siburu-row{display:flex;align-items:center;gap:.65rem;flex-wrap:wrap}
+.siburu-dot{width:13px;height:13px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 5px rgba(46,125,50,.15);flex:none}
+.siburu-dot[data-c="warn"]{background:var(--warn);box-shadow:0 0 0 5px rgba(224,138,0,.18)}
+.siburu-dot[data-c="bad"]{background:var(--bad);box-shadow:0 0 0 5px rgba(198,40,40,.18)}
+.siburu-actions{display:flex;gap:.4rem;flex-wrap:wrap;margin-left:auto}
+#hours-chips,#events-home{margin-top:.7rem;justify-content:flex-start}
+
+/* ===== KOMPONEN UMUM ===== */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.8rem;max-width:1080px;margin:1.6rem auto;padding:0 1.2rem}
+.stat{background:var(--paper);border:1px solid var(--line);border-radius:var(--r-md);padding:.9rem 1rem;box-shadow:var(--shadow-sm)}
+.stat b{display:block;font-size:1.3rem;color:var(--maroon)}
+.stat span{font-size:.76rem;color:var(--ink-soft)}
+.block{max-width:1080px;margin:1.8rem auto;padding:0 1.2rem}
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.sec-head a{font-size:.85rem;font-weight:700;text-decoration:none}
+.dua-kolom{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.grid.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:1.1rem;margin-top:1rem}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:var(--r-lg);padding:1.05rem;box-shadow:var(--shadow-sm);overflow:hidden;position:relative}
+.card.info h3{margin-top:0}
+.filters{display:flex;gap:.45rem;flex-wrap:wrap;margin-top:.6rem}
+
+/* kartu destinasi ber-cover ilustrasi */
+.trip{display:flex;flex-direction:column;padding:0}
+.trip .cover{height:118px;position:relative;background:#E8DFC8}
+.cover svg{width:100%;height:100%;display:block}
+.cover .emoji{position:absolute;right:10px;bottom:-16px;font-size:2rem;filter:drop-shadow(0 4px 6px rgba(0,0,0,.25))}
+.trip .body{padding:.9rem 1rem 1rem;display:flex;flex-direction:column;gap:.4rem;flex:1}
+.trip h3{margin:0}
+.badges{display:flex;gap:.35rem;flex-wrap:wrap}
+.badge{font-size:.68rem;font-weight:700;border-radius:99px;padding:.18rem .55rem;background:#F2EADA;color:var(--ink-soft)}
+.badge.tem-alam{background:#E2EFE4;color:#276B2C}.badge.tem-budaya{background:#F6E7D3;color:#8A5A12}
+.badge.tem-kuliner{background:#F9DFD6;color:#A03D1E}.badge.tem-keluarga{background:#E3ECF6;color:#2C5D8F}
+.badge.tem-indoor{background:#ECE7F6;color:#4B3D86}.badge.tem-sejarah{background:#EFE4DA;color:#7A4A2B}
+.badge.tem-campur{background:#EFE4DA;color:#5C5344}.badge.tem-air{background:#DFF0F5;color:#1F6E8C}
+.badge.tem-sunset{background:#FBEECF;color:#9A6B10}.badge.tem-hiking{background:#E7EFDB;color:#3E5622}
+.badge.tem-foto{background:#F0E6F3;color:#6B4A7A}
+.acts{display:flex;gap:.35rem;flex-wrap:wrap;margin-top:.35rem}
+.acts .chip{font-size:.74rem;padding:.3rem .6rem}
+.fav-btn{position:absolute;top:.6rem;right:.6rem;z-index:2;width:34px;height:34px;border-radius:50%;border:none;
+  background:rgba(255,255,255,.92);cursor:pointer;font-size:1rem;box-shadow:var(--shadow-sm)}
+.fav-btn.on{background:#FFE1E1}
+
+/* ===== PLAN ===== */
+.plan-toolbar{position:sticky;top:calc(var(--nav-h) + 1px);z-index:40;display:flex;align-items:center;justify-content:space-between;gap:.8rem;
+  max-width:1080px;margin:.9rem auto 0;padding:.55rem 1rem;background:rgba(250,246,238,.94);backdrop-filter:blur(8px);
+  border:1px solid var(--line);border-radius:var(--r-md);box-shadow:var(--shadow-sm);flex-wrap:wrap}
+.variant-tabs{display:flex;gap:.5rem;flex-wrap:wrap}
+.variant-tabs .chip.vtab{padding:.5rem 1rem}
+.variant-tabs .chip.vtab[aria-selected="true"]{background:var(--gold-d);border-color:var(--gold-d);color:#fff}
+.plan-actions{display:flex;gap:.45rem;flex-wrap:wrap}
+.plan-meta{max-width:1080px;margin:.8rem auto 0;padding:0 1.2rem;font-size:.9rem;color:var(--ink-soft)}
+.dualpane{display:grid;grid-template-columns:1.25fr 1fr;gap:1rem;max-width:1080px;margin:1rem auto 2rem;padding:0 1.2rem;align-items:start}
+.timeline{display:flex;flex-direction:column;gap:1rem}
+.day{background:var(--paper);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow-sm);overflow:hidden}
+.day-head{display:flex;align-items:center;justify-content:space-between;gap:.6rem;padding:.75rem 1rem;
+  background:linear-gradient(90deg,#FBF3DF,#FFFDF8);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.day-head b{color:var(--maroon)}
+.slot{display:grid;grid-template-columns:88px 1fr;gap:.7rem;padding:.75rem 1rem;border-bottom:1px dashed var(--line)}
+.slot:last-of-type{border-bottom:none}
+.slot .time{font-size:.72rem;font-weight:800;color:var(--gold-d);text-transform:uppercase;padding-top:.25rem}
+.item{border:1px solid var(--line);border-radius:var(--r-md);padding:.65rem .8rem;background:#FFFDF8;display:flex;gap:.7rem;align-items:flex-start}
+.item.swapped{border-style:dashed;border-color:var(--gold)}
+.item .dot{width:11px;height:11px;border-radius:50%;margin-top:.5rem;flex:none;background:var(--ok)}
+.item .dot[data-c="warn"]{background:var(--warn)}.item .dot[data-c="bad"]{background:var(--bad)}
+.item h4{margin:.1rem 0;font-size:1rem}
+.item .tags{display:flex;gap:.3rem;flex-wrap:wrap;margin:.25rem 0}
+.day-foot{display:flex;justify-content:space-between;padding:.6rem 1rem;background:#FBF6E9;font-size:.82rem;color:var(--ink-soft)}
+
+/* peta nyata (Leaflet) */
+.mapwrap{background:var(--paper);border:1px solid var(--line);border-radius:var(--r-lg);padding:.7rem;box-shadow:var(--shadow-sm);position:sticky;top:130px}
+#map{width:100%;height:400px;border-radius:var(--r-md);background:#DDE8E0;z-index:1}
+.map-legend{display:flex;gap:.8rem;font-size:.75rem;color:var(--ink-soft);margin-top:.45rem;flex-wrap:wrap}
+.legend-dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:.25rem}
+.pin{display:flex;align-items:center;justify-content:center;border-radius:50% 50% 50% 4px;transform:rotate(-45deg);border:2px solid #fff;box-shadow:0 3px 8px rgba(0,0,0,.3)}
+.pin span{transform:rotate(45deg);font-size:.72em;color:#fff;font-weight:800}
+.leaflet-container{font:inherit}
+
+/* ===== MODAL & BOTTOM-SHEET ===== */
+.modal{position:fixed;inset:0;background:rgba(35,29,20,.5);display:flex;align-items:center;justify-content:center;z-index:100;padding:1rem}
+.modal-card{background:var(--paper);border-radius:var(--r-lg);max-width:580px;width:100%;max-height:88vh;overflow:auto;padding:1.5rem;box-shadow:0 24px 70px rgba(0,0,0,.3);position:relative}
+.modal-x{position:absolute;top:.7rem;right:.9rem;border:none;background:#F2EADA;width:32px;height:32px;border-radius:50%;cursor:pointer;color:var(--ink-soft)}
+.modal form label{display:block;margin:.7rem 0 .25rem;font-size:.85rem;font-weight:700}
+.modal form input,.modal form select{width:100%;padding:.6rem .75rem;border:1.5px solid var(--line);border-radius:12px;font:inherit;background:#fff}
+.modal fieldset{border:1px dashed var(--line);border-radius:14px;margin-top:1rem;padding:.6rem .8rem}
+.modal fieldset legend{font-size:.8rem;font-weight:700;color:var(--ink-soft);padding:0 .3rem}
+input[type=range]{width:100%;accent-color:var(--maroon)}
+#modal-detail-body img.qr{width:200px;height:200px;background:#fff;border:1px solid var(--line);border-radius:8px}
+.kv{display:grid;grid-template-columns:118px 1fr;gap:.3rem .8rem;font-size:.92rem;margin:.8rem 0}
+.kv dt{color:var(--ink-soft)} .kv dd{margin:0}
+.stamps{margin:.4rem 0}
+
+/* ===== CHAT ===== */
+.chat{position:fixed;right:1rem;bottom:calc(1rem + var(--bump,0px));z-index:90;display:flex;flex-direction:column;align-items:flex-end}
+.chat-fab{width:56px;height:56px;border-radius:50%;border:none;background:var(--maroon);color:#fff;font-size:1.35rem;cursor:pointer;box-shadow:0 10px 26px rgba(95,18,18,.4)}
+.chat-panel{width:min(350px,92vw);height:430px;background:var(--paper);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:0 24px 60px rgba(0,0,0,.28);display:flex;flex-direction:column;overflow:hidden;margin-bottom:.6rem}
+.chat-head{display:flex;justify-content:space-between;align-items:center;padding:.65rem .95rem;background:var(--maroon);color:#fff;font-weight:700;font-size:.9rem}
+.chat-head button{background:none;border:none;color:#fff;cursor:pointer}
+.chat-log{flex:1;overflow:auto;padding:.7rem;display:flex;flex-direction:column;gap:.5rem}
+.msg{max-width:85%;padding:.55rem .75rem;border-radius:14px;font-size:.87rem}
+.msg.bot{background:#F2EADA;align-self:flex-start;border-bottom-left-radius:4px}
+.msg.user{background:var(--maroon);color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
+.msg .mact{display:inline-block;margin:.3rem .3rem 0 0;font-size:.74rem;background:#fff;border:1px solid var(--line);border-radius:99px;padding:.22rem .6rem;cursor:pointer;color:var(--maroon);font-weight:700}
+.chat-form{display:flex;gap:.4rem;padding:.55rem;border-top:1px solid var(--line)}
+.chat-form input{flex:1;border:1.5px solid var(--line);border-radius:12px;padding:.5rem .7rem;font:inherit}
+
+/* ===== BOTTOM NAV (HP) ===== */
+.bottomnav{display:none}
+
+/* ===== TOAST ===== */
+.toast{position:fixed;left:50%;bottom:1.2rem;transform:translateX(-50%);background:var(--ink);color:#FFF7E8;padding:.7rem 1.05rem;border-radius:14px;z-index:120;box-shadow:var(--shadow);font-size:.88rem;max-width:92vw;text-align:center}
+.toast::before{content:"";position:absolute;left:50%;bottom:-4px;transform:translateX(-50%);width:8px;height:8px;border-radius:2px;background:inherit;rotate:45deg}
+.net-banner{position:fixed;left:0;right:0;top:0;z-index:130;background:#3D2500;color:#FFD98A;font-size:.8rem;font-weight:600;padding:.5rem 1rem;text-align:center}
+
+/* ===== FOOTER ===== */
+.footer{padding:1.6rem 1.2rem 5.4rem;text-align:center;font-size:.8rem;color:var(--ink-soft);border-top:1px solid var(--line);background:#F6EFDE}
+
+/* ===== PRINT ===== */
+@media print{
+  .nav,.chat,.plan-actions,.hero-cta,.siburu-actions,.footer,.bottomnav,.fav-btn{display:none!important}
+  body{background:#fff}.dualpane{grid-template-columns:1fr}
+  .card,.day{box-shadow:none;border-color:#bbb}.hero{background:#fff;color:#000}
+}
+
+/* ===== RESPONSIF ===== */
+@media (max-width:860px){.dualpane{grid-template-columns:1fr}.mapwrap{position:static}}
+@media (max-width:720px){
+  :root{--bump:64px}
+  .nav{padding:.5rem .7rem;gap:.5rem}
+  .nav-links{display:none}
+  .nav-badge{font-size:.68rem;padding:.22rem .55rem}
+  /* bottom bar ala aplikasi */
+  .bottomnav{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:80;background:rgba(255,253,248,.98);
+    backdrop-filter:blur(10px);border-top:1px solid var(--line);padding:.35rem .4rem calc(.35rem + env(safe-area-inset-bottom));justify-content:space-around;align-items:center}
+  .bn-item{display:flex;flex-direction:column;align-items:center;gap:1px;text-decoration:none;color:var(--ink-soft);font-size:.62rem;font-weight:700;padding:.25rem .6rem;border-radius:12px;min-width:58px}
+  .bn-item .bn-ico{font-size:1.15rem;line-height:1}
+  .bn-item.active{color:var(--maroon);background:#F6EBD8}
+  .bn-raun{width:54px;height:54px;margin-top:-22px;border-radius:50%;background:linear-gradient(135deg,var(--maroon),var(--gold-d));color:#fff;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:.6rem;font-weight:800;text-decoration:none;
+    box-shadow:0 10px 24px rgba(95,18,18,.45);border:3px solid var(--paper)}
+  .bn-raun .bn-ico{font-size:1.25rem}
+  /* modal jadi bottom-sheet */
+  .modal{align-items:flex-end;padding:0}
+  .modal-card{max-width:100%;border-radius:22px 22px 0 0;max-height:88vh;padding:1.2rem 1.1rem 1.6rem;animation:sheetup .22s ease-out}
+  .modal-card::before{content:"";position:absolute;top:8px;left:50%;transform:translateX(-50%);width:44px;height:5px;border-radius:99px;background:var(--line)}
+  @keyframes sheetup{from{transform:translateY(40px);opacity:.5}to{transform:none;opacity:1}}
+  .toast{bottom:calc(4.6rem + env(safe-area-inset-bottom))}
+  h2{font-size:1.28rem}
+  .plan-toolbar{top:auto;position:static}
+  .hero-sky .sun{width:54px;height:54px;right:5%;top:3%;opacity:.75}
+}
+
+/* ===== IKON SVG ===== */
+.ic{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:-3px;flex:none}
+.btn .ic{width:19px;height:19px}
+.bottomnav .ic{width:21px;height:21px}
+.bn-raun .ic{width:22px;height:22px;stroke:#FFF7E8}
+.logo{width:32px;height:32px;flex:none}
+.cover .cicon{position:absolute;right:12px;bottom:10px;width:32px;height:32px;stroke:#FFF7E8;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;opacity:.95;filter:drop-shadow(0 2px 4px rgba(0,0,0,.25))}
+.stamp-slot{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;border:2px dashed var(--line);margin-right:.35rem}
+.stamp-slot .ic{width:16px;height:16px;stroke:#5F1212}
+.fav-btn{display:flex;align-items:center;justify-content:center}
+.modal-x{width:auto;padding:.3rem .7rem;font-size:.72rem;font-weight:800}
+
+/* ===== HP: cegah teks bertumpuk ===== */
+@media (max-width:720px){
+ .hero{padding:2.4rem 1rem}
+ .hero h1{font-size:1.42rem}
+ .hero-sub{font-size:.92rem}
+ .siburu-card{margin-top:1.2rem;padding:.85rem}
+ .siburu-row{align-items:flex-start}
+ .siburu-actions{margin-left:0;width:100%;justify-content:flex-start}
+ .stats-row{grid-template-columns:1fr 1fr;gap:.6rem;padding:.9rem}
+ .stat b{font-size:1.05rem}
+ .block{padding:0 .9rem}
+ .kv{grid-template-columns:96px 1fr;font-size:.86rem}
+ .fare{display:block;overflow-x:auto;white-space:nowrap}
+ .grid.cards{grid-template-columns:1fr 1fr;gap:.7rem}
+ .card{padding:.85rem}
+ .trip .cover{height:60px}
+ .trip h3{font-size:.95rem}
+ .dua-kolom{grid-template-columns:1fr}
+ .plan-meta{font-size:.85rem}
+ .slot{grid-template-columns:60px 1fr;padding:.6rem .8rem}
+ .day-foot{font-size:.76rem;flex-wrap:wrap;gap:.2rem}
+ .stamps{display:flex;flex-wrap:wrap;align-items:center}
+ .chat-panel{width:92vw;height:52vh}
+}

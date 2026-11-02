@@ -1,0 +1,261 @@
+{
+  "fitur": 26,
+  "siap": 1,
+  "poles": 25,
+  "kerja": 0,
+  "peringkat": [
+    {
+      "id": "sim",
+      "nama": "Simulasi multi agen tampil",
+      "adopsi": 22.5,
+      "terpasang": 100,
+      "skor": 72,
+      "status": "POLES",
+      "catatan": [
+        "butuh internet, pastikan ada pesan offline"
+      ]
+    },
+    {
+      "id": "stay",
+      "nama": "Menginap dan ngopi",
+      "adopsi": 24,
+      "terpasang": 100,
+      "skor": 73,
+      "status": "POLES",
+      "catatan": []
+    },
+    {
+      "id": "dashboard",
+      "nama": "Dashboard data pemda",
+      "adopsi": 24,
+      "terpasang": 100,
+      "skor": 73,
+      "status": "POLES",
+      "catatan": []
+    },
+    {
+      "id": "wastatus",
+      "nama": "Kirim status langit ke WA",
+      "adopsi": 29,
+      "terpasang": 100,
+      "skor": 74,
+      "status": "POLES",
+      "catatan": [
+        "butuh internet, pastikan ada pesan offline"
+      ]
+    },
+    {
+      "id": "qris",
+      "nama": "QRIS demo per titik",
+      "adopsi": 27,
+      "terpasang": 100,
+      "skor": 74,
+      "status": "POLES",
+      "catatan": [
+        "butuh internet, pastikan ada pesan offline"
+      ]
+    },
+    {
+      "id": "chat",
+      "nama": "Asisten lokal",
+      "adopsi": 25.5,
+      "terpasang": 100,
+      "skor": 74,
+      "status": "POLES",
+      "catatan": []
+    },
+    {
+      "id": "share",
+      "nama": "Trip share lintas perangkat",
+      "adopsi": 29,
+      "terpasang": 100,
+      "skor": 74,
+      "status": "POLES",
+      "catatan": [
+        "butuh internet, pastikan ada pesan offline"
+      ]
+    },
+    {
+      "id": "budget",
+      "nama": "Slider budget",
+      "adopsi": 26.7,
+      "terpasang": 100,
+      "skor": 74,
+      "status": "POLES",
+      "catatan": []
+    },
+    {
+      "id": "kuliner",
+      "nama": "Katalog kuliner Kalteng",
+      "adopsi": 27,
+      "terpasang": 100,
+      "skor": 74,
+      "status": "POLES",
+      "catatan": []
+    },
+    {
+      "id": "pwa",
+      "nama": "Offline PWA dan file tunggal",
+      "adopsi": 25.5,
+      "terpasang": 100,
+      "skor": 74,
+      "status": "POLES",
+      "catatan": []
+    },
+    {
+      "id": "replay",
+      "nama": "Replay karhutla 14 Okt",
+      "adopsi": 28.4,
+      "terpasang": 100,
+      "skor": 75,
+      "status": "POLES",
+      "catatan": []
+    },
+    {
+      "id": "nearby",
+      "nama": "Hotel, makan, ngopi sekitar",
+      "adopsi": 30.6,
+      "terpasang": 100,
+      "skor": 75,
+      "status": "POLES",
+      "catatan": [
+        "butuh internet, pastikan ada pesan offline"
+      ]
+    },
+    {
+      "id": "gojek",
+      "nama": "Panggil Gojek",
+      "adopsi": 30.5,
+      "terpasang": 100,
+      "skor": 75,
+      "status": "POLES",
+      "catatan": [
+        "butuh internet, pastikan ada pesan offline"
+      ]
+    },
+    {
+      "id": "flood",
+      "nama": "Mode banjir adaptif",
+      "adopsi": 32.8,
+      "terpasang": 100,
+      "skor": 76,
+      "status": "POLES",
+      "catatan": []
+    },
+    {
+      "id": "favorit",
+      "nama": "Favorit hati persisten",
+      "adopsi": 32.5,
+      "terpasang": 100,
+      "skor": 76,
+      "status": "POLES",
+      "catatan": []
+    },
+    {
+      "id": "pasraun",
+      "nama": "Pas Raun 5 stempel",
+      "adopsi": 32.1,
+      "terpasang": 100,
+      "skor": 76,
+      "status": "POLES",
+      "catatan": []
+    },
+    {
+      "id": "regional",
+      "nama": "Destinasi Kalteng luas",
+      "adopsi": 30.5,
+      "terpasang": 100,
+      "skor": 76,
+      "status": "POLES",
+      "catatan": []
+    },
+    {
+      "id": "otsok",
+      "nama": "Otsok ojek perahu WA",
+      "adopsi": 37,
+      "terpasang": 100,
+      "skor": 77,
+      "status": "POLES",
+      "catatan": [
+        "butuh internet, pastikan ada pesan offline"
+      ]
+    },
+    {
+      "id": "foto",
+      "nama": "Foto kondisi pengunjung",
+      "adopsi": 33.2,
+      "terpasang": 100,
+      "skor": 77,
+      "status": "POLES",
+      "catatan": []
+    },
+    {
+      "id": "waalert",
+      "nama": "Pantau langit plus notifikasi",
+      "adopsi": 37.1,
+      "terpasang": 100,
+      "skor": 78,
+      "status": "POLES",
+      "catatan": []
+    },
+    {
+      "id": "darurat",
+      "nama": "Nomor darurat",
+      "adopsi": 36.3,
+      "terpasang": 100,
+      "skor": 78,
+      "status": "POLES",
+      "catatan": []
+    },
+    {
+      "id": "siburu",
+      "nama": "Skor langit live per destinasi",
+      "adopsi": 39.3,
+      "terpasang": 100,
+      "skor": 79,
+      "status": "POLES",
+      "catatan": []
+    },
+    {
+      "id": "map",
+      "nama": "Peta OSM nyata",
+      "adopsi": 43.5,
+      "terpasang": 100,
+      "skor": 79,
+      "status": "POLES",
+      "catatan": [
+        "butuh internet, pastikan ada pesan offline"
+      ]
+    },
+    {
+      "id": "rute",
+      "nama": "Rute Google Maps per titik",
+      "adopsi": 41.3,
+      "terpasang": 100,
+      "skor": 79,
+      "status": "POLES",
+      "catatan": [
+        "butuh internet, pastikan ada pesan offline"
+      ]
+    },
+    {
+      "id": "siappakai",
+      "nama": "10 itinerary siap pakai",
+      "adopsi": 39.8,
+      "terpasang": 100,
+      "skor": 79,
+      "status": "POLES",
+      "catatan": []
+    },
+    {
+      "id": "engine",
+      "nama": "Mesin itinerary 3 varian",
+      "adopsi": 59.3,
+      "terpasang": 100,
+      "skor": 86,
+      "status": "SIAP",
+      "catatan": []
+    }
+  ],
+  "metode": "5 juri otomatis per fitur: adopsi 1jt profil (35%), keterpasangan kode (30%), bahasa (15%), aman HP (10%), ketangguhan (10%)"
+}

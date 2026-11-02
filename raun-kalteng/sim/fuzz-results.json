@@ -1,0 +1,15 @@
+{
+  "sesi": 60000,
+  "berjalan": 60000,
+  "crashes": 0,
+  "crashSamples": [],
+  "tanpaHasilWajar": 48701,
+  "pelanggaran": {
+    "budget": 0,
+    "duplikatDestinasi": 0,
+    "bentukHasil": 0,
+    "skorEnv": 0
+  },
+  "status": "LULUS — mesin tahan banting",
+  "note": "Fuzz ala MiroFish: 60 ribu input jahat (budget negatif/NaN/Infinity, destinasi cacat, lingkungan NaN, id dobel) + 5 invariant keamanan. Tanpa hasil = perilaku benar utk input tak masuk akal."
+}

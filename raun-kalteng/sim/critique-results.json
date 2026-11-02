@@ -1,0 +1,20 @@
+{
+  "findings": [
+    {
+      "lens": "katalog",
+      "sev": "info",
+      "msg": "katalog 57 entri (destinasi 32, kuliner 8, hotel 4, kafe 3, regional 10)"
+    }
+  ],
+  "total": 1,
+  "tinggi": 0,
+  "status": "BERSIH",
+  "katalog": {
+    "destCount": 32,
+    "kulinerCount": 8,
+    "hotelCount": 4,
+    "kafeCount": 3,
+    "regionalCount": 10,
+    "total": 57
+  }
+}

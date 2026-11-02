@@ -1,0 +1,10 @@
+{
+  "name": "Raun Kalteng",
+  "short_name": "Raun",
+  "description": "Asisten perjalanan cerdas Palangka Raya — itinerary adaptif langit (asap/banjir) + QRIS lokal.",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#faf6ee",
+  "theme_color": "#7a1f1f",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}

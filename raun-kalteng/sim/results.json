@@ -1,0 +1,167 @@
+{
+  "agents": 2000000,
+  "scenarios": 5,
+  "totalNodes": 92537032,
+  "ms": 37505,
+  "headline": {
+    "skorMedianPerSkenario": {
+      "Cerah (normal)": 0.68,
+      "Asap ringan (PM2.5 95)": 0.57,
+      "Asap pekat 14 Okt 2026": 0.43,
+      "Hujan ringan": 0.6,
+      "Hujan ekstrem + luapan": 0.27
+    },
+    "fitBudgetPerSkenario": {
+      "Cerah (normal)": "100%",
+      "Asap ringan (PM2.5 95)": "100%",
+      "Asap pekat 14 Okt 2026": "87%",
+      "Hujan ringan": "100%",
+      "Hujan ekstrem + luapan": "98%"
+    },
+    "pelanggaranAreaRawan": {
+      "Cerah (normal)": 0,
+      "Asap ringan (PM2.5 95)": 0,
+      "Asap pekat 14 Okt 2026": 0,
+      "Hujan ringan": 0,
+      "Hujan ekstrem + luapan": 0
+    },
+    "aduStrategi": {
+      "greedy": {
+        "n": 1948092,
+        "median": 0.531
+      },
+      "greedyImprove": {
+        "n": 51908,
+        "median": 0.497
+      }
+    }
+  },
+  "findings": [
+    "**Cerah (normal)** — 400.000 agen: skor median 0.68/1.0 · fit-budget 100% · rata-rata penyesuaian langit 0/sesi · pelanggaran area-rawan: 0 · struktur pemenang: kota (18%)",
+    "**Asap ringan (PM2.5 95)** — 400.000 agen: skor median 0.57/1.0 · fit-budget 100% · rata-rata penyesuaian langit 0/sesi · pelanggaran area-rawan: 0 · struktur pemenang: kota (18%)",
+    "**Asap pekat 14 Okt 2026** — 400.000 agen: skor median 0.43/1.0 · fit-budget 87% · rata-rata penyesuaian langit 2.8/sesi · pelanggaran area-rawan: 0 · struktur pemenang: kota (18%)",
+    "**Hujan ringan** — 400.000 agen: skor median 0.60/1.0 · fit-budget 100% · rata-rata penyesuaian langit 0/sesi · pelanggaran area-rawan: 0 · struktur pemenang: kota (18%)",
+    "**Hujan ekstrem + luapan** — 400.000 agen: skor median 0.27/1.0 · fit-budget 98% · rata-rata penyesuaian langit 2.1/sesi · pelanggaran area-rawan: 0 · struktur pemenang: kota (18%)",
+    "**Resiliensi banjir:** 400.000 agen di skenario luapan menghasilkan 0 pelanggaran area rendah (0%) — mesin menghindari tepi danau/bantaran secara konsisten.",
+    "**Kantong gagal:** budget ≤Rp150rb di asap pekat hanya 49% fit-budget → jadikan dasar paket \"Hemat Indoor Rp100rb\" (temuan langsung utk pitch).",
+    "**Adu strategi:** greedy menang (median 0.531 vs 0.497) → pertahankan greedy; greedy-improve cukup untuk varian \"Hemat\"."
+  ],
+  "note": "Agen = wisatawan virtual dengan preferensi/budget/durasi acak berpola (seed deterministik). Mesin identik dengan app.js (greedy + greedy-improve + penuh kesadaran langit). totalNodes = jumlah kandidat destinasi yang benar-benar dinilai mesin. Pola simulasi diadaptasi dari MiroFish (666ghj/MiroFish).",
+  "scenarioDetail": {
+    "cerah": {
+      "label": "Cerah (normal)",
+      "n": 400000,
+      "median": 0.679,
+      "fitPct": 100,
+      "swapsPerAgent": 0,
+      "violations": 0,
+      "nodes": 17786706,
+      "topPlans": [
+        {
+          "plan": "kota",
+          "share": "18%"
+        },
+        {
+          "plan": "tangkiling",
+          "share": "15%"
+        },
+        {
+          "plan": "kota|kota",
+          "share": "14%"
+        }
+      ]
+    },
+    "haze_ringan": {
+      "label": "Asap ringan (PM2.5 95)",
+      "n": 400000,
+      "median": 0.566,
+      "fitPct": 100,
+      "swapsPerAgent": 0,
+      "violations": 0,
+      "nodes": 18719427,
+      "topPlans": [
+        {
+          "plan": "kota",
+          "share": "18%"
+        },
+        {
+          "plan": "tangkiling",
+          "share": "15%"
+        },
+        {
+          "plan": "kota|kota",
+          "share": "14%"
+        }
+      ]
+    },
+    "haze_pekat": {
+      "label": "Asap pekat 14 Okt 2026",
+      "n": 400000,
+      "median": 0.435,
+      "fitPct": 87,
+      "swapsPerAgent": 2.84,
+      "violations": 0,
+      "nodes": 18992114,
+      "topPlans": [
+        {
+          "plan": "kota",
+          "share": "18%"
+        },
+        {
+          "plan": "tangkiling",
+          "share": "15%"
+        },
+        {
+          "plan": "kota|kota",
+          "share": "14%"
+        }
+      ]
+    },
+    "hujan_ringan": {
+      "label": "Hujan ringan",
+      "n": 400000,
+      "median": 0.603,
+      "fitPct": 100,
+      "swapsPerAgent": 0,
+      "violations": 0,
+      "nodes": 18693165,
+      "topPlans": [
+        {
+          "plan": "kota",
+          "share": "18%"
+        },
+        {
+          "plan": "tangkiling",
+          "share": "15%"
+        },
+        {
+          "plan": "kota|kota",
+          "share": "14%"
+        }
+      ]
+    },
+    "banjir": {
+      "label": "Hujan ekstrem + luapan",
+      "n": 400000,
+      "median": 0.266,
+      "fitPct": 98,
+      "swapsPerAgent": 2.08,
+      "violations": 0,
+      "nodes": 18345620,
+      "topPlans": [
+        {
+          "plan": "kota",
+          "share": "18%"
+        },
+        {
+          "plan": "tangkiling",
+          "share": "15%"
+        },
+        {
+          "plan": "kota|kota",
+          "share": "14%"
+        }
+      ]
+    }
+  }
+}

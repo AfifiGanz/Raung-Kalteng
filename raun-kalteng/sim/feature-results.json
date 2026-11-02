@@ -1,0 +1,243 @@
+{
+  "ruangTeoretis": "2^44 = 1.759.218.604.443.648 kombinasi subset fitur (≈1,76×10^13)",
+  "metode": "1.000.000 profil wisatawan virtual menilai 44 fitur (seed 99) → Monte Carlo 200.000 subset + greedy dalam budget 120 hari-orang",
+  "subsetTerbaik": {
+    "fitur": [
+      "mapsrute",
+      "mapsnear",
+      "replay",
+      "budgetslider",
+      "otsok",
+      "stamp",
+      "gojek",
+      "floodmode",
+      "weatherhour",
+      "siburu",
+      "offlinepdf",
+      "hargatiket",
+      "siappakai",
+      "hotelkafe",
+      "keamanan",
+      "eventcal",
+      "favorit",
+      "badgesdg",
+      "dashboard",
+      "tripshare",
+      "waalert",
+      "tripbudget",
+      "chat",
+      "pasangsurut",
+      "pasfoto",
+      "gambutinfo",
+      "statwarga",
+      "panduprofil",
+      "sponsor",
+      "kulinermap",
+      "triploop",
+      "enlang",
+      "ratinglokal",
+      "kiosqr",
+      "audio",
+      "chatvoice",
+      "grouptrip",
+      "homestaybook",
+      "qrisdinamis",
+      "openapi"
+    ],
+    "biayaHariOrang": 119,
+    "utilitas": 12797177
+  },
+  "peringkat": [
+    {
+      "id": "mapsrute",
+      "label": "Rute Google Maps per titik",
+      "costHari": 1,
+      "wow": 0.75,
+      "sudah": true,
+      "probTerpakai": 61.1,
+      "utilitas": 534401
+    },
+    {
+      "id": "siburu",
+      "label": "Skor langit live per destinasi",
+      "costHari": 3,
+      "wow": 0.95,
+      "sudah": true,
+      "probTerpakai": 50,
+      "utilitas": 487546
+    },
+    {
+      "id": "otsok",
+      "label": "Ojek/perahu lokal via WA",
+      "costHari": 2,
+      "wow": 0.8,
+      "sudah": true,
+      "probTerpakai": 47.9,
+      "utilitas": 431438
+    },
+    {
+      "id": "waalert",
+      "label": "Notifikasi WA saat langit berubah",
+      "costHari": 4,
+      "wow": 0.8,
+      "sudah": false,
+      "probTerpakai": 47.9,
+      "utilitas": 430731
+    },
+    {
+      "id": "stamp",
+      "label": "Pas Raun stempel persisten",
+      "costHari": 2,
+      "wow": 0.8,
+      "sudah": true,
+      "probTerpakai": 46,
+      "utilitas": 413816
+    },
+    {
+      "id": "keamanan",
+      "label": "Tombol darurat & info BPBD",
+      "costHari": 3,
+      "wow": 0.75,
+      "sudah": false,
+      "probTerpakai": 47.2,
+      "utilitas": 412571
+    },
+    {
+      "id": "gojek",
+      "label": "Panggil Gojek dari titik",
+      "costHari": 2,
+      "wow": 0.7,
+      "sudah": true,
+      "probTerpakai": 44.6,
+      "utilitas": 378775
+    },
+    {
+      "id": "mapsnear",
+      "label": "Hotel/makan/ngopi sekitar",
+      "costHari": 1,
+      "wow": 0.7,
+      "sudah": true,
+      "probTerpakai": 44.5,
+      "utilitas": 377932
+    },
+    {
+      "id": "kiosqr",
+      "label": "Kios QRIS fisik di destinasi",
+      "costHari": 6,
+      "wow": 0.7,
+      "sudah": false,
+      "probTerpakai": 44.4,
+      "utilitas": 377785
+    },
+    {
+      "id": "eventcal",
+      "label": "Kalender FBIM & festival",
+      "costHari": 3,
+      "wow": 0.7,
+      "sudah": false,
+      "probTerpakai": 44.4,
+      "utilitas": 377680
+    },
+    {
+      "id": "vrsebangau",
+      "label": "Tur virtual 360° Sebangau",
+      "costHari": 8,
+      "wow": 0.85,
+      "sudah": false,
+      "probTerpakai": 40.7,
+      "utilitas": 376273
+    },
+    {
+      "id": "floodmode",
+      "label": "Mode banjir adaptif",
+      "costHari": 2,
+      "wow": 0.85,
+      "sudah": true,
+      "probTerpakai": 40.6,
+      "utilitas": 375171
+    },
+    {
+      "id": "weatherhour",
+      "label": "Perkiraan per jam (bukan harian)",
+      "costHari": 2,
+      "wow": 0.6,
+      "sudah": false,
+      "probTerpakai": 44.9,
+      "utilitas": 359102
+    },
+    {
+      "id": "tripshare",
+      "label": "Halaman share publik per trip",
+      "costHari": 3,
+      "wow": 0.6,
+      "sudah": false,
+      "probTerpakai": 42.9,
+      "utilitas": 343378
+    },
+    {
+      "id": "panduprofil",
+      "label": "Profil pandu lokal bersertifikat",
+      "costHari": 4,
+      "wow": 0.75,
+      "sudah": false,
+      "probTerpakai": 39.1,
+      "utilitas": 341940
+    },
+    {
+      "id": "arway",
+      "label": "AR wayfinding di riverfront",
+      "costHari": 8,
+      "wow": 0.8,
+      "sudah": false,
+      "probTerpakai": 38,
+      "utilitas": 341840
+    },
+    {
+      "id": "ratinglokal",
+      "label": "Ulasan warga terverifikasi",
+      "costHari": 5,
+      "wow": 0.7,
+      "sudah": false,
+      "probTerpakai": 38.5,
+      "utilitas": 327321
+    },
+    {
+      "id": "homestaybook",
+      "label": "Koneksi homestay desa",
+      "costHari": 6,
+      "wow": 0.7,
+      "sudah": false,
+      "probTerpakai": 38.4,
+      "utilitas": 326234
+    },
+    {
+      "id": "qrisdinamis",
+      "label": "QRIS dinamis nominal otomatis",
+      "costHari": 6,
+      "wow": 0.9,
+      "sudah": false,
+      "probTerpakai": 33.5,
+      "utilitas": 318218
+    },
+    {
+      "id": "replay",
+      "label": "Replay karhutla utk demo",
+      "costHari": 1,
+      "wow": 0.9,
+      "sudah": true,
+      "probTerpakai": 33.4,
+      "utilitas": 317759
+    }
+  ],
+  "rekomendasiV1": [
+    "waalert",
+    "keamanan",
+    "kiosqr",
+    "eventcal",
+    "vrsebangau",
+    "weatherhour",
+    "tripshare",
+    "panduprofil"
+  ],
+  "note": "Angka 9,99×10^22 cara secara harfiah tak terjangkau waktu komputasi demo — maka dipakai dua lapis pemangkasan cerdas (evaluasi marginal + Monte Carlo), pola yang sama dipakai MiroFish untuk memangkas ruang skenario."
+}

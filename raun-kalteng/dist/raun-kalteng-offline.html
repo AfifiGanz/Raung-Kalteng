@@ -1,0 +1,1985 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<!-- Raun Kalteng — versi offline 1 file. Data demo; bukan layanan publik. -->
+<title>Raun Kalteng, kawan raun Palangka Raya</title>
+<meta name="description" content="Susun itinerary Palangka Raya sesuai budget dan kondisi langit. Ada rencana cadangan saat asap atau banjir. Demo Tambun Bungai Ideathon 2026.">
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%0A%20%20%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2214%22%20fill%3D%22%237a1f1f%22%2F%3E%0A%20%20%3Ccircle%20cx%3D%2242%22%20cy%3D%2220%22%20r%3D%2210%22%20fill%3D%22%23e0a437%22%2F%3E%0A%20%20%3Cpath%20d%3D%22M6%2044%20l6%20-6%206%206%206%20-6%206%206%206%20-6%206%206%206%20-6%206%206%206%20-6%22%20stroke%3D%22%23e0a437%22%20stroke-width%3D%224%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%2F%3E%0A%20%20%3Cpath%20d%3D%22M8%2052%20h48%22%20stroke%3D%22%23faf6ee%22%20stroke-width%3D%224%22%20stroke-linecap%3D%22round%22%2F%3E%0A%20%20%3Ctext%20x%3D%2214%22%20y%3D%2230%22%20font-family%3D%22Arial%2C%20sans-serif%22%20font-size%3D%2218%22%20font-weight%3D%22bold%22%20fill%3D%22%23faf6ee%22%3ER%3C%2Ftext%3E%0A%3C%2Fsvg%3E%0A">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+/* RAUN KALTENG v0.3 — desain ala aplikasi travel modern
+ * Pola 2026: visual imersif, nav aplikasi (bottom bar + tombol tengah), kartu berlapis,
+ * bottom-sheet di HP. Palet Isen Mulang: maroon, emas, + hijau eco.
+ */
+:root{
+  --maroon:#8B1E1E; --maroon-d:#5F1212; --gold:#E8A93B; --gold-d:#C4861C;
+  --leaf:#2F6B4F; --sky:#1F6E8C;
+  --ink:#231D14; --ink-soft:#6B6152; --cream:#FAF6EE; --paper:#FFFFFF;
+  --ok:#2E7D32; --warn:#E08A00; --bad:#C62828;
+  --line:#EAE1CE; --r-lg:22px; --r-md:16px; --r-sm:12px;
+  --shadow:0 10px 30px rgba(35,29,20,.10); --shadow-sm:0 4px 14px rgba(35,29,20,.08);
+  --nav-h:60px;
+}
+*{box-sizing:border-box} html{scroll-behavior:smooth}
+[hidden]{display:none!important}
+body{margin:0;font-family:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  background:var(--cream);color:var(--ink);line-height:1.55;font-size:15.5px}
+h1,h2,h3{line-height:1.15;margin:.2em 0 .45em;letter-spacing:-.01em}
+h1{font-size:clamp(1.9rem,5vw,3rem);font-weight:800}
+h2{font-size:1.45rem;font-weight:800}
+h3{font-size:1.05rem;font-weight:700}
+a{color:var(--maroon)}
+img{max-width:100%}
+.muted{color:var(--ink-soft)} .small{font-size:.82rem} .center{text-align:center}
+:focus-visible{outline:3px solid var(--gold-d);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* ===== NAV ATAS (desktop) ===== */
+.nav{position:sticky;top:0;z-index:60;display:flex;align-items:center;gap:1rem;padding:.65rem 1.2rem;
+  background:rgba(250,246,238,.9);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:.55rem;font-weight:800;letter-spacing:.4px;color:var(--ink);text-decoration:none}
+.brand em{color:var(--maroon);font-style:normal}
+.brand-mark{width:20px;height:20px;background:
+  conic-gradient(from 45deg,var(--maroon) 0 25%,var(--gold) 0 50%,var(--maroon) 0 75%,var(--gold) 0);
+  border-radius:6px;transform:rotate(8deg);box-shadow:var(--shadow-sm)}
+.nav-links{display:flex;gap:.35rem;margin-left:.4rem}
+.nav-links a{text-decoration:none;color:var(--ink-soft);font-size:.92rem;font-weight:600;padding:.4rem .75rem;border-radius:99px}
+.nav-links a:hover{background:#F2EADA;color:var(--ink)}
+.nav-badge{margin-left:auto;font-size:.72rem;font-weight:700;background:var(--maroon);color:#fff;padding:.28rem .7rem;border-radius:99px}
+
+/* ===== HERO OPENING: ilustrasi Jembatan Kahayan ===== */
+.hero{position:relative;overflow:hidden;color:#FFF7E8;
+ padding:3.4rem 1.2rem 3.6rem;text-align:center}
+.hero-art{position:absolute;inset:0;z-index:0}
+.hero-art svg{width:100%;height:100%;display:block}
+.haze-layer{position:absolute;inset:0;z-index:1;opacity:0;transition:opacity .9s;
+ background:linear-gradient(180deg,rgba(30,8,5,.6),rgba(30,8,5,.3))}
+.hero[data-env="bad"] .haze-layer{opacity:1}
+.hero::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+ background:linear-gradient(180deg,rgba(26,5,5,.5),rgba(26,5,5,.18) 42%,rgba(26,5,5,.5))}
+.hero-eyebrow{font-weight:800;letter-spacing:.16em;font-size:.78rem;text-transform:uppercase;color:#FFD98A;margin-bottom:.5rem}
+.hero h1{max-width:760px;margin:0 auto}
+.hero h1 .hl{background:linear-gradient(180deg,transparent 62%,rgba(232,169,59,.6) 62%)}
+.hero-sub{max-width:620px;margin:.9rem auto 1.4rem;color:#FFE9C4;font-size:1.02rem}
+.hero-eyebrow{font-weight:800;letter-spacing:.16em;font-size:.78rem;text-transform:uppercase;color:#FFD98A;margin-bottom:.5rem;position:relative;z-index:2}
+.hero h1{max-width:760px;margin:0 auto;position:relative;z-index:2}
+.hero h1 .hl{background:linear-gradient(180deg,transparent 62%,rgba(232,169,59,.6) 62%)}
+.hero-sub{max-width:620px;margin:.9rem auto 1.4rem;color:#FFE9C4;font-size:1.02rem;position:relative;z-index:2}
+.hero-cta{display:flex;gap:.8rem;justify-content:center;flex-wrap:wrap;position:relative;z-index:2}
+.btn{cursor:pointer;border:none;border-radius:14px;padding:.8rem 1.25rem;font-weight:800;font-size:.97rem;text-decoration:none;display:inline-flex;align-items:center;gap:.45rem;transition:transform .12s}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--gold);color:#3D2500;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.btn-primary:hover{filter:brightness(1.05)}
+.btn-ghost{background:rgba(255,255,255,.12);border:1.5px solid rgba(255,237,200,.6);color:#FFF3DC}
+.chip{cursor:pointer;border:1.5px solid var(--line);background:var(--paper);border-radius:99px;padding:.4rem .85rem;font-size:.8rem;font-weight:600;color:var(--ink-soft);transition:transform .1s}
+.chip:hover{transform:translateY(-1px)}
+.chip.active{background:var(--maroon);border-color:var(--maroon);color:#fff}
+.chipset{display:flex;gap:.45rem;flex-wrap:wrap}
+.chipsheet{display:flex;gap:.5rem;overflow-x:auto;padding:.2rem .2rem .5rem;scrollbar-width:none}
+.chipsheet::-webkit-scrollbar{display:none}
+
+/* strip Si Buru = kartu mengambang */
+.siburu-card{max-width:860px;margin:1.6rem auto 0;background:rgba(255,253,248,.97);color:var(--ink);
+  border-radius:var(--r-lg);box-shadow:0 18px 50px rgba(40,10,5,.35);padding:1rem 1.1rem;text-align:left}
+.siburu-row{display:flex;align-items:center;gap:.65rem;flex-wrap:wrap}
+.siburu-dot{width:13px;height:13px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 5px rgba(46,125,50,.15);flex:none}
+.siburu-dot[data-c="warn"]{background:var(--warn);box-shadow:0 0 0 5px rgba(224,138,0,.18)}
+.siburu-dot[data-c="bad"]{background:var(--bad);box-shadow:0 0 0 5px rgba(198,40,40,.18)}
+.siburu-actions{display:flex;gap:.4rem;flex-wrap:wrap;margin-left:auto}
+#hours-chips,#events-home{margin-top:.7rem;justify-content:flex-start}
+
+/* ===== KOMPONEN UMUM ===== */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.8rem;max-width:1080px;margin:1.6rem auto;padding:0 1.2rem}
+.stat{background:var(--paper);border:1px solid var(--line);border-radius:var(--r-md);padding:.9rem 1rem;box-shadow:var(--shadow-sm)}
+.stat b{display:block;font-size:1.3rem;color:var(--maroon)}
+.stat span{font-size:.76rem;color:var(--ink-soft)}
+.block{max-width:1080px;margin:1.8rem auto;padding:0 1.2rem}
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.sec-head a{font-size:.85rem;font-weight:700;text-decoration:none}
+.dua-kolom{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.grid.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:1.1rem;margin-top:1rem}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:var(--r-lg);padding:1.05rem;box-shadow:var(--shadow-sm);overflow:hidden;position:relative}
+.card.info h3{margin-top:0}
+.filters{display:flex;gap:.45rem;flex-wrap:wrap;margin-top:.6rem}
+
+/* kartu destinasi ber-cover ilustrasi */
+.trip{display:flex;flex-direction:column;padding:0}
+.trip .cover{height:118px;position:relative;background:#E8DFC8}
+.cover svg{width:100%;height:100%;display:block}
+.cover .emoji{position:absolute;right:10px;bottom:-16px;font-size:2rem;filter:drop-shadow(0 4px 6px rgba(0,0,0,.25))}
+.trip .body{padding:.9rem 1rem 1rem;display:flex;flex-direction:column;gap:.4rem;flex:1}
+.trip h3{margin:0}
+.badges{display:flex;gap:.35rem;flex-wrap:wrap}
+.badge{font-size:.68rem;font-weight:700;border-radius:99px;padding:.18rem .55rem;background:#F2EADA;color:var(--ink-soft)}
+.badge.tem-alam{background:#E2EFE4;color:#276B2C}.badge.tem-budaya{background:#F6E7D3;color:#8A5A12}
+.badge.tem-kuliner{background:#F9DFD6;color:#A03D1E}.badge.tem-keluarga{background:#E3ECF6;color:#2C5D8F}
+.badge.tem-indoor{background:#ECE7F6;color:#4B3D86}.badge.tem-sejarah{background:#EFE4DA;color:#7A4A2B}
+.badge.tem-campur{background:#EFE4DA;color:#5C5344}.badge.tem-air{background:#DFF0F5;color:#1F6E8C}
+.badge.tem-sunset{background:#FBEECF;color:#9A6B10}.badge.tem-hiking{background:#E7EFDB;color:#3E5622}
+.badge.tem-foto{background:#F0E6F3;color:#6B4A7A}
+.acts{display:flex;gap:.35rem;flex-wrap:wrap;margin-top:.35rem}
+.acts .chip{font-size:.74rem;padding:.3rem .6rem}
+.fav-btn{position:absolute;top:.6rem;right:.6rem;z-index:2;width:34px;height:34px;border-radius:50%;border:none;
+  background:rgba(255,255,255,.92);cursor:pointer;font-size:1rem;box-shadow:var(--shadow-sm)}
+.fav-btn.on{background:#FFE1E1}
+
+/* ===== PLAN ===== */
+.plan-toolbar{position:sticky;top:calc(var(--nav-h) + 1px);z-index:40;display:flex;align-items:center;justify-content:space-between;gap:.8rem;
+  max-width:1080px;margin:.9rem auto 0;padding:.55rem 1rem;background:rgba(250,246,238,.94);backdrop-filter:blur(8px);
+  border:1px solid var(--line);border-radius:var(--r-md);box-shadow:var(--shadow-sm);flex-wrap:wrap}
+.variant-tabs{display:flex;gap:.5rem;flex-wrap:wrap}
+.variant-tabs .chip.vtab{padding:.5rem 1rem}
+.variant-tabs .chip.vtab[aria-selected="true"]{background:var(--gold-d);border-color:var(--gold-d);color:#fff}
+.plan-actions{display:flex;gap:.45rem;flex-wrap:wrap}
+.plan-meta{max-width:1080px;margin:.8rem auto 0;padding:0 1.2rem;font-size:.9rem;color:var(--ink-soft)}
+.dualpane{display:grid;grid-template-columns:1.25fr 1fr;gap:1rem;max-width:1080px;margin:1rem auto 2rem;padding:0 1.2rem;align-items:start}
+.timeline{display:flex;flex-direction:column;gap:1rem}
+.day{background:var(--paper);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow-sm);overflow:hidden}
+.day-head{display:flex;align-items:center;justify-content:space-between;gap:.6rem;padding:.75rem 1rem;
+  background:linear-gradient(90deg,#FBF3DF,#FFFDF8);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.day-head b{color:var(--maroon)}
+.slot{display:grid;grid-template-columns:88px 1fr;gap:.7rem;padding:.75rem 1rem;border-bottom:1px dashed var(--line)}
+.slot:last-of-type{border-bottom:none}
+.slot .time{font-size:.72rem;font-weight:800;color:var(--gold-d);text-transform:uppercase;padding-top:.25rem}
+.item{border:1px solid var(--line);border-radius:var(--r-md);padding:.65rem .8rem;background:#FFFDF8;display:flex;gap:.7rem;align-items:flex-start}
+.item.swapped{border-style:dashed;border-color:var(--gold)}
+.item .dot{width:11px;height:11px;border-radius:50%;margin-top:.5rem;flex:none;background:var(--ok)}
+.item .dot[data-c="warn"]{background:var(--warn)}.item .dot[data-c="bad"]{background:var(--bad)}
+.item h4{margin:.1rem 0;font-size:1rem}
+.item .tags{display:flex;gap:.3rem;flex-wrap:wrap;margin:.25rem 0}
+.day-foot{display:flex;justify-content:space-between;padding:.6rem 1rem;background:#FBF6E9;font-size:.82rem;color:var(--ink-soft)}
+
+/* peta nyata (Leaflet) */
+.mapwrap{background:var(--paper);border:1px solid var(--line);border-radius:var(--r-lg);padding:.7rem;box-shadow:var(--shadow-sm);position:sticky;top:130px}
+#map{width:100%;height:400px;border-radius:var(--r-md);background:#DDE8E0;z-index:1}
+.map-legend{display:flex;gap:.8rem;font-size:.75rem;color:var(--ink-soft);margin-top:.45rem;flex-wrap:wrap}
+.legend-dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:.25rem}
+.pin{display:flex;align-items:center;justify-content:center;border-radius:50% 50% 50% 4px;transform:rotate(-45deg);border:2px solid #fff;box-shadow:0 3px 8px rgba(0,0,0,.3)}
+.pin span{transform:rotate(45deg);font-size:.72em;color:#fff;font-weight:800}
+.leaflet-container{font:inherit}
+
+/* ===== MODAL & BOTTOM-SHEET ===== */
+.modal{position:fixed;inset:0;background:rgba(35,29,20,.5);display:flex;align-items:center;justify-content:center;z-index:100;padding:1rem}
+.modal-card{background:var(--paper);border-radius:var(--r-lg);max-width:580px;width:100%;max-height:88vh;overflow:auto;padding:1.5rem;box-shadow:0 24px 70px rgba(0,0,0,.3);position:relative}
+.modal-x{position:absolute;top:.7rem;right:.9rem;border:none;background:#F2EADA;width:32px;height:32px;border-radius:50%;cursor:pointer;color:var(--ink-soft)}
+.modal form label{display:block;margin:.7rem 0 .25rem;font-size:.85rem;font-weight:700}
+.modal form input,.modal form select{width:100%;padding:.6rem .75rem;border:1.5px solid var(--line);border-radius:12px;font:inherit;background:#fff}
+.modal fieldset{border:1px dashed var(--line);border-radius:14px;margin-top:1rem;padding:.6rem .8rem}
+.modal fieldset legend{font-size:.8rem;font-weight:700;color:var(--ink-soft);padding:0 .3rem}
+input[type=range]{width:100%;accent-color:var(--maroon)}
+#modal-detail-body img.qr{width:200px;height:200px;background:#fff;border:1px solid var(--line);border-radius:8px}
+.kv{display:grid;grid-template-columns:118px 1fr;gap:.3rem .8rem;font-size:.92rem;margin:.8rem 0}
+.kv dt{color:var(--ink-soft)} .kv dd{margin:0}
+.stamps{margin:.4rem 0}
+
+/* ===== CHAT ===== */
+.chat{position:fixed;right:1rem;bottom:calc(1rem + var(--bump,0px));z-index:90;display:flex;flex-direction:column;align-items:flex-end}
+.chat-fab{width:56px;height:56px;border-radius:50%;border:none;background:var(--maroon);color:#fff;font-size:1.35rem;cursor:pointer;box-shadow:0 10px 26px rgba(95,18,18,.4)}
+.chat-panel{width:min(350px,92vw);height:430px;background:var(--paper);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:0 24px 60px rgba(0,0,0,.28);display:flex;flex-direction:column;overflow:hidden;margin-bottom:.6rem}
+.chat-head{display:flex;justify-content:space-between;align-items:center;padding:.65rem .95rem;background:var(--maroon);color:#fff;font-weight:700;font-size:.9rem}
+.chat-head button{background:none;border:none;color:#fff;cursor:pointer}
+.chat-log{flex:1;overflow:auto;padding:.7rem;display:flex;flex-direction:column;gap:.5rem}
+.msg{max-width:85%;padding:.55rem .75rem;border-radius:14px;font-size:.87rem}
+.msg.bot{background:#F2EADA;align-self:flex-start;border-bottom-left-radius:4px}
+.msg.user{background:var(--maroon);color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
+.msg .mact{display:inline-block;margin:.3rem .3rem 0 0;font-size:.74rem;background:#fff;border:1px solid var(--line);border-radius:99px;padding:.22rem .6rem;cursor:pointer;color:var(--maroon);font-weight:700}
+.chat-form{display:flex;gap:.4rem;padding:.55rem;border-top:1px solid var(--line)}
+.chat-form input{flex:1;border:1.5px solid var(--line);border-radius:12px;padding:.5rem .7rem;font:inherit}
+
+/* ===== BOTTOM NAV (HP) ===== */
+.bottomnav{display:none}
+
+/* ===== TOAST ===== */
+.toast{position:fixed;left:50%;bottom:1.2rem;transform:translateX(-50%);background:var(--ink);color:#FFF7E8;padding:.7rem 1.05rem;border-radius:14px;z-index:120;box-shadow:var(--shadow);font-size:.88rem;max-width:92vw;text-align:center}
+.toast::before{content:"";position:absolute;left:50%;bottom:-4px;transform:translateX(-50%);width:8px;height:8px;border-radius:2px;background:inherit;rotate:45deg}
+.net-banner{position:fixed;left:0;right:0;top:0;z-index:130;background:#3D2500;color:#FFD98A;font-size:.8rem;font-weight:600;padding:.5rem 1rem;text-align:center}
+
+/* ===== FOOTER ===== */
+.footer{padding:1.6rem 1.2rem 5.4rem;text-align:center;font-size:.8rem;color:var(--ink-soft);border-top:1px solid var(--line);background:#F6EFDE}
+
+/* ===== PRINT ===== */
+@media print{
+  .nav,.chat,.plan-actions,.hero-cta,.siburu-actions,.footer,.bottomnav,.fav-btn{display:none!important}
+  body{background:#fff}.dualpane{grid-template-columns:1fr}
+  .card,.day{box-shadow:none;border-color:#bbb}.hero{background:#fff;color:#000}
+}
+
+/* ===== RESPONSIF ===== */
+@media (max-width:860px){.dualpane{grid-template-columns:1fr}.mapwrap{position:static}}
+@media (max-width:720px){
+  :root{--bump:64px}
+  .nav{padding:.5rem .7rem;gap:.5rem}
+  .nav-links{display:none}
+  .nav-badge{font-size:.68rem;padding:.22rem .55rem}
+  /* bottom bar ala aplikasi */
+  .bottomnav{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:80;background:rgba(255,253,248,.98);
+    backdrop-filter:blur(10px);border-top:1px solid var(--line);padding:.35rem .4rem calc(.35rem + env(safe-area-inset-bottom));justify-content:space-around;align-items:center}
+  .bn-item{display:flex;flex-direction:column;align-items:center;gap:1px;text-decoration:none;color:var(--ink-soft);font-size:.62rem;font-weight:700;padding:.25rem .6rem;border-radius:12px;min-width:58px}
+  .bn-item .bn-ico{font-size:1.15rem;line-height:1}
+  .bn-item.active{color:var(--maroon);background:#F6EBD8}
+  .bn-raun{width:54px;height:54px;margin-top:-22px;border-radius:50%;background:linear-gradient(135deg,var(--maroon),var(--gold-d));color:#fff;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:.6rem;font-weight:800;text-decoration:none;
+    box-shadow:0 10px 24px rgba(95,18,18,.45);border:3px solid var(--paper)}
+  .bn-raun .bn-ico{font-size:1.25rem}
+  /* modal jadi bottom-sheet */
+  .modal{align-items:flex-end;padding:0}
+  .modal-card{max-width:100%;border-radius:22px 22px 0 0;max-height:88vh;padding:1.2rem 1.1rem 1.6rem;animation:sheetup .22s ease-out}
+  .modal-card::before{content:"";position:absolute;top:8px;left:50%;transform:translateX(-50%);width:44px;height:5px;border-radius:99px;background:var(--line)}
+  @keyframes sheetup{from{transform:translateY(40px);opacity:.5}to{transform:none;opacity:1}}
+  .toast{bottom:calc(4.6rem + env(safe-area-inset-bottom))}
+  h2{font-size:1.28rem}
+  .plan-toolbar{top:auto;position:static}
+  .hero-sky .sun{width:54px;height:54px;right:5%;top:3%;opacity:.75}
+}
+
+/* ===== IKON SVG ===== */
+.ic{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:-3px;flex:none}
+.btn .ic{width:19px;height:19px}
+.bottomnav .ic{width:21px;height:21px}
+.bn-raun .ic{width:22px;height:22px;stroke:#FFF7E8}
+.logo{width:32px;height:32px;flex:none}
+.cover .cicon{position:absolute;right:12px;bottom:10px;width:32px;height:32px;stroke:#FFF7E8;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;opacity:.95;filter:drop-shadow(0 2px 4px rgba(0,0,0,.25))}
+.stamp-slot{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;border:2px dashed var(--line);margin-right:.35rem}
+.stamp-slot .ic{width:16px;height:16px;stroke:#5F1212}
+.fav-btn{display:flex;align-items:center;justify-content:center}
+.modal-x{width:auto;padding:.3rem .7rem;font-size:.72rem;font-weight:800}
+
+/* ===== HP: cegah teks bertumpuk ===== */
+@media (max-width:720px){
+ .hero{padding:2.4rem 1rem}
+ .hero h1{font-size:1.42rem}
+ .hero-sub{font-size:.92rem}
+ .siburu-card{margin-top:1.2rem;padding:.85rem}
+ .siburu-row{align-items:flex-start}
+ .siburu-actions{margin-left:0;width:100%;justify-content:flex-start}
+ .stats-row{grid-template-columns:1fr 1fr;gap:.6rem;padding:.9rem}
+ .stat b{font-size:1.05rem}
+ .block{padding:0 .9rem}
+ .kv{grid-template-columns:96px 1fr;font-size:.86rem}
+ .fare{display:block;overflow-x:auto;white-space:nowrap}
+ .grid.cards{grid-template-columns:1fr 1fr;gap:.7rem}
+ .card{padding:.85rem}
+ .trip .cover{height:60px}
+ .trip h3{font-size:.95rem}
+ .dua-kolom{grid-template-columns:1fr}
+ .plan-meta{font-size:.85rem}
+ .slot{grid-template-columns:60px 1fr;padding:.6rem .8rem}
+ .day-foot{font-size:.76rem;flex-wrap:wrap;gap:.2rem}
+ .stamps{display:flex;flex-wrap:wrap;align-items:center}
+ .chat-panel{width:92vw;height:52vh}
+}
+
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h13v-9.5"/></symbol>
+  <symbol id="i-compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2.2 4.8-4.8 2.2 2.2-4.8z"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-6.5-5.2-6.5-10a6.5 6.5 0 0 1 13 0c0 4.8-6.5 10-6.5 10z"/><circle cx="12" cy="11" r="2.4"/></symbol>
+  <symbol id="i-ticket" viewBox="0 0 24 24"><path d="M4 8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-4z"/><path d="M13 6v12" stroke-dasharray="2 2.4"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20h16"/><path d="M7 20v-7M12 20V6M17 20v-10"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M18.4 5.6 17 7M7 17l-1.4 1.4"/></symbol>
+  <symbol id="i-rain" viewBox="0 0 24 24"><path d="M7 15a4.5 4.5 0 0 1 .8-8.9A5.5 5.5 0 0 1 18.4 8 3.7 3.7 0 0 1 17.5 15z"/><path d="M9 18.5v1.8M13 17.5v1.8M17 18.5v1.8"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 4 3.5 19h17z"/><path d="M12 10v4M12 16.6v.4"/></symbol>
+  <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-7.5-4.6-9-9.3C1.9 7.2 4 4.5 7 4.5c2 0 3.6 1.1 5 3 1.4-1.9 3-3 5-3 3 0 5.1 2.7 4 6.2-1.5 4.7-9 9.3-9 9.3z"/></symbol>
+  <symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="18" r="2.4"/><circle cx="18" cy="6" r="2.4"/><path d="M8.4 18H15a3.5 3.5 0 0 0 0-7H9a3.5 3.5 0 0 1 0-7h6.6" /></symbol>
+  <symbol id="i-share" viewBox="0 0 24 24"><circle cx="6" cy="12" r="2.4"/><circle cx="17.5" cy="5.5" r="2.4"/><circle cx="17.5" cy="18.5" r="2.4"/><path d="M8.2 10.8 15.3 6.7M8.2 13.2l7.1 4.1"/></symbol>
+  <symbol id="i-print" viewBox="0 0 24 24"><path d="M7 8V4h10v4"/><rect x="4" y="8" width="16" height="8" rx="2"/><path d="M7 14h10v6H7z"/></symbol>
+  <symbol id="i-edit" viewBox="0 0 24 24"><path d="m14.5 5.5 4 4L8 20l-4.6 1L4.5 16z"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 3.5 2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8L3.5 9.7l5.9-.9z"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4h11A2.5 2.5 0 0 1 20 6.5v7a2.5 2.5 0 0 1-2.5 2.5H10l-4.5 4v-4H6.5A2.5 2.5 0 0 1 4 13.5z"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6"/><path d="m15.5 15.5 5 5"/></symbol>
+  <symbol id="i-leaf" viewBox="0 0 24 24"><path d="M5 19C5 9 12 4 20 4c0 9-5 15-13 15h-2z"/><path d="M5 19c2-5 5-8 9-10"/></symbol>
+  <symbol id="i-go" viewBox="0 0 24 24"><path d="M4 12h13"/><path d="m12 6 6 6-6 6"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M20 12H7"/><path d="m12 6-6 6 6 6"/></symbol>
+  <symbol id="i-food" viewBox="0 0 24 24"><path d="M4 12h16a8 8 0 0 1-16 0z"/><path d="M9 8c0-1.4 1-1.6 1-3M13 8c0-1.4 1-1.6 1-3"/></symbol>
+  <symbol id="i-bed" viewBox="0 0 24 24"><path d="M3 18v-8h13a4 4 0 0 1 4 4v4"/><path d="M3 14h18M3 18v2M21 18v2"/><circle cx="7.5" cy="12.5" r="1.6"/></symbol>
+  <symbol id="i-cup" viewBox="0 0 24 24"><path d="M5 9h11v6a5 5 0 0 1-10 0z"/><path d="M16 10h2.2a2.2 2.2 0 0 1 0 4.4H16"/><path d="M8 6c0-1.2.8-1.4.8-2.6M12 6c0-1.2.8-1.4.8-2.6"/></symbol>
+  <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3.5c3.5 4.4 6 7.6 6 10.6a6 6 0 0 1-12 0c0-3 2.5-6.2 6-10.6z"/></symbol>
+  <symbol id="i-mountain" viewBox="0 0 24 24"><path d="m3 19 6-11 4 7 2.5-4L21 19z"/></symbol>
+</svg>
+
+<nav class="nav" aria-label="Navigasi utama">
+  <a class="brand" href="#home" data-nav>
+    <svg class="logo" viewBox="0 0 48 48" aria-hidden="true">
+      <rect x="2" y="2" width="44" height="44" rx="12" fill="#8B1E1E"/>
+      <circle cx="33" cy="14" r="6.5" fill="#E8A93B"/>
+      <path d="M8 34l5-5 5 5 5-5 5 5 5-5 5 5" stroke="#E8A93B" stroke-width="3.2" fill="none" stroke-linecap="round"/>
+      <path d="M10 41h28" stroke="#FAF6EE" stroke-width="3.2" stroke-linecap="round"/>
+    </svg>
+    <span>RAUN <em>KALTENG</em></span>
+  </a>
+  <div class="nav-links">
+    <a href="#home" data-nav>Beranda</a>
+    <a href="#destinasi" data-nav>Jelajah</a>
+    <a href="#budaya" data-nav>Budaya</a>
+    <a href="#umkm" data-nav>Paspor dan UMKM</a>
+    <a href="#data" data-nav>Data</a>
+  </div>
+  <span class="nav-badge" title="Prototipe Tambun Bungai Ideathon, Borneo DECAFEST 2026">v0.4 demo</span>
+</nav>
+
+<main>
+  <!-- ============ OPENING ============ -->
+  <section id="view-home" class="view">
+ <header class="hero">
+ <div class="hero-art" aria-hidden="true">
+ <svg viewBox="0 0 1200 480" preserveAspectRatio="xMidYMid slice">
+ <defs>
+ <linearGradient id="hsky" x1="0" y1="0" x2="0" y2="1">
+ <stop offset="0" stop-color="#3A0D0D"/><stop offset=".45" stop-color="#8B1E1E"/><stop offset=".78" stop-color="#C4552D"/><stop offset="1" stop-color="#E8A93B"/>
+ </linearGradient>
+ <linearGradient id="hwater" x1="0" y1="0" x2="0" y2="1">
+ <stop offset="0" stop-color="#2A0B0B"/><stop offset="1" stop-color="#120404"/>
+ </linearGradient>
+ </defs>
+ <rect width="1200" height="480" fill="url(#hsky)"/>
+ <circle cx="920" cy="200" r="150" fill="#FFD98A" opacity=".22"/>
+ <circle cx="920" cy="200" r="64" fill="#FFD98A"/>
+ <ellipse cx="240" cy="120" rx="150" ry="14" fill="#5F1212" opacity=".35"/>
+ <ellipse cx="620" cy="80" rx="190" ry="12" fill="#5F1212" opacity=".28"/>
+ <path d="M0 300 q80 -40 180 -28 q120 -46 240 -20 q140 -50 280 -18 q150 -40 300 -10 q100 -20 200 6 L1200 330 L0 330 Z" fill="#4A1010"/>
+ <g fill="#1F0808">
+ <rect x="330" y="150" width="16" height="190"/>
+ <rect x="820" y="150" width="16" height="190"/>
+ <rect x="0" y="330" width="1200" height="12"/>
+ </g>
+ <path d="M338 160 Q579 262 828 160" stroke="#1F0808" stroke-width="7" fill="none"/>
+ <path d="M338 160 Q579 252 828 160" stroke="#1F0808" stroke-width="4" fill="none"/>
+ <path d="M400 162 v168 M460 168 v162 M520 180 v150 M580 192 v138 M640 198 v132 M700 196 v134 M760 184 v146" stroke="#1F0808" stroke-width="2.4"/>
+ <rect x="0" y="342" width="1200" height="138" fill="url(#hwater)"/>
+ <rect x="880" y="352" width="80" height="5" rx="2.5" fill="#E8A93B" opacity=".5"/>
+ <rect x="895" y="368" width="50" height="4" rx="2" fill="#E8A93B" opacity=".4"/>
+ <rect x="885" y="384" width="66" height="4" rx="2" fill="#E8A93B" opacity=".3"/>
+ <path d="M300 402 q14 -12 30 -12 q16 0 30 12 z" fill="#120404"/>
+ <rect x="329" y="372" width="2" height="22" fill="#120404"/>
+ <path d="M0 480 L0 432 q140 -26 300 -10 q220 -30 460 -6 L1200 480 Z" fill="#1A0505"/>
+ </svg>
+ </div>
+ <div class="haze-layer" aria-hidden="true"></div>
+ <p class="hero-eyebrow">Isen Mulang. Palangka Raya, Kalteng.</p>
+      <h1>Rencana raun yang <span class="hl">tahu kapan langitnya boleh dipercaya</span>.</h1>
+      <p class="hero-sub">Bilang mau pergi kapan, bawa siapa, dan budgetnya berapa. Raun yang menyusun rencananya. Kalau asap turun atau Kahayan naik, Raun yang kasih tahu bagian mana yang perlu diganti. Mau makan di warung lokal juga gampang, tinggal pindai QRIS.</p>
+      <div class="hero-cta">
+        <button class="btn btn-primary" id="btn-wizard"><svg class="ic"><use href="#i-compass"/></svg>Susun itineraryku</button>
+        <a class="btn btn-ghost" href="#siappakai" data-nav>Lihat pilihan yang sudah jadi</a>
+      </div>
+
+      <div class="siburu-card">
+        <div class="siburu-row">
+          <span class="siburu-dot" id="siburu-dot"></span>
+          <span id="siburu-text">Si Buru lagi baca langit.</span>
+          <span class="siburu-actions">
+            <button class="chip" id="btn-replay" title="Pakai data asap 14 Oktober 2026">Replay asap 14 Okt</button>
+            <button class="chip" id="btn-flood" title="Simulasi hujan ekstrem dan luapan Kahayan">Mode Banjir</button>
+            <button class="chip" id="btn-live" hidden>Kembali live</button>
+            <button class="chip" id="btn-waalert" title="Ingatkan saya kalau langit berubah">Pantau langit</button>
+          </span>
+        </div>
+        <div id="hours-chips" class="chipsheet" aria-label="Cuaca per jam hari ini"></div>
+        <div id="events-home" class="chipsheet" aria-label="Event terdekat"></div>
+        <div class="acts">
+          <button class="chip" id="btn-darurat"><svg class="ic"><use href="#i-alert"/></svg>Nomor darurat</button>
+          <button class="chip" id="btn-wastatus" title="Kirim kondisi langit ke WhatsApp">Kirim langit ke WA</button>
+        </div>
+      </div>
+    </header>
+
+    <section class="stats-row" aria-label="Konteks data">
+      <div class="stat"><b>285.396</b><span>perjalanan wisatawan ke PKY per tahun (BPS)</span></div>
+      <div class="stat"><b>80%</b><span>destinasi bisa kosong saat episode asap</span></div>
+      <div class="stat"><b>390</b><span>penerbangan terganggu asap sepanjang 2026</span></div>
+      <div class="stat"><b>2 musim</b><span>El Nino asap, transisi La Nina banjir</span></div>
+    </section>
+
+    <section class="block">
+      <div class="sec-head"><h2>Mau raun yang begini?</h2></div>
+      <div class="chipsheet" id="kat-rail">
+        <button class="chip" data-kat="alam">Alam dan hutan</button>
+        <button class="chip" data-kat="budaya">Budaya Dayak</button>
+        <button class="chip" data-kat="kuliner">Kuliner lokal</button>
+        <button class="chip" data-kat="sunset">Sunset danau</button>
+        <button class="chip" data-kat="keluarga">Bawa keluarga</button>
+        <button class="chip" data-kat="hiking">Pendakian</button>
+        <button class="chip" data-kat="air">Wisata air</button>
+        <button class="chip" data-kat="indoor">Tetap nyaman saat asap</button>
+      </div>
+    </section>
+
+    <section id="siappakai" class="block">
+      <div class="sec-head"><h2>Belum tahu mau mulai dari mana?</h2><a href="#destinasi" data-nav>Lihat semua destinasi</a></div>
+      <p class="muted">Pilih satu, langsung jalan. Kalau langitnya sedang jelek, ada versi amannya.</p>
+      <div class="filters" id="siap-filters">
+        <button class="chip active" data-tema="semua">Semua</button>
+        <button class="chip" data-tema="alam">Alam</button>
+        <button class="chip" data-tema="budaya">Budaya</button>
+        <button class="chip" data-tema="kuliner">Kuliner</button>
+        <button class="chip" data-tema="keluarga">Keluarga</button>
+        <button class="chip" data-tema="indoor">Indoor</button>
+      </div>
+      <div class="grid cards" id="siap-grid"></div>
+    </section>
+
+    <section class="block dua-kolom">
+      <div class="card info">
+        <h3>Tombol replay untuk demo</h3>
+        <p><b>Replay asap 14 Okt</b> memakai data episode karhutla 2026, jadi juri bisa lihat sendiri Si Buru mengubah itinerary saat langit merah. <b>Mode Banjir</b> menyimulasikan hujan ekstrem pasca El Nino, titik rawan seperti Jl. Anoi dan bantaran rendah dihindari otomatis.</p>
+      </div>
+      <div class="card info">
+        <h3>Datanya dari mana?</h3>
+        <p>Kualitas udara dan cuaca dari Open-Meteo secara live. Peta dari OpenStreetMap. Titik api dari NASA FIRMS. Banjir masih simulasi lokal, di v1 disambungkan ke kanal resmi BMKG dan BNPB.</p>
+        <p class="muted small">Prototipe untuk lomba, bukan layanan publik.</p>
+      </div>
+    </section>
+  </section>
+
+  <!-- ============ ITINERARY ============ -->
+  <section id="view-plan" class="view" hidden>
+    <div class="plan-toolbar">
+      <div class="variant-tabs" id="variant-tabs" role="tablist"></div>
+      <div class="plan-actions">
+        <button class="chip" id="btn-share"><svg class="ic"><use href="#i-share"/></svg>Bagikan</button>
+        <button class="chip" id="btn-print"><svg class="ic"><use href="#i-print"/></svg>PDF</button>
+        <button class="chip" id="btn-edit"><svg class="ic"><use href="#i-edit"/></svg>Ubah</button>
+      </div>
+    </div>
+    <div id="plan-meta" class="plan-meta"></div>
+    <div class="dualpane">
+      <div id="timeline" class="timeline" aria-label="Itinerary per hari"></div>
+      <aside class="mapwrap">
+        <div id="map" aria-label="Peta Palangka Raya"></div>
+        <div class="map-legend">
+          <span><span class="legend-dot" style="background:#8B1E1E"></span>di itinerary</span>
+          <span><span class="legend-dot" style="background:#C9BFA8"></span>katalog</span>
+          <span class="muted">Peta OpenStreetMap</span>
+        </div>
+        <div id="map-fallback" hidden></div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ============ JELAJAH ============ -->
+  <section id="view-destinasi" class="view" hidden>
+    <div class="sec-head"><h2>Jelajah</h2><span class="muted small">Tekan ikon hati untuk menyimpan favorit</span></div>
+    <div class="filters" id="dest-filters">
+      <button class="chip active" data-tag="semua">Semua</button>
+      <button class="chip" data-tag="favorit">Favoritku</button>
+      <button class="chip" data-tag="alam">Alam</button>
+      <button class="chip" data-tag="budaya">Budaya</button>
+      <button class="chip" data-tag="kuliner">Kuliner</button>
+      <button class="chip" data-tag="keluarga">Keluarga</button>
+      <button class="chip" data-tag="indoor">Indoor</button>
+    </div>
+    <div class="grid cards" id="dest-grid"></div>
+
+    <h2 style="margin-top:2.4rem">Kuliner Kalteng</h2>
+    <p class="muted">Masakan dan jajanan yang wajib dicoba saat di sini. Cek lokasi terdekat lewat Google Maps.</p>
+    <div class="grid cards" id="kuliner-grid"></div>
+
+    <h2 style="margin-top:2.4rem">Menginap</h2>
+    <div class="grid cards" id="hotel-grid"></div>
+
+    <h2 style="margin-top:2.4rem">Ngopi dan nongkrong</h2>
+    <div class="grid cards" id="kafe-grid"></div>
+
+    <h2 style="margin-top:2.4rem">Kalteng lebih luas dari PKY</h2>
+    <p class="muted">Destinasi di luar Palangka Raya. Masih tampilan info, jalannya di v1 biar mesin itinerary bisa memakai rencana perjalanan jauh.</p>
+    <div class="grid cards" id="regional-grid"></div>
+  </section>
+
+  <!-- ============ BUDAYA ============ -->
+  <section id="view-budaya" class="view" hidden>
+    <div class="sec-head"><h2>Budaya companion</h2></div>
+    <div class="grid cards">
+      <div class="card info">
+        <h3>Adab di situs dan kampung</h3>
+        <ul>
+          <li><b>Sandung</b> di Bukit Rawi adalah situs sakral. Pakai pakaian sopan, jangan duduk atau bersandar, dan izin dulu ke warga.</li>
+          <li>Ritual adat seperti tiwah sengaja tidak dijadikan konten rekreasi. Ini keputusan etis Raun.</li>
+          <li>Rumah betang adalah ruang pribadi warga. Minta izin dulu sebelum memotret.</li>
+        </ul>
+      </div>
+      <div class="card info">
+        <h3>Fragmen bahasa</h3>
+        <ul>
+          <li><b>Isen Mulang</b>, arti kira kira roh yang tak pernah padam, moto Kalteng.</li>
+          <li><b>Hapak</b>, sapaan umum. Ragamnya perlu dicek ke penutur asli.</li>
+          <li><b>Tarima kasih</b>, ungkapan terima kasih.</li>
+        </ul>
+        <p class="muted small">Di v1 ada rekaman suara penutur asli, pola audio guide museum dunia.</p>
+      </div>
+      <div class="card info">
+        <h3>Motif dan makna</h3>
+        <p>Warna merah dan emas pada Raun diambil dari tatahan Isen Mulang. Motif bergerigi pada pin peta mengacu bantaran Sungai Kahayan.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PASPOR ============ -->
+  <section id="view-umkm" class="view" hidden>
+    <div class="sec-head"><h2>Paspor dan warung mitra</h2></div>
+    <div class="dua-kolom">
+      <div class="card info">
+        <h3>Cara kerjanya gampang</h3>
+        <p>Tiap titik itinerary yang mengeluarkan uang ada tombol QRIS. Pindai, bayar di warung, lalu tekan "Tandai stempel". Kumpul lima stempel bisa ditukar souvenir oleh olehe. Pola ini memakai pembayaran per transaksi, ringan untuk warung kecil.</p>
+        <p class="muted small">Demo memakai QR berisi teks uji, tanpa dana sungguhan.</p>
+      </div>
+      <div class="card info">
+        <h3>Kapasitas pilot</h3>
+        <p>Target pilot lima sampai sepuluh warung di tepian danau, kios oleh oleh, dan pandu lokal. Sejalan dengan target BI Kalteng, 22 ribu pengguna QRIS baru.</p>
+      </div>
+    </div>
+    <div class="grid cards" id="umkm-grid"></div>
+
+    <div class="card info" id="pasraun-card" style="margin-top:1rem">
+      <h3>Pas Raun kamu</h3>
+      <div id="pasraun-stamps" class="stamps"></div>
+      <p class="muted small">Stempel tersimpan di perangkat ini. Hapus data situs di browser untuk memulai paspor baru.</p>
+      <button class="btn btn-ghost" id="pasraun-reset" style="margin-top:.5rem">Mulai paspor baru</button>
+    </div>
+
+    <h2 style="margin-top:2.4rem">Transportasi, langsung dari titik</h2>
+    <div class="dua-kolom">
+      <div class="card info">
+        <h3>Gojek, koneksi langsung</h3>
+        <p>Tombol "Panggil Gojek" di tiap titik membuka aplikasi Gojek di HP lewat deep link. Tujuan sudah otomatis tersalin, tinggal tempel.</p>
+        <p class="muted small">Kalau aplikasinya belum terpasang, diarahkan ke Play Store. Di v2 ada kemitraan resmi ekosistem GoTo, dan QRIS dinamisnya lewat Midtrans.</p>
+        <button class="btn btn-primary" data-act="gojek" data-id="tugu">Coba panggil Gojek</button>
+      </div>
+      <div class="card info">
+        <h3>Otsok, ojek dan perahu lokal lewat WhatsApp</h3>
+        <p>Operator perahu dan ojek destinasi bisa dihubungi satu ketukan dari kartu. Pesannya sudah terisi otomatis, berisi titik jemput, tujuan, dan estimasi tarif. Tarif yang jelas ini bagian dari perlindungan konsumen.</p>
+        <p class="muted small">Nomor masih demo. Di rilis ada registrasi operator, rating, dan pembayaran tarif lewat QRIS.</p>
+        <button class="btn btn-ghost" data-act="otsok" data-id="danautahai">Coba Otsok via WA</button>
+      </div>
+    </div>
+    <div class="card info" style="margin-top:1rem">
+      <h3>Estimasi tarif, demo kalibrasi operator</h3>
+      <table class="fare" aria-label="Estimasi tarif transportasi demo">
+        <tr><th>Moda</th><th>Rute contoh</th><th>Waktu</th><th>Estimasi</th></tr>
+        <tr><td>GoRide</td><td>Pusat kota ke Danau Tahai</td><td>12 menit</td><td>Rp18.000</td></tr>
+        <tr><td>GoRide</td><td>Pusat kota ke Bukit Tangkiling</td><td>25 menit</td><td>Rp30.000</td></tr>
+        <tr><td>Perahu Otsok</td><td>Dermaga Tumbang Tahai susur danau</td><td>60 menit</td><td>Rp40.000</td></tr>
+        <tr><td>Ojek lokal</td><td>Tangkiling ke Sei Gohong</td><td>20 menit</td><td>Rp25.000</td></tr>
+      </table>
+      <p class="muted small">Angka demo. Di v1 dikalibrasi dari tarif operator pilot dan ditampilkan jujur per moda.</p>
+    </div>
+  </section>
+
+  <!-- ============ DATA ============ -->
+  <section id="view-data" class="view" hidden>
+    <div class="sec-head"><h2>Dashboard mini untuk pemda</h2></div>
+    <div class="stats-row">
+      <div class="stat"><b id="d-gen">0</b><span>itinerary dibuat sesi ini</span></div>
+      <div class="stat"><b id="d-q">0</b><span>permintaan asisten, anonim</span></div>
+      <div class="stat"><b id="d-qr">0</b><span>tombol QRIS ditekan</span></div>
+      <div class="stat"><b id="d-swap">0</b><span>penyesuaian langit otomatis</span></div>
+      <div class="stat"><b id="d-stamp">0</b><span>stempel paspor terkumpul</span></div>
+      <div class="stat"><b id="d-fav">0</b><span>destinasi favorit tersimpan</span></div>
+    </div>
+    <div class="dua-kolom">
+      <div class="card info"><h3>Tren kualitas udara PM2.5</h3><canvas id="chart-aqi" width="560" height="180" aria-label="Grafik PM2.5"></canvas></div>
+      <div class="card info"><h3>Minat wisatawan, klik terbanyak</h3><div id="chart-dest"></div></div>
+    </div>
+    <div class="card info" id="sim-report"><h3>Simulasi multi agen, pola MiroFish</h3><p class="muted">Jalankan node sim/agents.mjs lalu buka ulang halaman ini.</p></div>
+  </section>
+</main>
+
+<footer class="footer">
+  <p><b>Raun Kalteng v0.4</b>. Prototipe Tambun Bungai Ideathon, Borneo DECAFEST 2026, KPw BI Kalteng. Data demo, tarif dan koordinat perlu verifikasi. Statistik dashboard anonim dan tersimpan lokal. Peta milik para kontributor OpenStreetMap.</p>
+</footer>
+
+<!-- Wizard -->
+<div class="modal" id="modal-wizard" hidden>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="wz-title">
+    <button class="modal-x" data-close aria-label="Tutup">Tutup</button>
+    <h2 id="wz-title">Susun itinerary</h2>
+    <form id="form-wizard">
+      <label>Tanggal mulai <input type="date" id="wz-date" required></label>
+      <div class="dua-kolom" style="gap:.8rem">
+        <label>Lama jalan <select id="wz-days"><option value="1">1 hari</option><option value="2" selected>2 hari</option><option value="3">3 hari</option></select></label>
+        <label>Jumlah orang <input type="number" id="wz-pax" min="1" max="12" value="2"></label>
+      </div>
+      <label>Budget per orang, sekarang <b id="wz-budget-label">Rp250.000</b>
+        <input type="range" id="wz-budget-range" min="50000" max="1000000" step="25000" value="250000" aria-label="Budget per orang">
+        <input type="number" id="wz-budget" min="50000" max="2000000" step="25000" value="250000" style="margin-top:.4rem">
+      </label>
+      <fieldset><legend>Minat, boleh lebih dari satu</legend>
+        <div class="chipset" id="wz-prefs">
+          <button type="button" class="chip active" data-pref="alam">Alam</button>
+          <button type="button" class="chip" data-pref="budaya">Budaya</button>
+          <button type="button" class="chip" data-pref="kuliner">Kuliner</button>
+          <button type="button" class="chip" data-pref="keluarga">Keluarga</button>
+          <button type="button" class="chip" data-pref="sunset">Sunset</button>
+          <button type="button" class="chip" data-pref="hiking">Hiking</button>
+          <button type="button" class="chip" data-pref="air">Wisata air</button>
+        </div>
+      </fieldset>
+      <label>Titik awal <select id="wz-start"><option>Tugu Soekarno</option><option>Bandara Tjilik Riwut</option><option>Hotel area pusat kota</option></select></label>
+      <button class="btn btn-primary" type="submit" id="wz-go" style="width:100%;justify-content:center;margin-top:1rem"><svg class="ic"><use href="#i-compass"/></svg>Susun sekarang</button>
+      <p class="muted small center" id="wz-status">Sebentar, minimal 99.999 kemungkinan dipikirkan dulu, ambil tiga yang paling masuk akal.</p>
+    </form>
+  </div>
+</div>
+
+<!-- Detail, QRIS, darurat -->
+<div class="modal" id="modal-detail" hidden><div class="modal-card" role="dialog" aria-modal="true" id="modal-detail-body"></div></div>
+<div class="modal" id="modal-darurat" hidden>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="dr-title">
+    <button class="modal-x" data-close aria-label="Tutup">Tutup</button>
+    <h2 id="dr-title">Kalau ada apa apa</h2>
+    <dl class="kv">
+      <dt>Darurat nasional</dt><dd><a href="tel:112">112</a>, bebas pulsa 24 jam</dd>
+      <dt>Kepolisian</dt><dd><a href="tel:110">110</a></dd>
+      <dt>Pemadam kebakaran</dt><dd><a href="tel:113">113</a></dd>
+      <dt>Ambulans</dt><dd><a href="tel:119">119</a></dd>
+      <dt>Basarnas</dt><dd><a href="tel:115">115</a>, kejadian di sungai atau bukit</dd>
+    </dl>
+    <p class="small" style="background:#F6E7D3;border-radius:12px;padding:.65rem">Saat langit sangat pekat, pakai masker N95, kurangi aktivitas di luar, dan cek kanal resmi BPBD Kalteng untuk posko terdekat.</p>
+    <p class="small" style="background:#E3ECF6;border-radius:12px;padding:.65rem">Di sungai pakai pelampung, dan tunda dulu kalau hujan deras di hulu. Di bukit, jalanan licin setelah hujan, tunggu sampai kering.</p>
+    <p class="muted small">Nomor di atas adalah nomor darurat nasional Indonesia. Kontak BPBD daerah disambungkan di v1.</p>
+  </div>
+</div>
+
+<!-- Chat -->
+<div class="chat" id="chat">
+  <button class="chat-fab" id="chat-fab" aria-label="Buka asisten"><svg class="ic"><use href="#i-chat"/></svg></button>
+  <div class="chat-panel" id="chat-panel" hidden>
+    <div class="chat-head">Raun, kawan raun lokal <button id="chat-close" aria-label="Tutup">Tutup</button></div>
+    <div class="chat-log" id="chat-log" aria-live="polite"></div>
+    <form class="chat-form" id="chat-form"><input id="chat-input" placeholder="Tanya langit hari ini, kuliner, Sebangau" autocomplete="off"><button class="btn btn-primary" aria-label="Kirim">Kirim</button></form>
+  </div>
+</div>
+
+<!-- Navigasi bawah, tampil di HP -->
+<nav class="bottomnav" aria-label="Navigasi aplikasi">
+  <a class="bn-item active" href="#home" data-nav><svg class="ic"><use href="#i-home"/></svg>Beranda</a>
+  <a class="bn-item" href="#destinasi" data-nav><svg class="ic"><use href="#i-pin"/></svg>Jelajah</a>
+  <a class="bn-raun" href="#raun" id="bn-raun" aria-label="Susun itinerary"><svg class="ic"><use href="#i-compass"/></svg>RAUN</a>
+  <a class="bn-item" href="#umkm" data-nav><svg class="ic"><use href="#i-ticket"/></svg>Paspor</a>
+  <a class="bn-item" href="#data" data-nav><svg class="ic"><use href="#i-chart"/></svg>Data</a>
+</nav>
+
+<div id="net-banner" class="net-banner" hidden>Sedang tanpa internet. Peta, QRIS, Gojek, dan WhatsApp butuh koneksi. Yang lain tetap jalan, termasuk menyusun itinerary.</div>
+
+<div id="toast" class="toast" hidden></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+/* RAUN KALTENG, Katalog data v0 (demo)
+ * Sumber konten: laporan analisis ideathon + pengetahuan destinasi PKY.
+ * Koordinat & tarif = estimasi demo; wajib diverifikasi sebelum rilis publik.
+ */
+(function (root) {
+ 'use strict';
+
+ // Zones: 1 pusat kota, 2 danau/kahayan timur, 3 tangkiling sebangau (selatan), 4 hulu (jauh)
+ const DESTINASI = [
+ { id: 'tugu', nama: 'Tugu Soekarno', zone: 1, tags: ['sejarah', 'budaya', 'keluarga', 'foto'], indoor: false, lowland: false, cost: 0, jam: 'buka 24 jam', slot: 'any',
+ x: -0.02, y: 0.10, lat: -2.2117, lng: 113.9148,
+ desc: 'Tongkat raksasa penanda titik nol kota. Kata orang, belum sah ke Palangka Raya kalau belum berfoto di depannya.',
+ tips: 'Datang pagi saat masih sepi, atau sore sebelum makan malam. Parkirnya penuh di akhir pekan.', etika: null },
+
+ { id: 'bundaran', nama: 'Bundaran Besar', zone: 1, tags: ['keluarga', 'foto', 'kuliner'], indoor: false, lowland: false, cost: 0, jam: 'buka 24 jam', slot: 'any',
+ x: 0.06, y: 0.16, lat: -2.2058, lng: 113.9122,
+ desc: 'Dataran bulat yang jadi titik temu kota. Begitu senja, jajanan keluar dan lampu-lampunya nyala.',
+ tips: 'Paling hidup setelah maghrib. Pas jadi penutup sebelum pulang.', etika: null },
+
+ { id: 'balanga', nama: 'Museum Balanga', zone: 1, tags: ['budaya', 'sejarah', 'indoor', 'keluarga'], indoor: true, lowland: false, cost: 5000, jam: 'Selasa sampai Sabtu, 08.00 sampai 14.00', slot: 'day',
+ x: 0.14, y: 0.30, lat: -2.1978, lng: 113.9267,
+ desc: 'Rumah bagi sandung asli, keramik tua, dan cerita Dayak Ngaju. Dingin, tenang, dan jadi pelarian terbaik saat asap datang.',
+ tips: 'Datang pagi, minta pendamping dari loket kalau ingin cerita lengkapnya.', etika: 'Minta izin sebelum memotret koleksi tertentu.' },
+
+ { id: 'riverfront', nama: 'Riverfront Jembatan Kahayan', zone: 1, tags: ['sunset', 'foto', 'kuliner', 'keluarga'], indoor: false, lowland: true, cost: 0, jam: 'buka 24 jam', slot: 'sunset',
+ x: 0.00, y: 0.22, lat: -2.2200, lng: 113.9160,
+ desc: 'Beranda kota di tepi Kahayan. Kalau langitnya bersih, matahari turun tepat di sisi jembatan dan airnya ikut keemasan.',
+ tips: 'Matahari turun sekitar setengah enam sampai seperempat tujuh. Saat hujan deras, bantaran rendah bisa tergenang.', etika: null },
+
+ { id: 'tamanisen', nama: 'Taman Isen Mulang', zone: 1, tags: ['keluarga', 'foto'], indoor: false, lowland: false, cost: 0, jam: '06.00 sampai 21.00', slot: 'any',
+ x: 0.04, y: 0.06, lat: -2.2088, lng: 113.9130,
+ desc: 'Halaman besar kota tempat karnaval Isen Mulang lewat setiap Mei. Sore harinya milik anak muda yang lari dan jajan.',
+ tips: 'Datang sore kalau mau lihat suasananya, pagi kalau mau yang tenang.', etika: null },
+
+ { id: 'pasarmalam', nama: 'Pasar Malam Riverfront', zone: 1, tags: ['kuliner', 'keluarga'], indoor: false, lowland: true, cost: 25000, jam: 'Jumat sampai Minggu, 17.00 sampai 22.00', slot: 'sunset',
+ x: -0.03, y: 0.26, lat: -2.2230, lng: 113.9150,
+ desc: 'Tiga malam seminggu, tepian ini berubah jadi dapur kota. Uang jajannya langsung masuk ke kantong pedagang kecil.',
+ tips: 'Datang dengan perut kosong, pulang dengan tangan penuh wadai.', etika: null },
+
+ { id: 'kulinerpatin', nama: 'Warung Patin Tepi Kahayan', zone: 2, tags: ['kuliner'], indoor: true, lowland: true, cost: 35000, jam: '10.00 sampai 21.00', slot: 'noon',
+ x: -0.10, y: 0.32, lat: -2.2276, lng: 113.9080,
+ desc: 'Patin bakar di atas arang, gulai tempoyak, terubuk asap. Tanya warga makan enak di mana, jawabannya sering ke sini.',
+ tips: 'Saat Kahayan luapan tinggi, jalur ke tepi bisa genangan. Cek dulu lampu Si Buru.', etika: null },
+
+ { id: 'danautahai', nama: 'Danau Tahai', zone: 2, tags: ['alam', 'sunset', 'foto', 'keluarga', 'air'], indoor: false, lowland: true, cost: 15000, jam: '07.00 sampai 18.30', slot: 'sunset',
+ x: -0.16, y: 0.36, lat: -2.2276, lng: 113.9108,
+ desc: 'Danau warisan era Soekarno yang malah jadi bintangnya kota. Sewa bangku kecil di tepian, tunggu matahari turun, selesai.',
+ tips: 'Sewa perahu kecil dari warga kalau mau keluar ke air. Bawa kantong plastik untuk sampahmu sendiri.', etika: 'Tepian danau ini cepat kotor kalau pengunjung lalai, bawa pulang sampahmu.' },
+
+ { id: 'tumbangtahai', nama: 'Kampung Tumbang Tahai', zone: 2, tags: ['budaya', 'kuliner', 'keluarga'], indoor: false, lowland: true, cost: 0, jam: 'buka 24 jam', slot: 'any',
+ x: -0.14, y: 0.42, lat: -2.2355, lng: 113.9095,
+ desc: 'Kampung panggung tepi danau. Rumahnya kayu, orangnya ramah, dan jembatannya jadi tempat foto yang tak pernah gagal.',
+ tips: 'Sambungkan dengan Danau Tahai dalam satu jalan, lokasinya bersebelahan.', etika: 'Rumah warga adalah ruang pribadi. Salam dulu, izin dulu.' },
+
+ { id: 'tangkiling', nama: 'Bukit Tangkiling', zone: 3, tags: ['alam', 'hiking', 'foto'], indoor: false, lowland: false, cost: 20000, jam: '06.00 sampai 17.30', slot: 'day',
+ x: -0.24, y: -0.46, lat: -2.3211, lng: 113.9339,
+ desc: 'Bukit granit yang didaki pendek tapi pandangannya jauh. Danau dan kota kelihatan semua dari atas.',
+ tips: 'Bawa air se liter, sepatu yang berpenggenggam. Jalannya licin setelah hujan, tunggu dulu kalau baru turun.', etika: 'Sebagian areanya dipakai ritual kampung. Ikuti papan dan arahan warga.' },
+
+ { id: 'bukitbatu', nama: 'Bukit Batu', zone: 3, tags: ['alam', 'hiking'], indoor: false, lowland: false, cost: 20000, jam: '06.00 sampai 17.00', slot: 'day',
+ x: -0.34, y: -0.52, lat: -2.3300, lng: 113.9500,
+ desc: 'Deretan batu raksasa yang bisa dipanjang sebentar, tapi pandangannya memutar tiga ratus enam puluh derajat.',
+ tips: 'Satukan dengan Bukit Tangkiling dalam satu hari, jaraknya dekat.', etika: null },
+
+ { id: 'seigohong', nama: 'Sei Gohong, gerbang Sebangau', zone: 3, tags: ['alam', 'air', 'keluarga', 'kuliner'], indoor: false, lowland: true, cost: 25000, jam: '08.00 sampai 16.00', slot: 'any',
+ x: -0.38, y: -0.34, lat: -2.3097, lng: 113.8433,
+ desc: 'Desa terakhir sebelum hutan gambut Sebangau. Dari dermaganya, perahu kecil masuk ke jalur air di tengah pohon.',
+ tips: 'Pesan perahu dari kios informasi desa. Paling tenang pagi hari.', etika: 'Ini kawasan konservasi. Jangan memberi makan satwa apa pun.' },
+
+ { id: 'warungseigohong', nama: 'Warung Ikan Desa Sei Gohong', zone: 3, tags: ['kuliner', 'keluarga'], indoor: true, lowland: true, cost: 30000, jam: '09.00 sampai 17.00', slot: 'noon',
+ x: -0.40, y: -0.31, lat: -2.3110, lng: 113.8460,
+ desc: 'Ikan sungai dimasak gaya desa, segar karena tangkapan tetangga sendiri. Satu satunya tempat makan sebelum jalur Sebangau.',
+ tips: 'Ikan gabus bakarnya yang dicari orang. Cek lampu Si Buru saat musim luapan.', etika: null },
+
+ { id: 'kedaitangkiling', nama: 'Kedai Kopi Tangkiling', zone: 3, tags: ['kuliner', 'indoor', 'keluarga'], indoor: true, lowland: false, cost: 20000, jam: '08.00 sampai 21.00', slot: 'any',
+ x: -0.22, y: -0.42, lat: -2.3180, lng: 113.9310,
+ desc: 'Kopi tubruk hangat kaki bukit, cocok jadi hadiah untuk kaki sendiri setelah turun dari Bukit Tangkiling.',
+ tips: 'Roti bakarnya ikutan enak. Listrik dan internet kadang ngambek.', etika: null },
+
+ { id: 'pulaukaja', nama: 'Pulau Kaja, dermaga pandang', zone: 3, tags: ['alam', 'keluarga'], indoor: false, lowland: true, cost: 50000, jam: '08.00 sampai 15.00', slot: 'day',
+ x: -0.42, y: -0.28, lat: -2.3150, lng: 113.8300,
+ desc: 'Pulau tempat orangutan belajar hidup liar lagi. Semua dilihat dari atas perahu, di jarak yang wajib dijaga.',
+ tips: 'Peluang terlihat paling besar sekitar jam sembilan sampai sebelas, saat buah dibagikan.', etika: 'Orangutan adalah satwa dilindungi. Melarang mendekat dan memberi makan itu aturan, bukan pilihan.' },
+
+ { id: 'kereng', nama: 'Kereng Bangkirai', zone: 3, tags: ['alam', 'air', 'foto'], indoor: false, lowland: true, cost: 30000, jam: '08.00 sampai 16.30', slot: 'any',
+ x: -0.30, y: -0.62, lat: -2.3939, lng: 113.8639,
+ desc: 'Bakau, perahu kecil, dan gazebo yang mengapung di muara Kahayan. Warna airnya paling jujur saat surut sore.',
+ tips: 'Tanya warga soal pasang surut sebelum berangkat.', etika: null },
+
+ { id: 'bukitrawi', nama: 'Bukit Rawi', zone: 4, tags: ['budaya', 'sejarah', 'foto'], indoor: false, lowland: false, cost: 50000, jam: '09.00 sampai 16.00', slot: 'day',
+ x: -0.70, y: 0.66, lat: -1.9811, lng: 114.0531,
+ desc: 'Kampung tua di hulu Kahayan dengan sandung berumur ratusan tahun. Datang dengan sopan, pulang dengan cerita.',
+ tips: 'Satu hari penuh untuk ini, perjalanannya sekitar sejam setengah sekali jalan. Sewa mobil atau perahu panjung.', etika: 'Situs sakral. Pakai pakaian sopan, jangan duduk atau bersandar di sandung, dan izin dulu ke warga. Ritual adat tidak dibahas dalam konteks rekreasi.' },
+
+ { id: 'nyarumenteng', nama: 'Nyaru Menteng', zone: 3, tags: ['alam', 'budaya'], indoor: true, lowland: false, cost: 0, jam: 'sesuai jadwal, hubungi dulu', slot: 'day',
+ x: -0.36, y: -0.20, lat: -2.2950, lng: 113.8650,
+ desc: 'Pusat rehabilitasi orangutan. Kunjungannya terbatas dan lewat kesepakatan, dan justru itu yang membuat rencanamu harus rapi.',
+ tips: 'Hubungi dulu sebelum masuk jadwal. Kalau gagal, Pulau Kaja tetap buka.', etika: 'Semua protokol kesehatan satwa wajib diikuti.' },
+
+ { id: 'kopisore', nama: 'Kopi Sore Kota Lama', zone: 1, tags: ['kuliner'], indoor: true, lowland: false, cost: 20000, jam: '08.00 sampai 22.00', slot: 'any',
+ x: 0.08, y: 0.12, lat: -2.2090, lng: 113.9180,
+ desc: 'Kedai tua yang jadi ruang tamu kota. Kopi tubruk, roti bakar, dan obrolan yang bisa panjang.',
+ tips: 'Tempat paling nyaman menunggu hujan atau asap reda sambil menyusun ulang rencana.', etika: null },
+
+ { id: 'oleholeh', nama: 'Pusat Oleh Oleh', zone: 1, tags: ['kuliner', 'keluarga'], indoor: true, lowland: false, cost: 50000, jam: '08.00 sampai 20.00', slot: 'any',
+ x: 0.10, y: 0.02, lat: -2.2060, lng: 113.9200,
+ desc: 'Garam basah basi untuk yang mau memasak, kerajinan rotan untuk yang mau menghias rumah, batu akik untuk yang sekadar penasaran.',
+ tips: 'Garam basah basi dibungkus rapat kalau naik pesawat. Beberapa lapak sudah terima QRIS.', etika: null },
+
+ { id: 'wisataair', nama: 'Susur Kahayan', zone: 2, tags: ['air', 'alam', 'foto'], indoor: false, lowland: true, cost: 40000, jam: '07.00 sampai 17.00', slot: 'any',
+ x: -0.06, y: 0.30, lat: -2.2250, lng: 113.9130,
+ desc: 'Naik jukung pelan pelan menyusuri sungai. Kota terlihat lain dari sisi air, dan harganya seikhlasnya masuk akal.',
+ tips: 'Tunda kalau hujan deras atau arah arus naik. Pelampung dipakai, bukan dibiarkan.', etika: null },
+
+ { id: 'flamboyan', nama: 'Kampung Flamboyan', zone: 2, tags: ['budaya', 'keluarga', 'foto'], indoor: false, lowland: true, cost: 10000, jam: '09.00 sampai 17.00', slot: 'day',
+ x: -0.20, y: 0.24, lat: -2.2180, lng: 113.8950,
+ desc: 'Kampung tepian dengan rumah panjang betang. Pagi hari paling hidup: orang mandi di sungai, perahu lewat satu dua.',
+ tips: 'Datang pagi, bawa kamera, dan jangan lupa menyapa.', etika: 'Minta izin sebelum naik atau memotret rumah warga.' }
+ ];
+
+ // Sepuluh itinerary siap pakai. Setiap slot berisi id destinasi.
+ const SIAP_PAKAI = [
+ { id: 'kilat1', nama: 'PKY Kilat, satu hari di pusat kota', hari: 1, tema: 'sejarah',
+ plan: [['tugu', 'balanga'], ['kopisore'], ['bundaran', 'tamanisen'], ['riverfront']] },
+ { id: 'kuliner1', nama: 'Kuliner riverfront, satu hari kenyang', hari: 1, tema: 'kuliner',
+ plan: [['oleholeh'], ['kulinerpatin'], ['wisataair'], ['pasarmalam']] },
+ { id: 'danau1', nama: 'Danau dan sunset, satu hari pelan', hari: 1, tema: 'alam',
+ plan: ['tumbangtahai', ['kulinerpatin'], ['flamboyan'], ['danautahai']] },
+ { id: 'tangkiling1', nama: 'Tangkiling hike, satu hari keringat', hari: 1, tema: 'alam',
+ plan: [['tangkiling'], ['kulinerpatin'], ['bukitbatu'], ['riverfront']] },
+ { id: 'sebangau1', nama: 'Gerbang Sebangau, satu hari hutan', hari: 1, tema: 'alam',
+ plan: [['seigohong'], ['kulinerpatin'], ['pulaukaja'], ['riverfront']] },
+ { id: 'budaya1', nama: 'Budaya dan museum, satu hari cerita', hari: 1, tema: 'budaya',
+ plan: [['balanga', 'tamanisen'], ['kopisore'], ['flamboyan'], ['bundaran']] },
+ { id: 'bukitrawi1', nama: 'Bukit Rawi, satu hari ke masa lalu', hari: 1, tema: 'sejarah',
+ plan: [['bukitrawi'], ['kulinerpatin'], ['bukitrawi', 'tumbangtahai'], ['riverfront']] },
+ { id: 'keluarga2', nama: 'Keluarga weekend, dua hari santai', hari: 2, tema: 'keluarga',
+ plan: [['balanga', 'tamanisen'], ['kulinerpatin'], ['riverfront', 'bundaran'], ['danautahai'], ['tumbangtahai'], ['oleholeh', 'kopisore'], ['wisataair'], ['pasarmalam']] },
+ { id: 'best2', nama: 'Terbaik PKY, dua hari lengkap', hari: 2, tema: 'campur',
+ plan: [['tugu', 'balanga'], ['kulinerpatin'], ['tangkiling'], ['riverfront'], ['seigohong'], ['kulinerpatin'], ['pulaukaja'], ['danautahai']] },
+ { id: 'indoor1', nama: 'Satu hari indoor, aman dari asap dan hujan', hari: 1, tema: 'indoor',
+ plan: [['balanga', 'oleholeh'], ['kulinerpatin'], ['nyarumenteng'], ['kopisore']] }
+ ];
+
+ // Menginap dan ngopi. Kurasi demo awal, cocokkan rating terkini di Google Maps.
+ const HOTEL = [
+ { nama: 'Hotel Pusat Kota', area: 'Pusat, dekat tugu', rentang: 'sekitar Rp250 sampai 450 ribu semalam', lat: -2.2092, lng: 113.9155, catatan: 'Langkah ke kuliner malam dan riverfront. Praktis untuk perjalanan singkat.' },
+ { nama: 'Penginapan Tepi Kahayan', area: 'Tepian sungai', rentang: 'sekitar Rp150 sampai 300 ribu semalam', lat: -2.2210, lng: 113.9168, catatan: 'Jendelanya menghadap jembatan, dermaga perahu dekat.' },
+ { nama: 'Homestay Tumbang Tahai', area: 'Kampung tepi danau', rentang: 'sekitar Rp100 sampai 200 ribu semalam', lat: -2.2340, lng: 113.9090, catatan: 'Suasana kampung, Danau Tahai bisa ditempuh jalan kaki.' },
+ { nama: 'Guesthouse Area Tangkiling', area: 'Kaki bukit', rentang: 'sekitar Rp120 sampai 250 ribu semalam', lat: -2.3170, lng: 113.9290, catatan: 'Untuk yang mau mendaki Bukit Tangkiling pagi pagi.' }
+ ];
+ const KAFE = [
+ { nama: 'Kedai Kopi Riverfront', area: 'Tepian', rentang: 'sekitar Rp15 sampai 30 ribu', lat: -2.2205, lng: 113.9155, catatan: 'Kopi sambil menunggu matahari turun.' },
+ { nama: 'Kopi Kota Lama', area: 'Pusat', rentang: 'sekitar Rp10 sampai 25 ribu', lat: -2.2095, lng: 113.9175, catatan: 'Ramai anak muda setelah gelap.' },
+ { nama: 'Kafe Sei Gohong', area: 'Gerbang Sebangau', rentang: 'sekitar Rp15 sampai 30 ribu', lat: -2.3090, lng: 113.8440, catatan: 'Tempat rehat setelah dari dermaga.' }
+ ];
+
+ const META = {
+ nama: 'Raun Kalteng',
+ tagline: 'Kawan raun yang tahu kapan langit boleh dipercaya.',
+ kota: 'Palangka Raya, Kalimantan Tengah',
+ catatan: 'Prototipe v0 untuk Tambun Bungai Ideathon, Borneo DECAFEST 2026, KPw BI Kalteng. Data demo, tarif dan koordinat perlu verifikasi lapangan.',
+ qrDemo: '',
+ karhutlaReplay: { label: 'Replay 14 Oktober 2026, asap pekat', pm25: [188, 205, 232, 219], hujan: [0, 0, 0, 0] }
+ };
+
+ // Kalender event, demo. Selalu konfirmasi tanggal resmi penyelenggara.
+ const EVENTS = [
+ { nama: 'Festival Budaya Isen Mulang', kira: 'Mei, Stadion Tuah Pahoe', catatan: 'Karnaval, parade perahu, expo UMKM. Bagian Karisma Event Nusantara.' },
+ { nama: 'HUT Provinsi Kalteng', kira: 'Mei', catatan: 'Rangkaian budaya di seputar FBIM.' },
+ { nama: 'Festival Jukung Sungai Kahayan', kira: 'musim cerah, cek tiap tahun', catatan: 'Parade perahu dan susur sungai di riverfront.' },
+ { nama: 'Pasar Malam Riverfront', kira: 'tiap Jumat sampai Minggu', catatan: 'Kuliner malam yang paling gampang dijangkau.' }
+ ];
+
+ const KULINER = [
+ { nama: 'Ikan patin bakar', desc: 'Dibakar di atas arang, dimakan dengan sambal dan lalap. Kalau bicara kuliner Kahayan, ini yang pertama disebut.', tips: 'Cari di Tumbang Tahai dan tepian riverfront.' },
+ { nama: 'Ikan terubuk asap', desc: 'DiAsap perlahan sampai gurihnya masuk ke tulang. Tahan lama, cocok jadi buah tangan.', tips: 'Banyak di kios oleh oleh dekat pasar.' },
+ { nama: 'Garam basah basi', desc: 'Ikan fermentasi yang jadi bumbu identitas Kalteng. Gurihnya keras, aroma nya jujur.', tips: 'Bungkus rapat kalau dibawa naik pesawat.' },
+ { nama: 'Wadi ikan', desc: 'Fermentasi tradisional Dayak, tajam dan asin. Dipadankan dengan patin tempoyak, rasanya lupa pulang.', tips: 'Mulai dari porsi kecil kalau lidah belum biasa.' },
+ { nama: 'Iwak kalumang', desc: 'Ikan asin gurih dari pedalaman. Digoreng atau dibakar sama enaknya.', tips: 'Pasar tradisional pagi hari punya yang terbaik.' },
+ { nama: 'Lempok durian', desc: 'Durian dimasak berjam jam sampai jadi kental dan legit. Manisnya tanpa campuran.', tips: 'Perhatikan tanggal buat sebelum dibawa jauh.' },
+ { nama: 'Sambal tempoyak', desc: 'Durian fermentasi diulek dengan cabai. Pendamping patin bakar yang paling benar.', tips: 'Pedasnya tidak bercanda, minta porsi kecil dulu.' },
+ { nama: 'Kue cucur dan wadai pasar', desc: 'Manis gula merah, lembut di tengah, wajib ada di meja tamu rumah Kalteng.', tips: 'Cari di pasar pagi, sorenya biasanya sudah habis.' }
+ ];
+
+ const REGIONAL = [
+ { nama: 'Taman Nasional Tanjung Puting', wilayah: 'Kotawaringin Barat', desc: 'Rumah orangutan hasil rehabilitasi. Jalur klasiknya menyusur Sungai Sekonyer dengan klotok, bisa beberapa hari.', akses: 'Terbang ke Pangkalan Bun, lanjut darat ke Kumai.' },
+ { nama: 'Sungai Sekonyer', wilayah: 'Kotawaringin Barat', desc: 'Koridor sungai tepi Tanjung Puting. Menginap di perahu, bangun pagi ditemani bekantan di tepian.', akses: 'Berangkat dari dermaga Kumai.' },
+ { nama: 'Kumai', wilayah: 'Kotawaringin Barat', desc: 'Gerbang menuju Tanjung Puting. Penyedia klotok dan penginapan sederhana banyak di sini.', akses: 'Dari Bandara Iskandar, Pangkalan Bun.' },
+ { nama: 'Danau Sembuluh', wilayah: 'Kotawaringin Timur', desc: 'Danau besar dengan kampung tepian dan ikan sungai. Jalurnya lewat jalan trans.', akses: 'Dari Pangkalan Bun arah timur.' },
+ { nama: 'Kuala Pembuang', wilayah: 'Seruyan', desc: 'Muara kecil dengan hidangan laut dan tempo kota yang pelan.', akses: 'Jalan darat dari Pangkalan Bun.' },
+ { nama: 'Bukit Sepat', wilayah: 'Pulang Pisau', desc: 'Tebing pendek untuk dipanjat, pandangannya membentang. Pas untuk trip pagi dari PKY.', akses: 'Kira kira satu jam dari PKY.' },
+ { nama: 'Rumah Betang Tumbang Malahoi', wilayah: 'Gunung Mas', desc: 'Rumah panjang tradisional yang masih dihuni. Cara paling dekat memahami hidup Dayak pedalaman.', akses: 'Jauh dari PKY, sisihkan satu hari penuh.' },
+ { nama: 'Susur Sungai Katingan', wilayah: 'Katingan', desc: 'Sungai tenang, kampung tepian, hutan gambut. Versi yang lebih sepi dari Kahayan.', akses: 'Dari PKY menuju Kasongan.' },
+ { nama: 'Pos Tanjung Harapan', wilayah: 'Tanjung Puting', desc: 'Pos pertama kawasan, ada perkampungan kecil dan informasi klotok.', akses: 'Kira kira setengah jam klotok dari Kumai.' },
+ { nama: 'Pondok Tanggui', wilayah: 'Tanjung Puting', desc: 'Stasiun pakan orangutan. Jam pakannya jadi momen terbaik melihat mereka dari dekat.', akses: 'Klotok dari Kumai, biasanya satu jalur dengan Camp Leakey.' }
+ ];
+
+ const DATA = { DESTINASI, SIAP_PAKAI, HOTEL, KAFE, KULINER, REGIONAL, EVENTS, META };
+ root.RAUN_DATA = DATA;
+ if (typeof module!== 'undefined' && module.exports) module.exports = DATA;
+})(typeof window!== 'undefined'? window : globalThis);
+
+</script>
+<script>
+/* RAUN KALTENG — core.js (mesin & skor, bebas DOM)
+ * Dipakai app.js (browser) dan sim/fuzz.mjs (Node) — satu sumber kebenaran.
+ * API: CORE.SLOTS, CORE.GROUPS, CORE.mulberry, CORE.catOf, CORE.catLabel,
+ *      CORE.envScore(dest, day, mode), CORE.makeEnv(days, mode), CORE.generate(params, env)
+ */
+(function (root) {
+  'use strict';
+
+  const SLOTS = [
+    { k: 'day', label: 'Pagi · 09–12', ok: ['any', 'day'] },
+    { k: 'noon', label: 'Siang · 12–14', ok: ['any', 'noon'] },
+    { k: 'day2', label: 'Sore · 14–17', ok: ['any', 'day'] },
+    { k: 'sunset', label: 'Senja · 17–19', ok: ['any', 'sunset'] }
+  ];
+  const GROUPS = { kota: [1, 2], tangkiling: [3], hulu: [4, 2] }; // hulu: jalur Bukit Rawi lewat Kahayan timur
+  const catLabel = { ok: 'Baik', warn: 'Sedang', bad: 'Tidak sehat' };
+
+  function mulberry(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+
+  function catOf(pm) {
+    const x = Number(pm);
+    if (!isFinite(x)) return 'warn'; // data tak valid → hati-hati
+    return x <= 55 ? 'ok' : x <= 110 ? 'warn' : 'bad';
+  }
+
+  // Skor lingkungan 0..1 untuk destinasi pada satu hari (murni — diuji fuzz)
+  function envScore(dest, day, mode) {
+    if (!dest || typeof dest !== 'object') return { s: 0, reasons: ['data destinasi tidak valid'], day: day || {} };
+    const d = day || {};
+    let s = 1; const reasons = [];
+    const pm = Number(d.pm25), rain = Number(d.rain);
+    const cat = catOf(pm);
+    const flood = mode === 'flood' ? true : !!d.flood;
+    if (flood) {
+      if (dest.lowland) { s *= 0.12; reasons.push('area rendah rawan luapan'); }
+      else if (!dest.indoor) { s *= 0.5; reasons.push('akses tergenang sebagian'); }
+      else { s *= 0.85; }
+    }
+    if (!dest.indoor) {
+      if (cat === 'bad') { s *= 0.22; reasons.push('udara tidak sehat (PM2.5 ' + (isFinite(pm) ? Math.round(pm) : '?') + ')'); }
+      else if (cat === 'warn') { s *= 0.6; reasons.push('udara sedang'); }
+      if (isFinite(rain)) {
+        if (rain >= 25) { s *= 0.5; reasons.push('hujan deras ' + rain + ' mm'); }
+        else if (rain >= 10) { s *= 0.75; reasons.push('hujan ' + rain + ' mm'); }
+      }
+    } else if (cat === 'bad') { s *= 0.85; }
+    s = Math.max(0, Math.min(1, s));
+    return { s, reasons, day: d };
+  }
+
+  function makeEnv(days, mode) {
+    const arr = Array.isArray(days) && days.length ? days : [{ pm25: 40, cat: 'ok', rain: 0, flood: false }];
+    return {
+      days: arr, mode: mode || 'live',
+      scoreFor(dest, dayIdx) {
+        const day = arr[Math.max(0, Math.min(dayIdx | 0, arr.length - 1))] || arr[0];
+        return envScore(dest, day, mode);
+      }
+    };
+  }
+
+  // ---- MESIN ITINERARY (enumerasi + pemilihan 3 varian terbaik) ----
+  function generate(p, env) {
+    const t0 = Date.now();
+    p = p || {};
+    env = env || makeEnv(null, 'live');
+    const days = Math.max(1, Math.min(3, (p.days | 0) || 1));
+    const prefs = Array.isArray(p.prefs) && p.prefs.length ? p.prefs.filter(x => typeof x === 'string').slice(0, 7) : ['alam'];
+    const budget = isFinite(+p.budget) && +p.budget > 0 ? +p.budget : 250000;
+    // Sanitasi katalog di pintu masuk — data cacat ditolak, bukan menyusup ke rencana
+    const DEST = [];
+    {
+      const seenId = new Set();
+      for (const d of (Array.isArray(p.destinasi) ? p.destinasi : [])) {
+        if (!d || typeof d !== 'object') continue;
+        if (typeof d.id !== 'string' || !d.id || seenId.has(d.id)) continue;
+        if (!Array.isArray(d.tags) || typeof d.nama !== 'string' || !d.nama) continue;
+        const cost = Number(d.cost);
+        if (!isFinite(cost) || cost < 0) continue;
+        if (!SLOTS.some(s => s.ok.includes(d.slot))) continue;
+        if (![1, 2, 3, 4].includes(d.zone)) continue;
+        seenId.add(d.id);
+        DEST.push({ ...d, cost });
+      }
+    }
+    if (!DEST.length) {
+      return { variants: [], visited: 0, space: 0, pruned: 0, ms: 0 };
+    }
+    const groupsAllowed = days >= 2 && budget >= 200000 ? ['kota', 'tangkiling', 'hulu'] : ['kota', 'tangkiling'];
+    const byId = id => DEST.find(d => d.id === id);
+    const poolFor = (g, slot, used) => DEST.filter(d =>
+      GROUPS[g] && GROUPS[g].includes(d.zone) && slot.ok.includes(d.slot) && !used.has(d.id));
+    const spacePlan = g => SLOTS.reduce((acc, s) => { const n = poolFor(g, s, new Set()).length; return acc * Math.max(1, n); }, 1);
+    const space = groupsAllowed.reduce((acc, g) => acc + Math.pow(groupsAllowed.length, days - 1) * spacePlan(g), 0);
+
+    let visited = 0, pruned = 0;
+    // Knob pengujian: fuzz bisa mengecilkan batas agar sesi ringan (tak melebihi batas produksi)
+    const CAP_NODES = Math.min(Number(p.capNodes) > 0 ? Number(p.capNodes) : 420000, 420000);
+    const CAP_MS = Math.min(Number(p.capMs) > 0 ? Number(p.capMs) : 2600, 2600);
+    const QUOTA = Math.min(99999, CAP_NODES);
+    const tops = { santai: [], padat: [], hemat: [] };
+    const pushTop = (obj, cand) => { const arr = tops[obj]; arr.push(cand); arr.sort((a, b) => b.score - a.score); if (arr.length > 24) arr.pop(); };
+    const envBias = planDays => { let b = 0; planDays.forEach(d => d.cells.forEach(c => c.items.forEach(it => b += it.env * 0.25))); return b; };
+
+    const used = new Set();
+    const chosen = [];
+
+    function evalLeaf() {
+      visited++;
+      let total = 0, prefScore = 0, cost = 0, foodDays = 0, swaps = 0;
+      const dayMap = new Map();
+      chosen.forEach(cell => {
+        if (!dayMap.has(cell.day)) dayMap.set(cell.day, []);
+        dayMap.get(cell.day).push({ slot: cell.slot, items: cell.items.slice(), env: cell.env, reasons: cell.reasons });
+      });
+      const planDays = Array.from(dayMap.entries()).sort((a, b) => a[0] - b[0]).map(([, cells]) => ({ cells }));
+      planDays.forEach(day => {
+        day.cells.forEach(cell => cell.items.forEach(it => {
+          total += it.sc; prefScore += it.pf; cost += it.cost;
+          if (it.env < 0.45) swaps++;
+        }));
+        if (day.cells.some(c => c.items.some(it => it.food))) foodDays++;
+      });
+      if (foodDays < days) total -= 0.8 * (days - foodDays);
+      if (cost > budget) total -= (cost - budget) / Math.max(50000, budget) * 2;
+      const base = { days: planDays.map(d => ({ cells: d.cells.map(c => ({ slot: c.slot, items: c.items.map(i => ({ ...i })), env: c.env })) })), cost };
+      pushTop('santai', { ...base, score: total + envBias(planDays) });
+      pushTop('padat', { ...base, score: prefScore / days });
+      pushTop('hemat', { ...base, score: (total + 1) / Math.max(60000, cost) });
+    }
+
+    function dfs(dayIdx, slotIdx, sumCost, acc) {
+      if (Date.now() - t0 > CAP_MS) return false;
+      if (sumCost > budget) { pruned++; return true; }
+      if (dayIdx === days) { evalLeaf(); return visited >= CAP_NODES; }
+      const g = acc.groups[dayIdx];
+      const slot = SLOTS[slotIdx];
+      let pool = poolFor(g, slot, used);
+      // jaminan kuliner sadar-banjir: di slot siang, utamakan kuliner yang langitnya masih layak
+      if (slot.k === 'noon' && !acc.foodToday[dayIdx]) {
+        const ffOk = pool.filter(d => d.tags.includes('kuliner') && env.scoreFor(d, dayIdx).s > 0.5);
+        const ffAny = pool.filter(d => d.tags.includes('kuliner'));
+        if (ffOk.length) pool = ffOk.concat(pool.filter(d => !(d.tags.includes('kuliner') && env.scoreFor(d, dayIdx).s > 0.5)));
+        else if (ffAny.length && env.mode !== 'flood') pool = ffAny.concat(pool.filter(d => !d.tags.includes('kuliner')));
+      }
+      for (const d of pool) {
+        const ePre = env.scoreFor(d, dayIdx);
+        if (env.mode === 'flood' && d.lowland && ePre.s < 0.3) { pruned++; continue; }
+        if (sumCost + d.cost > budget) continue;
+        visited++;
+        const e = ePre;
+        const tags = new Set(d.tags);
+        const prefHit = prefs.filter(x => tags.has(x)).length;
+        const pf = 0.35 + (prefHit / Math.min(3, prefs.length)) * 0.35 + (d.indoor && e.day.cat === 'bad' ? 0.15 : 0) +
+          (slot.k === 'sunset' && tags.has('sunset') ? 0.15 : 0) + (slot.k === 'noon' && tags.has('kuliner') ? 0.12 : 0);
+        const sc = pf * 0.55 + e.s * 0.45;
+        used.add(d.id);
+        const setFood = tags.has('kuliner') && !acc.foodToday[dayIdx];
+        if (setFood) acc.foodToday[dayIdx] = true;
+        chosen.push({ day: dayIdx, slot, items: [{ id: d.id, nama: d.nama, cost: d.cost, sc, pf, env: e.s, reasons: e.reasons, food: tags.has('kuliner') }] });
+        const nextSlot = slotIdx + 1, nextDay = nextSlot >= SLOTS.length ? dayIdx + 1 : dayIdx, ns = nextSlot % SLOTS.length;
+        let stop = false;
+        if (nextDay > dayIdx) {
+          for (const g2 of groupsAllowed) {
+            acc.groups[nextDay] = g2;
+            stop = dfs(nextDay, ns, sumCost + d.cost, acc);
+            if (stop) { used.delete(d.id); if (setFood) acc.foodToday[dayIdx] = false; chosen.pop(); return true; }
+          }
+        } else {
+          stop = dfs(dayIdx, nextSlot, sumCost + d.cost, acc);
+          if (stop) { used.delete(d.id); if (setFood) acc.foodToday[dayIdx] = false; chosen.pop(); return true; }
+        }
+        used.delete(d.id); if (setFood) acc.foodToday[dayIdx] = false; chosen.pop();
+      }
+      return false;
+    }
+
+    for (const g0 of groupsAllowed) {
+      const acc = { groups: [g0], foodToday: new Array(days).fill(false) };
+      const stop = dfs(0, 0, 0, acc);
+      if (stop) break;
+    }
+    // Kuota eksplorasi ≥99.999: lintasan acak tambahan bila DFS terpangkas selesai lebih awal
+    if (visited < QUOTA && Date.now() - t0 < CAP_MS) {
+      const rnd = mulberry(42);
+      let guard = 0;
+      const foodToday = new Array(days).fill(false);
+      while (visited < QUOTA && Date.now() - t0 < CAP_MS && guard++ < 200000) {
+        used.clear(); chosen.length = 0; foodToday.fill(false);
+        let sumCost = 0, ok = true;
+        for (let di = 0; di < days && ok; di++) {
+          const g = groupsAllowed[Math.floor(rnd() * groupsAllowed.length)];
+          for (const slot of SLOTS) {
+            let pool = poolFor(g, slot, used);
+            if (slot.k === 'noon' && !foodToday[di]) {
+              const ffOk = pool.filter(d => d.tags.includes('kuliner') && env.scoreFor(d, di).s > 0.5);
+              const ffAny = pool.filter(d => d.tags.includes('kuliner'));
+              if (ffOk.length) pool = ffOk.concat(pool.filter(d => !(d.tags.includes('kuliner') && env.scoreFor(d, di).s > 0.5)));
+              else if (ffAny.length && env.mode !== 'flood') pool = ffAny.concat(pool.filter(d => !d.tags.includes('kuliner')));
+            }
+            const safe = env.mode === 'flood' ? pool.filter(d => { const ee = env.scoreFor(d, di); return !(d.lowland && ee.s < 0.3); }) : pool;
+            const afford = safe.filter(x => sumCost + x.cost <= budget);
+            if (!afford.length) { ok = false; break; }
+            const d = afford[Math.floor(rnd() * afford.length)];
+            visited++;
+            if (d.tags.includes('kuliner')) foodToday[di] = true;
+            const e = env.scoreFor(d, di);
+            const tags = new Set(d.tags);
+            const prefHit = prefs.filter(x => tags.has(x)).length;
+            const pf = 0.35 + (prefHit / Math.min(3, prefs.length)) * 0.35;
+            const sc = pf * 0.55 + e.s * 0.45;
+            sumCost += d.cost;
+            used.add(d.id);
+            chosen.push({ day: di, slot, items: [{ id: d.id, nama: d.nama, cost: d.cost, sc, pf, env: e.s, reasons: e.reasons, food: tags.has('kuliner') }] });
+          }
+        }
+        if (ok && chosen.length) evalLeaf();
+        chosen.length = 0;
+      }
+    }
+    const pick = obj => (tops[obj] || []).find(c => c);
+    const variants = [
+      { key: 'santai', nama: 'Santai', desk: 'kualitas langit & pengalaman maksimal' },
+      { key: 'padat', nama: 'Padat', desk: 'paling sesuai minat terpilih' },
+      { key: 'hemat', nama: 'Hemat', desk: 'nilai terbaik per rupiah' }
+    ].map(v => { const c = pick(v.key); return c ? { ...v, plan: c.days, cost: c.cost, score: c.score } : null; }).filter(Boolean);
+    return { variants, visited, space, pruned, ms: Math.round(Date.now() - t0) };
+  }
+
+  const CORE = { SLOTS, GROUPS, catLabel, mulberry, catOf, envScore, makeEnv, generate };
+  root.RAUN_CORE = CORE;
+  if (typeof module !== 'undefined' && module.exports) module.exports = CORE;
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+<script>
+/* RAUN KALTENG v0, aplikasi (tanpa framework)
+ * Modul: ENV (Si Buru), ENGINE (enumerasi minimal 99.999 kombinasi), UI, CHAT, DASHBOARD, PWA
+ */
+'use strict';
+const $ = (s, el) => (el || document).querySelector(s);
+const $$ = (s, el) => Array.from((el || document).querySelectorAll(s));
+const D = window.RAUN_DATA;
+const CORE = window.RAUN_CORE; // mesin & skor (core.js), satu sumber kebenaran
+const fmtRp = n => 'Rp' + n.toLocaleString('id-ID');
+const byId = id => D.DESTINASI.find(d => d.id === id);
+const destByName = n => D.DESTINASI.find(d => d.nama.toLowerCase().includes(String(n).toLowerCase()));
+
+/* ---------- STATS (anonim, localStorage) ---------- */
+const STATS = (() => {
+ const KEY = 'raun_stats_v0';
+ const def = { gen: 0, queries: {}, destViews: {}, qr: 0, swap: 0, envHist: [] };
+ let s;
+ try { s = Object.assign({}, def, JSON.parse(localStorage.getItem(KEY) || '{}')); } catch (e) { s = {...def }; }
+ const save = () => { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} };
+ return { get: () => s, save,
+ bumpGen() { s.gen++; save(); }, bumpQr() { s.qr++; save(); }, bumpSwap() { s.swap++; save(); },
+ bumpQuery(cat) { s.queries[cat] = (s.queries[cat] || 0) + 1; save(); },
+ bumpDest(id) { s.destViews[id] = (s.destViews[id] || 0) + 1; save(); },
+ pushEnv(v) { s.envHist = (s.envHist || []).slice(-30).concat([{ t: Date.now(), v }]); save(); } };
+})();
+
+/* ---------- ENV (SI BURU) ---------- */
+const ENV = {
+ mode: 'live', // live | replay | flood
+ updated: null,
+ days: [], // {pm25, cat, rain, flood, label}
+ catLabel: CORE.catLabel,
+ catOf(pm) { return CORE.catOf(pm); },
+ scoreFor(dest, dayIdx) {
+ const day = this.days[Math.max(0, Math.min(dayIdx | 0, this.days.length - 1))] || { pm25: 40, cat: 'ok', rain: 0, flood: false };
+ return CORE.envScore(dest, day, this.mode);
+ },
+ async refresh() {
+ if (this.mode === 'replay') {
+ const r = D.META.karhutlaReplay;
+ this.days = r.pm25.map((v, i) => ({ pm25: v, cat: this.catOf(v), rain: r.hujan[i] || 0, flood: false, label: 'Replay ' + r.label }));
+ this.updated = new Date();
+ } else if (this.mode === 'flood') {
+ const rains = [86, 64, 41];
+ this.days = rains.map((mm, i) => ({ pm25: 18, cat: 'ok', rain: mm, flood: true, label: 'Simulasi banjir, hujan ' + mm + ' mm' }));
+ this.updated = new Date();
+ } else {
+ const AQ = 'https://air-quality-api.open-meteo.com/v1/air-quality?latitude=-2.2088&longitude=113.9213&hourly=pm2_5&timezone=Asia%2FJakarta&forecast_days=3';
+ const WF = 'https://api.open-meteo.com/v1/forecast?latitude=-2.2088&longitude=113.9213&hourly=temperature_2m,precipitation_probability&daily=precipitation_sum,precipitation_probability_max&timezone=Asia%2FJakarta&forecast_days=3';
+ try {
+ const [a, w] = await Promise.all([fetch(AQ).then(r => r.json()), fetch(WF).then(r => r.json())]);
+ const pmHourly = a.hourly.pm2_5, n = 24;
+ this.days = [0, 1, 2].map(i => {
+ const slice = (pmHourly || []).slice(i * n, (i + 1) * n).filter(x => x!= null);
+ const pm25 = slice.length? Math.round(slice.reduce((p, c) => p + c, 0) / slice.length) : 40;
+ const rain = Math.round((w.daily.precipitation_sum[i] || 0) * 10) / 10;
+ return { pm25, cat: this.catOf(pm25), rain, flood: rain >= 60, label: 'Live, Open-Meteo' };
+ });
+ // cuaca per jam (mulai jam lokal sekarang, 8 jam ke depan)
+ try {
+ const hIdx = new Date(Date.now() + 7 * 3600000).getUTCHours();
+ const temps = w.hourly.temperature_2m || [], pops = w.hourly.precipitation_probability || [];
+ this.hours = Array.from({ length: 8 }, (_, k) => {
+ const i = (hIdx + k) % 24;
+ return { h: i, temp: Math.round(temps[i]!= null? temps[i] : 30), pop: pops[i]!= null? pops[i] : 0 };
+ });
+ } catch (e) { this.hours = null; }
+ } catch (e) {
+ this.days = [{ pm25: 40, cat: 'ok', rain: 0, flood: false, label: 'Offline fallback (data contoh)' }, { pm25: 40, cat: 'ok', rain: 2, flood: false, label: 'Offline fallback' }, { pm25: 40, cat: 'ok', rain: 4, flood: false, label: 'Offline fallback' }];
+ this.hours = null;
+ }
+ this.updated = new Date();
+ }
+ STATS.pushEnv(Math.round(this.days[0] && this.days[0].pm25 || 0));
+ this.paint();
+ },
+ worst() { return this.days.reduce((w, d) => (d.cat === 'bad'? 'bad' : (d.cat === 'warn' && w!== 'bad')? 'warn' : w), 'ok'); },
+ paint() {
+ const w = this.worst();
+ const dot = $('#siburu-dot'); if (dot) dot.dataset.c = w;
+ const t = $('#siburu-text');
+ if (t) {
+ if (this.mode === 'live' &&!this.updated) { t.textContent = 'Si Buru lagi membaca langit.'; }
+ else {
+ const d0 = this.days[0] || {};
+ const floodTxt = this.days.some(x => x.flood)? 'Waspada luapan tinggi. ' : '';
+ t.innerHTML = 'Langit PKY <b>' + (this.catLabel[d0.cat] || 'sedang dibaca') + '</b>, PM2.5 sekitar ' + d0.pm25 + ', hujan ' + (d0.rain || 0) + ' mm. ' + floodTxt +
+ '<span class="muted small">' + (d0.label || '') + '</span>';
+ }
+ }
+ const hero = $('.hero'); if (hero) hero.dataset.env = w === 'bad'? 'bad' : '';
+ renderHours(); renderEvents();
+ if (typeof renderPlan === 'function' && state.plan) renderPlan();
+ }
+};
+
+function renderHours() {
+ const box = $('#hours-chips'); if (!box) return;
+ if (ENV.mode!== 'live' ||!ENV.hours ||!ENV.hours.length) { box.innerHTML = ''; return; }
+ box.innerHTML = '<span class="muted small" style="margin-right:.3rem">Per jam:</span>' + ENV.hours.map(x => {
+ return '<span class="chip" style="cursor:default">' + String(x.h).padStart(2, '0') + ', ' + x.temp + '°C, hujan ' + x.pop + '%</span>';
+ }).join('');
+}
+function renderEvents() {
+ const box = $('#events-home'); if (!box) return;
+ box.innerHTML = D.EVENTS.map(ev =>
+ '<span class="chip" style="cursor:default" title="' + ev.catatan + '">' + ev.nama + ' <span class="muted">' + ev.kira + '</span></span>').join('');
+}
+
+/* ---------- ENGINE (delegasi ke core.js) ---------- */
+const SLOTS = CORE.SLOTS;
+const GROUPS = CORE.GROUPS;
+const ENGINE = {
+ generate(p) { return CORE.generate({...p, destinasi: D.DESTINASI }, CORE.makeEnv(ENV.days, ENV.mode)); }
+};
+
+/* ---------- STATE + RENDER PLAN ---------- */
+const state = { params: null, plan: null, variant: 0 };
+
+function potong(s, n) { if (!s || s.length <= n) return s; const p = s.slice(0, n); return p.slice(0, p.lastIndexOf(' ')) + '...'; }
+function envColor(s) { return s >= 0.66? ['ok', ''] : s >= 0.4? ['warn', ''] : ['bad', '']; }
+
+function renderPlan() {
+ if (!state.plan ||!Array.isArray(state.plan.variants) ||!state.plan.variants.length) return;
+ const P = state.plan, v = P.variants[state.variant] || P.variants[0];
+ const tabs = $('#variant-tabs'); tabs.innerHTML = '';
+ P.variants.forEach((vv, i) => {
+ const b = document.createElement('button');
+ b.className = 'chip vtab'; b.setAttribute('role', 'tab');
+ b.setAttribute('aria-selected', String(i === state.variant));
+ b.textContent = vv.nama + ', ' + fmtRp(vv.cost);
+ b.onclick = () => { state.variant = i; renderPlan(); };
+ tabs.appendChild(b);
+ });
+ $('#plan-meta').innerHTML =
+ 'Dari ' + P.visited.toLocaleString('id-ID') + ' kemungkinan yang sudah dipertimbangkan, ini varian <b>' + v.nama + '</b>, ' + v.desk +
+ '. Perkiraan pengeluaran <b>' + fmtRp(v.cost) + '</b> per orang' + (state.params? ', masih dalam budget ' + fmtRp(state.params.budget) : '') + '.';
+ const tl = $('#timeline'); tl.innerHTML = '';
+ v.plan.forEach((day, di) => {
+ const envd = ENV.days[Math.min(di, ENV.days.length - 1)] || { pm25: 79, cat: 'ok' };
+ const el = document.createElement('div'); el.className = 'day';
+ const head = document.createElement('div'); head.className = 'day-head';
+ head.innerHTML = '<b>Hari ' + (di + 1) + '</b><span>' +
+ '<span class="badge tem-campur">PM2.5 ' + envd.pm25 + ', ' + (ENV.catLabel[envd.cat] || '') + '</span> ' +
+ (envd.flood? '<span class="badge" style="background:#f6d5d5;color:#a11"> luapan</span>' : '') + '</span>';
+ el.appendChild(head);
+ const allItems = [];
+ day.cells.forEach(cell => {
+ cell.items.forEach(it => {
+ allItems.push(it);
+ // skor langit dihitung ulang saat render, pergantian mode (live/replay/banjir) langsung terlihat
+ const eFresh = ENV.scoreFor(byId(it.id), di);
+ it.env = eFresh.s; it.reasons = eFresh.reasons;
+ const [c] = envColor(it.env);
+ const d = byId(it.id);
+ const row = document.createElement('div'); row.className = 'slot';
+ row.innerHTML = '<div class="time">' + cell.slot.label + '</div>';
+ const item = document.createElement('div'); item.className = 'item' + (it.swapped? ' swapped' : '');
+ item.innerHTML =
+ '<span class="dot" data-c="' + c + '" title="Kelayakan langit ' + Math.round(it.env * 100) + ' dari 100"></span>' +
+ '<div style="flex:1"><h4>' + it.nama + '</h4>' +
+ '<div class="tags">' + d.tags.map(t => '<span class="badge">' + t + '</span>').join('') + '</div>' +
+ '<div class="muted small">' + fmtRp(d.cost) + ', ' + d.jam + (it.reasons.length? '. Perhatian: ' + it.reasons[0] : '') + '</div>' +
+ '<div class="acts">' +
+ '<button class="chip" data-act="detail" data-id="' + d.id + '">Detail</button>' +
+ '<button class="chip" data-act="qris" data-id="' + d.id + '">QRIS demo</button>' +
+ '<a class="chip" target="_blank" rel="noopener" href="' + mapsDir(d) + '">Rute</a>' +
+ '<button class="chip" data-act="gojek" data-id="' + d.id + '"> Gojek</button>' +
+ '<button class="chip" data-act="otsok" data-id="' + d.id + '"> Otsok WA</button>' +
+ '<button class="chip" data-act="swap" data-day="' + di + '" data-slot="' + allItems.length + '">Ganti (langit)</button>' +
+ '</div></div>';
+ row.appendChild(item); el.appendChild(row);
+ });
+ });
+ const foot = document.createElement('div'); foot.className = 'day-foot';
+ foot.innerHTML = '<span>' + allItems.length + ' titik, kuliner ' + (allItems.some(i => i.food)? 'sudah ada' : 'belum ada') + '</span>' +
+ '<span>Subtotal ' + fmtRp(allItems.reduce((a, b) => a + b.cost, 0)) + '</span>';
+ el.appendChild(foot);
+ tl.appendChild(el);
+ });
+ drawMap(v);
+}
+
+// Ganti item slot dengan alternatif bernilai langit terbaik
+function swapItem(di, si) {
+ const v = state.plan.variants[state.variant];
+ const day = v.plan[di];
+ // kumpulkan semua item berurutan utk menemukan cell ke-si
+ let idx = 0, targetCell = null;
+ for (const cell of day.cells) {
+ for (let k = 0; k < cell.items.length; k++) {
+ if (idx === si) { targetCell = { cell, k }; break; }
+ idx++;
+ }
+ if (targetCell) break;
+ }
+ if (!targetCell) return;
+ const cur = targetCell.cell.items[targetCell.k];
+ const g = ['kota', 'tangkiling', 'hulu'].find(gg => GROUPS[gg].includes(byId(cur.id).zone)) || 'kota';
+ const used = new Set(v.plan.flatMap(dd => dd.cells.flatMap(cc => cc.items.map(i => i.id))));
+ const slot = targetCell.cell.slot;
+ const pool = D.DESTINASI.filter(d => GROUPS[g].includes(d.zone) && slot.ok.includes(d.slot) &&!used.has(d.id) && d.id!== cur.id
+ &&!(ENV.mode === 'flood' && d.lowland));
+ if (!pool.length) { toast('Tidak ada alternatif aman di kelompok area ini.'); return; }
+ const best = pool.map(d => ({ d, e: ENV.scoreFor(d, di) })).sort((a, b) => (b.e.s + (b.d.tags.some(t => state.params && state.params.prefs.includes(t))? 0.2 : 0)) - (a.e.s + (a.d.tags.some(t => state.params && state.params.prefs.includes(t))? 0.2 : 0)))[0];
+ const delta = best.d.cost - byId(cur.id).cost;
+ targetCell.cell.items[targetCell.k] = { id: best.d.id, nama: best.d.nama, cost: best.d.cost, sc: best.e.s, pf: 0.5, env: best.e.s, reasons: best.e.reasons, food: best.d.tags.includes('kuliner'), swapped: true };
+ v.cost = Math.max(0, v.cost + delta);
+ STATS.bumpSwap();
+ renderPlan(); toast('Diganti: ' + best.d.nama + ' (skor langit ' + Math.round(best.e.s * 100) + '/100)');
+}
+
+/* ---------- PETA (Leaflet + OpenStreetMap; fallback skematik bila CDN mati) ---------- */
+let leafletMap = null, pinLayer = null;
+function drawMap(v) {
+ if (window.L) return realMap(v);
+ return schematicMap(v);
+}
+function realMap(v) {
+ const el = $('#map'); if (!el) return;
+ $('#map-fallback').hidden = true; el.hidden = false;
+ if (!leafletMap) {
+ leafletMap = L.map(el, { scrollWheelZoom: false }).setView([-2.2088, 113.9213], 12);
+ L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap' }).addTo(leafletMap);
+ pinLayer = L.layerGroup().addTo(leafletMap);
+ }
+ setTimeout(() => { leafletMap.invalidateSize(); }, 150);
+ pinLayer.clearLayers();
+ const planned = new Set(v.plan.flatMap(d => d.cells.flatMap(c => c.items.map(i => i.id))));
+ const bounds = [];
+ D.DESTINASI.forEach(d => {
+ const on = planned.has(d.id);
+ const color = on? '#8B1E1E' : '#B9AE97';
+ const icon = L.divIcon({
+ className: '', iconSize: [26, 30], iconAnchor: [13, 27],
+ html: '<div class="pin" style="background:' + color + ';width:24px;height:24px"><span>' + (on? '<svg class="ic" style="width:11px;height:11px;stroke:#FFF7E8"><use href="#i-star"/></svg>' : '') + '</span></div>'
+ });
+ const m = L.marker([d.lat, d.lng], { icon, title: d.nama }).addTo(pinLayer);
+ m.bindPopup('<b>' + d.nama + '</b><br><span class="muted small">' + fmtRp(d.cost) + ', ' + d.jam + '</span><br>' +
+ '<a href="#" data-act="detail" data-id="' + d.id + '" style="font-weight:800">Detail dan rute</a>, ' +
+ '<a href="' + mapsDir(d) + '" target="_blank" rel="noopener">Rute</a>');
+ if (on) bounds.push([d.lat, d.lng]);
+ });
+ if (bounds.length) leafletMap.fitBounds(bounds, { padding: [34, 34], maxZoom: 14 });
+}
+function schematicMap(v) { // fallback tanpa internet
+ const el = $('#map'); if (!el) return;
+ el.hidden = true;
+ const fb = $('#map-fallback'); fb.hidden = false;
+ const river = 'M 208 -10 C 200 90, 176 180, 168 260 C 160 340, 176 420, 186 500';
+ let out = '<svg viewBox="0 0 400 480" style="width:100%;border-radius:14px;background:linear-gradient(180deg,#EEF3EA,#F6F2E6)">';
+ out += '<path d="' + river + '" fill="none" stroke="#9EC3D8" stroke-width="16" stroke-linecap="round" opacity=".8"/>';
+ out += '<text x="228" y="30" font-size="11" fill="#5B7D90" transform="rotate(78 228 30)">Sungai Kahayan</text>';
+ const planned = new Set(v.plan.flatMap(d => d.cells.flatMap(c => c.items.map(i => i.id))));
+ D.DESTINASI.forEach(d => {
+ const X = 200 + d.x * 170, Y = 240 - d.y * 215;
+ out += '<circle cx="' + X + '" cy="' + Y + '" r="' + (planned.has(d.id)? 7 : 4) + '" fill="' + (planned.has(d.id)? '#8B1E1E' : '#C9BFA8') + '" stroke="#fffdf8" stroke-width="2"><title>' + d.nama + '</title></circle>';
+ });
+ out += '<text x="12" y="466" font-size="9" fill="#8A8171">Mode skematik (peta online tak tersedia)</text></svg>';
+ fb.innerHTML = out;
+}
+
+/* ---------- ILUSTRASI SVG: kartu pos bergaya berlapis, deterministik per seed ---------- */
+function hashSeed(str) { let h = 7; for (let i = 0; i < String(str).length; i++) h = (h * 31 + String(str).charCodeAt(i)) | 0; return Math.abs(h); }
+function sceneSVG(tema, seed, tinggi) {
+ const P = {
+ alam: ['#DFF3E4', '#8FD4A8', '#3E8E63', '#FFF8E1'], budaya: ['#FFE3C2', '#F2A65A', '#B4532A', '#FFF6E8'],
+ kuliner: ['#FFE9C9', '#F6B352', '#C97B2D', '#FFF9EE'], keluarga: ['#DDF0FA', '#8FC3E0', '#2C5D8F', '#F4FAFD'],
+ air: ['#D6F0F5', '#7EC3D8', '#1F6E8C', '#F2FBFD'], sunset: ['#FFE1BE', '#F2A65A', '#C4552D', '#FFF3DC'],
+ hiking: ['#E8F0D8', '#A8C77E', '#4A6741', '#FBF9EF'], indoor: ['#E9E4F8', '#B0A5DC', '#4B3D86', '#F7F5FC'],
+ sejarah: ['#F2E4CC', '#D2B183', '#6B4E2E', '#FBF5EA'], foto: ['#EFE1F6', '#C4A0D2', '#6B4A7A', '#FAF4FC'],
+ campur: ['#F5E8C8', '#E0BE72', '#7A5C2E', '#FDFAF0']
+ }[tema] || ['#DDF0FA', '#8FC3E0', '#2C5D8F', '#F4FAFD'];
+ const r = CORE.mulberry(hashSeed(String(seed || tema)));
+ const W = 400, H = tinggi || 200, horizon = H * 0.62, waterY = H * 0.72;
+ const sunX = 70 + r() * 260, sunY = 24 + r() * (horizon - 60), sunR = 15 + r() * 10;
+ const kid = 'sk' + hashSeed(String(seed || tema));
+ const mtn = (y, amp, color) => {
+ let d = 'M0 ' + H + ' L0 ' + y;
+ for (let x = 0; x <= W; x += 50) d += ' Q' + (x + 25) + ' ' + (y - amp * (0.5 + r())) + ' ' + (x + 50) + ' ' + (y - amp * r() * 0.6);
+ return '<path d="' + d + ' L' + W + ' ' + H + ' Z" fill="' + color + '"/>';
+ };
+ const hutan = (y, color) => {
+ let d = 'M0 ' + H + ' L0 ' + y;
+ for (let x = 0; x <= W; x += 18) { const bump = 8 + r() * 12; d += ' q9 -' + bump.toFixed(1) + ' 18 0'; }
+ return '<path d="' + d + ' L' + W + ' ' + H + ' Z" fill="' + color + '"/>';
+ };
+ let air = '<rect x="0" y="' + waterY + '" width="' + W + '" height="' + (H - waterY) + '" fill="' + P[0] + '" opacity=".85"/>';
+ for (let i = 0; i < 6; i++) {
+ const ly = waterY + 6 + i * (H - waterY) / 7, lw = 30 + r() * 80, lx = sunX - lw / 2 + (r() - 0.5) * 40;
+ air += '<rect x="' + lx.toFixed(1) + '" y="' + ly.toFixed(1) + '" width="' + lw.toFixed(1) + '" height="2.4" rx="1.2" fill="' + P[2] + '" opacity="' + Math.max(0.08, 0.5 - i * 0.07).toFixed(2) + '"/>';
+ }
+ const aksen = (tema === 'air' || tema === 'sunset') ?
+ '<path d="M' + (W * 0.55).toFixed(0) + ' ' + (waterY + 6) + ' q10 -9 24 -9 q14 0 22 9 z" fill="#1A0E08" opacity=".9"/><rect x="' + (W * 0.55 + 22).toFixed(0) + '" y="' + (waterY - 14) + '" width="1.6" height="16" fill="#1A0E08" opacity=".9"/>' : '';
+ return '<svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="xMidYMid slice" aria-hidden="true">' +
+ '<defs><linearGradient id="' + kid + '" x1="0" y1="0" x2="0" y2="1">' +
+ '<stop offset="0" stop-color="' + P[0] + '"/><stop offset=".55" stop-color="' + P[1] + '"/><stop offset="1" stop-color="' + P[2] + '"/></linearGradient></defs>' +
+ '<rect width="' + W + '" height="' + H + '" fill="url(#' + kid + ')"/>' +
+ '<circle cx="' + sunX.toFixed(1) + '" cy="' + sunY.toFixed(1) + '" r="' + (sunR * 2.2).toFixed(1) + '" fill="#F6C453" opacity=".25"/>' +
+ '<circle cx="' + sunX.toFixed(1) + '" cy="' + sunY.toFixed(1) + '" r="' + sunR.toFixed(1) + '" fill="' + P[3] + '"/>' +
+ mtn(horizon - 6, 26, P[1]) + hutan(horizon + 4, P[0]) + air + aksen + '</svg>';
+}
+
+/* ---------- FAVORIT ---------- */
+const FAV = (() => {
+ const KEY = 'raun_fav_v1';
+ let s;
+ try { s = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) { s = {}; }
+ if (!Array.isArray(s.ids)) s.ids = [];
+ const save = () => { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} };
+ return {
+ has: id => s.ids.includes(id),
+ toggle(id) { s.ids = s.ids.includes(id)? s.ids.filter(x => x!== id) : s.ids.concat(id); save(); },
+ list: () => s.ids.slice()
+ };
+})();
+
+/* ---------- VIEW: katalog, siap pakai, UMKM ---------- */
+function cardDest(d) {
+ const el = document.createElement('div'); el.className = 'card trip';
+ const tema = d.tags[0] || 'campur';
+ const icon = { alam: 'i-leaf', budaya: 'i-star', kuliner: 'i-food', keluarga: 'i-home', sejarah: 'i-star', indoor: 'i-home', air: 'i-drop', sunset: 'i-sun', hiking: 'i-mountain', foto: 'i-pin', campur: 'i-compass', kuliner2: 'i-food' }[tema] || 'i-pin';
+ const fav = FAV.has(d.id);
+ el.innerHTML =
+ '<div class="cover">' + sceneSVG(tema, d.id, 120) + '</div>' +
+ '<button class="fav-btn' + (fav? ' on' : '') + '" data-fav="' + d.id + '" aria-label="Tandai favorit">' + (fav? '<svg class="ic" style="fill:#C62828;stroke:#C62828"><use href="#i-heart"/></svg>' : '<svg class="ic"><use href="#i-heart"/></svg>') + '</button>' +
+ '<div class="body"><h3>' + d.nama + '</h3>' +
+ '<div class="badges">' + d.tags.slice(0, 3).map(t => '<span class="badge tem-' + t + '">' + t + '</span>').join('') + '</div>' +
+ '<p class="muted small" style="margin:0">' + potong(d.desc, 96) + '</p>' +
+ '<div class="muted small">' + fmtRp(d.cost) + ', ' + d.jam + (d.indoor? ', ruang tertutup' : '') + '</div>' +
+ '<div class="acts"><button class="chip" data-act="detail" data-id="' + d.id + '">Detail</button>' +
+ '<a class="chip" target="_blank" rel="noopener" href="' + mapsDir(d) + '">Rute</a></div></div>';
+ return el;
+}
+function renderCatalog(filter) {
+ const g = $('#dest-grid'); g.innerHTML = '';
+ let list = D.DESTINASI;
+ if (filter === 'favorit') list = list.filter(d => FAV.has(d.id));
+ else if (filter!== 'semua') list = list.filter(d => d.tags.includes(filter) || (filter === 'indoor' && d.indoor));
+ if (!list.length) { g.innerHTML = '<p class="muted">Masih kosong di sini. Coba kategori lain, atau simpan favorit lewat ikon hati di tiap kartu.</p>'; return; }
+ list.forEach(d => g.appendChild(cardDest(d)));
+}
+function renderSiap(filter) {
+ const g = $('#siap-grid'); g.innerHTML = '';
+ D.SIAP_PAKAI.filter(t => filter === 'semua' || t.tema === filter).forEach(t => {
+ const el = document.createElement('div'); el.className = 'card trip';
+ const dests = t.plan.flat().map(byId);
+ const cost = dests.reduce((a, d) => a + d.cost, 0);
+ el.innerHTML = '<div class="cover">' + sceneSVG(t.tema, t.id, 110) + '</div>' +
+ '<div class="body"><h3>' + t.nama + '</h3><div class="badges"><span class="badge tem-' + t.tema + '">' + t.tema + '</span><span class="badge">' + t.hari + ' hari</span><span class="badge">' + dests.length + ' titik</span></div>' +
+ '<p class="muted small">' + dests.slice(0, 4).map(d => d.nama.split(' ')[0]).join(', lalu ') + '...</p>' +
+ '<div class="muted small">' + fmtRp(cost) + ' per orang, belum termasuk transport</div>' +
+ '<div class="acts"><button class="chip" data-act="runsiap" data-id="' + t.id + '">Pakai ini</button></div></div>';
+ g.appendChild(el);
+ });
+}
+function renderUmkm() {
+ const g = $('#umkm-grid'); g.innerHTML = '';
+ ['kulinerpatin', 'oleholeh', 'pasarmalam', 'danautahai', 'kopisore'].map(byId).forEach(d => {
+ const el = document.createElement('div'); el.className = 'card trip';
+ el.innerHTML = '<h3>' + d.nama + '</h3><div class="badges"><span class="badge tem-kuliner">QRIS pilot</span></div>' +
+ '<p class="muted small">Warung mitra demo, tiap transaksi kasih satu stempel Pas Raun.</p>' +
+ '<div class="acts"><button class="chip" data-act="qris" data-id="' + d.id + '">QRIS demo</button></div>';
+ g.appendChild(el);
+ });
+}
+function renderKuliner() {
+ const g = $('#kuliner-grid'); if (!g) return;
+ D.KULINER.forEach(x => {
+ const el = document.createElement('div'); el.className = 'card trip';
+ el.innerHTML = '<div class="cover">' + sceneSVG('kuliner', x.nama, 110) + '</div>' +
+ '<div class="body"><h3>' + x.nama + '</h3><p class="muted small" style="margin:0">' + x.desc + '</p>' +
+ '<div class="muted small">' + x.tips + '</div>' +
+ '<div class="acts"><a class="chip" target="_blank" rel="noopener" href="https://www.google.com/maps/search/' + encodeURIComponent(x.nama + ' Kalimantan Tengah') + '">Cari penjual di Maps</a></div></div>';
+ g.appendChild(el);
+ });
+}
+function renderRegional() {
+ const g = $('#regional-grid'); if (!g) return;
+ D.REGIONAL.forEach(x => {
+ const el = document.createElement('div'); el.className = 'card trip';
+ el.innerHTML = '<div class="cover">' + sceneSVG(x.wilayah.includes('Tanjung') ? 'air' : 'alam', x.nama, 110) + '</div>' +
+ '<div class="body"><h3>' + x.nama + '</h3><div class="badges"><span class="badge">' + x.wilayah + '</span></div>' +
+ '<p class="muted small" style="margin:0">' + x.desc + '</p>' +
+ '<div class="muted small">' + x.akses + '</div>' +
+ '<div class="acts"><a class="chip" target="_blank" rel="noopener" href="https://www.google.com/maps/search/' + encodeURIComponent(x.nama + ' Kalimantan Tengah') + '">Lihat di Maps</a></div></div>';
+ g.appendChild(el);
+ });
+}
+function renderTidurNgopi() {
+ const cardStay = (x, tipe) => {
+ const el = document.createElement('div'); el.className = 'card trip';
+ el.innerHTML = '<div class="cover">' + sceneSVG(tipe === 'ngopi'? 'indoor' : 'keluarga', x.nama, 100) + '</div>' +
+ '<div class="body"><h3>' + x.nama + '</h3><div class="badges"><span class="badge tem-campur">' + tipe + '</span></div>' +
+ '<p class="muted small">' + x.catatan + '</p>' +
+ '<div class="muted small">' + x.area + ', ' + x.rentang + '</div>' +
+ '<div class="acts"><a class="chip" target="_blank" rel="noopener" href="https://www.google.com/maps/search/' + encodeURIComponent(x.nama + ' Palangka Raya') + '/@' + x.lat + ',' + x.lng + ',15z">Cari di Maps</a></div></div>';
+ return el;
+ };
+ const gh = $('#hotel-grid'), gk = $('#kafe-grid');
+ if (gh) D.HOTEL.forEach(x => gh.appendChild(cardStay(x, 'menginap')));
+ if (gk) D.KAFE.forEach(x => gk.appendChild(cardStay(x, 'ngopi')));
+}
+
+/* ---------- GOOGLE MAPS (link membuka web Maps; di HP otomatis masuk aplikasi Maps) ---------- */
+const mapsSearch = d => 'https://www.google.com/maps/search/' + encodeURIComponent(d.nama) + '/@' + d.lat + ',' + d.lng + ',15z';
+const mapsDir = d => 'https://www.google.com/maps/dir/?api=1&destination=' + d.lat + ',' + d.lng + '&travelmode=driving';
+const mapsNear = (d, what) => 'https://www.google.com/maps/search/' + what + '/@' + d.lat + ',' + d.lng + ',14z';
+
+/* ---------- PAS RAUN (stempel persisten di perangkat ini) ---------- */
+const PASRAUN = (() => {
+ const KEY = 'raun_pasraun_v1';
+ let s;
+ try { s = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) { s = {}; }
+ if (!Array.isArray(s.stamps)) s.stamps = [];
+ const save = () => { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} };
+ function render() {
+ const box = $('#pasraun-stamps'); if (!box) return;
+ const have = s.stamps.length;
+ let html = '';
+ for (let i = 0; i < 5; i++) {
+ html += '<span class="stamp-slot">' + (i < have? '<svg class="ic"><use href="#i-ticket"/></svg>' : '') + '</span>';
+ }
+ html += '<b style="margin-left:.4rem">' + have + '/5</b>' + (have >= 5? ', <span style="color:var(--ok)">siap ditukar!</span>' : ', terus kumpul!');
+ box.innerHTML = html;
+ const badge = document.getElementById('stamp-badge');
+ if (badge) badge.textContent = have + '/5';
+ }
+ return {
+ get: () => s, render,
+ add(mid) {
+ if (!mid) return;
+ if (!s.stamps.includes(mid)) s.stamps.push(mid);
+ save(); render();
+ if (s.stamps.length >= 5) toast('Paspornya penuh. Tukar souvenir di kios oleh oleh mitra, ini masih demo.');
+ else toast('Stempel ke-' + s.stamps.length + ' masuk. Kumpulkan lima untuk tukar souvenir.');
+ },
+ reset() { s.stamps = []; save(); render(); toast('Paspor baru siap. Selamat raun!'); }
+ };
+})();
+
+/* ---------- MODAL: detail & QRIS ---------- */
+function openDetail(id) {
+ const d = byId(id); STATS.bumpDest(id);
+ const body = $('#modal-detail-body');
+ body.innerHTML = '<button class="modal-x" data-close aria-label="Tutup">Tutup</button>' +
+ '<h2>' + d.nama + '</h2><p>' + d.desc + '</p>' +
+ (d.etika? '<p class="small" style="background:#f6e7d3;border-radius:10px;padding:.6rem"><b>Adab:</b> ' + d.etika + '</p>' : '') +
+ '<dl class="kv"><dt>Biaya</dt><dd>' + fmtRp(d.cost) + '</dd><dt>Jam</dt><dd>' + d.jam + '</dd>' +
+ '<dt>Tipe</dt><dd>' + (d.indoor? 'Indoor (aman asap/hujan)' : 'Outdoor') + (d.lowland? ', area rendah, perlu cek luapan' : '') + '</dd>' +
+ '<dt>Tag</dt><dd>' + d.tags.join(', ') + '</dd></dl>' +
+ '<p class="muted small">' + (d.tips || '') + '</p>' +
+ '<div class="acts" style="display:flex;gap:.45rem;flex-wrap:wrap;margin:.5rem 0">' +
+ '<a class="chip" target="_blank" rel="noopener" href="' + mapsDir(d) + '"> Rute ke sini</a>' +
+ '<a class="chip" target="_blank" rel="noopener" href="' + mapsSearch(d) + '"> Cek di Maps</a>' +
+ '<a class="chip" target="_blank" rel="noopener" href="' + mapsNear(d, 'hotel') + '"> Hotel sekitar</a>' +
+ '<a class="chip" target="_blank" rel="noopener" href="' + mapsNear(d, 'restoran') + '"> Makan sekitar</a>' +
+ '<a class="chip" target="_blank" rel="noopener" href="' + mapsNear(d, 'kafe') + '"> Ngopi sekitar</a>' +
+ '</div>' +
+ '<div class="acts" style="display:flex;gap:.5rem;flex-wrap:wrap">' +
+ '<button class="btn btn-primary" data-act="qris" data-id="' + d.id + '">QRIS demo</button>' +
+ '</div>' +
+ pasfotoHtml(d.id);
+ showModal('modal-detail');
+ pasfotoBind(id);
+}
+let qrLibPromise = null;
+function loadQrLib() {
+ if (window.qrcode) return Promise.resolve();
+ if (!qrLibPromise) qrLibPromise = new Promise((res, rej) => {
+ const s = document.createElement('script');
+ s.src = 'https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js';
+ s.onload = () => res(); s.onerror = () => rej(new Error('offline'));
+ document.head.appendChild(s);
+ });
+ return qrLibPromise;
+}
+async function openQris(id) {
+ const d = byId(id); STATS.bumpQr();
+ state.lastQrisId = id;
+ const body = $('#modal-detail-body');
+ let qrHtml = '<div class="center small muted" style="padding:2rem;border:1px dashed var(--line);border-radius:10px">Mode offline, QR tampil saat online</div>';
+ try {
+ await loadQrLib();
+ const q = window.qrcode(0, 'M');
+ q.addData('DEMO QRIS, Raun Kalteng v0, merchant: ' + d.nama + ', payload uji tanpa dana');
+ q.make();
+ qrHtml = q.createSvgTag({ cellSize: 3, margin: 8, scalable: true });
+ } catch (e) {}
+ body.innerHTML = '<button class="modal-x" data-close aria-label="Tutup">Tutup</button>' +
+ '<h2>QRIS demo, ' + d.nama + '</h2>' +
+ '<div class="center">' + qrHtml + '</div>' +
+ '<p class="muted small center"> Demo: QR berisi teks uji, bukan QRIS asli, tanpa dana. Rilis v1 memakai QRIS dinamis via PSP mitra.</p>' +
+ '<p class="center"><button class="btn btn-primary" data-act="stamp">Tandai stempel Pas Raun</button></p>';
+ showModal('modal-detail');
+}
+function stamp() { PASRAUN.add(state.lastQrisId); closeModals(); }
+
+/* ---------- TRANSPORT HUB ---------- */
+function gojekOrder(d) {
+ // Coba deep-link aplikasi Gojek; bila tak terpasang ke Play Store (fallback demo)
+ const t0 = Date.now();
+ const iframe = document.createElement('iframe'); iframe.style.display = 'none'; document.body.appendChild(iframe);
+ iframe.src = 'gojek://';
+ setTimeout(() => {
+ iframe.remove();
+ if (!document.hidden && Date.now() - t0 < 1800) {
+ toast('Aplikasi Gojek tak terdeteksi, dibuka Play Store (demo). v2: kemitraan resmi GoTo/Midtrans.');
+ window.open('https://play.google.com/store/apps/details?id=com.gojek.app', '_blank', 'noopener');
+ } else {
+ toast('Gojek dibuka, tujuan tersalin: ' + d.nama + ' (lat,lng: ' + d.lat + ',' + d.lng + ')');
+ try { navigator.clipboard && navigator.clipboard.writeText(d.nama + ', ' + d.lat + ',' + d.lng); } catch (e) {}
+ }
+ }, 1500);
+}
+function otsokOrder(d) {
+ const start = (state.params && state.params.start) || 'Tugu Soekarno';
+ const msg = 'Halo Otsok! Saya dari Raun Kalteng (demo).\nJemput: ' + start + '\nTujuan: ' + d.nama +
+ '\nEstimasi tarif demo sekitar Rp40.000\nMohon konfirmasi ketersediaan perahu atau ojek.';
+ toast('WhatsApp dibuka dengan pesan otomatis (nomor demo v0).');
+ window.open('https://wa.me/620811000000?text=' + encodeURIComponent(msg), '_blank', 'noopener');
+}
+
+/* ---------- WIZARD ---------- */
+function openWizard() {
+ const m = $('#modal-wizard'); m.hidden = false;
+ const inp = $('#wz-date'); if (!inp.value) { const t = new Date(); inp.value = t.toISOString().slice(0, 10); }
+}
+function runWizard(e) {
+ e.preventDefault();
+ const params = {
+ date: $('#wz-date').value, days: +$('#wz-days').value, pax: +$('#wz-pax').value,
+ budget: +$('#wz-budget').value, prefs: $$('#wz-prefs.chip.active').map(c => c.dataset.pref), start: $('#wz-start').value
+ };
+ const go = $('#wz-go'), st = $('#wz-status');
+ go.disabled = true; go.textContent = 'Dipikirkan dulu';
+ setTimeout(() => {
+ const r = ENGINE.generate(params);
+ state.params = params; state.plan = r; state.variant = 0;
+ STATS.bumpGen(); renderDashboard();
+ go.disabled = false; go.textContent = 'Susun ulang';
+ closeModals();
+ showView('view-plan');
+ renderPlan();
+ st.textContent = 'Barusan dipertimbangkan ' + r.visited.toLocaleString('id-ID') + ' kemungkinan dalam ' + r.ms + ' milidetik.';
+ toast('Beres. Dari ' + r.visited.toLocaleString('id-ID') + ' kemungkinan, tiga ini paling masuk akal.');
+ }, 30);
+}
+
+/* ---------- SIAP PAKAI ke PLAN ---------- */
+function runSiap(id) {
+ const t = D.SIAP_PAKAI.find(x => x.id === id);
+ const days = [];
+ for (let i = 0; i < t.hari; i++) {
+ const base = t.plan.slice(i * 4, i * 4 + 4);
+ const cells = [];
+ SLOTS.forEach((slot, si) => {
+ const ids = base[si] || [];
+ const items = ids.map(id0 => { const d = byId(id0); const e = ENV.scoreFor(d, i); return { id: d.id, nama: d.nama, cost: d.cost, sc: e.s, pf: 0.6, env: e.s, reasons: e.reasons, food: d.tags.includes('kuliner') }; });
+ if (items.length) cells.push({ slot, items });
+ });
+ days.push({ cells });
+ }
+ const cost = days.flatMap(d0 => d0.cells).flatMap(c => c.items).reduce((a, b) => a + b.cost, 0);
+ state.params = { days: t.hari, budget: cost, prefs: [t.tema === 'campur'? 'alam' : t.tema], pax: 2 };
+ state.plan = { variants: [{ key: 'santai', nama: 'Kurasi Raun', desk: 'itinerary siap-pakai terpilih', plan: days, cost, score: 0 }], visited: 0, space: 0, ms: 0 };
+ state.variant = 0; STATS.bumpGen();
+ showView('view-plan'); renderPlan();
+ toast('"' + t.nama + '" siap. Cek lampu langitnya dulu sebelum berangkat.');
+}
+
+/* ---------- CHAT ---------- */
+function chatAdd(who, html) {
+ const log = $('#chat-log');
+ const m = document.createElement('div'); m.className = 'msg ' + who;
+ m.innerHTML = html;
+ log.appendChild(m); log.scrollTop = log.scrollHeight;
+ $$('.mact', m).forEach(b => b.onclick = () => doAction(b.dataset.act, b.dataset.id));
+}
+function botReply(q) {
+ const t = q.toLowerCase(); let cat = 'lain';
+ const has = (...ws) => ws.some(w => t.includes(w));
+ if (has('asap', 'udara', 'pm', 'ispu', 'karhutla', 'kabut')) {
+ cat = 'udara'; const d0 = ENV.days[0] || {};
+ chatAdd('bot', 'Langit PKY <b>' + (ENV.catLabel[d0.cat] || '') + '</b>, PM2.5 sekitar ' + d0.pm25 + ', hujan ' + (d0.rain || 0) + ' milimeter. ' +
+ (d0.cat === 'bad'? 'Utamakan indoor, coba tombol <span class="mact" data-act="openwizard">susun itinerary anti-asap</span>.' : d0.cat === 'warn'? 'Masih bisa outdoor singkat; bawa masker.' : 'Aman untuk outdoor '));
+ } else if (has('banjir', 'luapan', 'hujan')) {
+ cat = 'banjir';
+ chatAdd('bot', 'Risiko luapan Kahayan menaik saat hujan >60 mm (bukti: luapan Des 2023 & 2024 kawasan Jl. Anoi). Mode Banjir Raun menghindari area rendah, aktifkan via tombol <span class="mact" data-act="flood"> Mode Banjir</span>.');
+ } else if (has('qris', 'bayar', 'pas raun', 'stempel')) {
+ cat = 'qris';
+ chatAdd('bot', 'Pembayaran lokal lewat <b>QRIS demo</b> di tiap kartu; tiap transaksi = 1 stempel <b>Pas Raun</b> (5 stempel = souvenir UMKM). Selaras target BI Kalteng 22.000 pengguna QRIS baru.');
+ } else if (has('menginap', 'hotel', 'penginapan', 'ngopi', 'kafe')) {
+ cat = 'menginap';
+ chatAdd('bot', 'Pilih menginap dan tempat ngopi ada di halaman Jelajah, bagian bawah. Mau cek sekitar titik tertentu? Buka detail destinasi lalu tekan Hotel sekitar atau Ngopi sekitar, langsung ke Google Maps.');
+ } else if (has('tanjung puting', 'orangutan luar', 'kalteng luas', 'luar pky', 'luar pkY', 'kumai', 'sekonyer')) {
+ cat = 'regional';
+ chatAdd('bot', 'Untuk Kalteng di luar PKY ada Tanjung Puting dan Sungai Sekonyer di Kotawaringin Barat, Danau Sembuluh, Bukit Sepat, sampai Betang Tumbang Malahoi. Buka halaman Jelajah, bagian Kalteng lebih luas dari PKY. Rencana jauh masuk mesin di v1.');
+ } else if (has('halo', 'hai', 'pagi', 'siang', 'malam', 'assalamu', 'salam')) {
+ cat = 'sapaan';
+ chatAdd('bot', 'Halo juga. Mau mulai dari mana? Bilang saja tanggal dan budgetnya, atau tanya kondisi langit hari ini.');
+ } else if (has('kuliner', 'makan', 'patin', 'garam basah')) {
+ cat = 'kuliner';
+ chatAdd('bot', 'Wajib coba: <span class="mact" data-act="detail" data-id="kulinerpatin">Patin & terubuk</span>, <span class="mact" data-act="detail" data-id="oleholeh">garam basah basi</span>, malam di <span class="mact" data-act="detail" data-id="pasarmalam">pasar malam riverfront</span>.');
+ } else if (has('sebangau', 'orangutan', 'sei gohong')) {
+ cat = 'sebangau';
+ chatAdd('bot', 'Gerbang Sebangau ada di <span class="mact" data-act="detail" data-id="seigohong">Sei Gohong</span>; orangutan bisa dilihat aman dari <span class="mact" data-act="detail" data-id="pulaukaja">dermaga Pulau Kaja</span> (08.00–15.00, jarak wajib).');
+ } else if (has('sandung', 'bukit rawi', 'budaya', 'museum')) {
+ cat = 'budaya';
+ chatAdd('bot', 'Untuk budaya: <span class="mact" data-act="detail" data-id="balanga">Museum Balanga</span> (indoor) atau <span class="mact" data-act="detail" data-id="bukitrawi">Bukit Rawi</span> (full-day, situs sakral, ikuti etika).');
+ } else if (has('itinerary', 'rencana', 'raun', 'wisata ke mana', 'ajukan')) {
+ cat = 'itinerary';
+ chatAdd('bot', 'Siap! <span class="mact" data-act="openwizard">Susun itinerary saya</span>, mesin mengeksplorasi >=99.999 kombinasi dan memilih 3 varian terbaik sesuai budget & langit.');
+ } else if (destByName(q)) {
+ cat = 'destinasi'; const d = destByName(q);
+ chatAdd('bot', '<b>' + d.nama + '</b>: ' + d.desc + ' <span class="mact" data-act="detail" data-id="' + d.id + '">Detail</span> <span class="mact" data-act="qris" data-id="' + d.id + '">QRIS</span>');
+ } else {
+ chatAdd('bot', 'Hmm, yang tanya soal itu belum saya hafal (aku cuma pegang data lokal, sengaja biar hemat kuota). Coba: <i>asap, banjir, kuliner, Sebangau, Bukit Rawi, QRIS</i>, atau sebut nama tempat. Mau langsung jalan? <span class="mact" data-act="openwizard">susun itinerary</span>.');
+ }
+ STATS.bumpQuery(cat); renderDashboard();
+}
+function doAction(act, id, ds) {
+ ds = ds || {};
+ if (act === 'detail') openDetail(id);
+ else if (act === 'qris') openQris(id);
+ else if (act === 'openwizard') openWizard();
+ else if (act === 'flood') toggleFlood(true);
+ else if (act === 'stamp') stamp();
+ else if (act === 'runsiap') runSiap(id);
+ else if (act === 'gojek') gojekOrder(byId(id) || byId('tugu'));
+ else if (act === 'otsok') otsokOrder(byId(id) || byId('danautahai'));
+ else if (act === 'fotodel') { try { localStorage.removeItem(fotoKey(id)); } catch (e) {} toast('Foto dihapus.'); openDetail(id); }
+ else if (act === 'swap') swapItem(+ds.day, +ds.slot);
+}
+
+/* ---------- DASHBOARD ---------- */
+function renderDashboard() {
+ const s = STATS.get();
+ const el = id => $(id);
+ if (!el('#d-gen')) return;
+ el('#d-gen').textContent = s.gen;
+ el('#d-q').textContent = Object.values(s.queries).reduce((a, b) => a + b, 0);
+ el('#d-qr').textContent = s.qr;
+ el('#d-swap').textContent = s.swap;
+ let stampN = 0; try { stampN = (JSON.parse(localStorage.getItem('raun_pasraun_v1') || '{}').stamps || []).length; } catch (e) {}
+ let favN = 0; try { favN = (JSON.parse(localStorage.getItem('raun_fav_v1') || '{}').ids || []).length; } catch (e) {}
+ el('#d-stamp').textContent = stampN;
+ el('#d-fav').textContent = favN;
+ // top dest
+ const tops = Object.entries(s.destViews).sort((a, b) => b[1] - a[1]).slice(0, 6);
+ const cd = el('#chart-dest'); cd.innerHTML = tops.length? '' : '<p class="muted small">Belum ada klik.</p>';
+ const max = tops.length? tops[0][1] : 1;
+ tops.forEach(([id, n]) => {
+ const d = byId(id);
+ const row = document.createElement('div');
+ row.style.cssText = 'display:flex;align-items:center;gap:.5rem;margin:.3rem 0';
+ row.innerHTML = '<span style="width:150px;font-size:.8rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + (d? d.nama : id) + '</span>' +
+ '<span style="flex:1;background:#f1e9d8;border-radius:99px;overflow:hidden"><span style="display:block;height:10px;width:' + (n / max * 100) + '%;background:var(--maroon)"></span></span>' +
+ '<b style="font-size:.8rem">' + n + '</b>';
+ cd.appendChild(row);
+ });
+ drawAqi();
+}
+function drawAqi() {
+ const cv = $('#chart-aqi'); if (!cv) return;
+ const ctx = cv.getContext('2d');
+ const h = STATS.get().envHist || [];
+ ctx.clearRect(0, 0, cv.width, cv.height);
+ ctx.fillStyle = '#f7f2e4'; ctx.fillRect(0, 0, cv.width, cv.height);
+ ctx.strokeStyle = '#e6ddca'; ctx.strokeRect(0.5, 0.5, cv.width - 1, cv.height - 1);
+ if (h.length < 2) { ctx.fillStyle = '#8a8171'; ctx.font = '12px sans-serif'; ctx.fillText('Riwayat terkumpul saat mode live aktif...', 14, 90); return; }
+ const vs = h.map(x => x.v), max = Math.max(120,...vs);
+ ctx.beginPath();
+ vs.forEach((v, i) => { const x = 10 + i / (vs.length - 1) * (cv.width - 30), y = cv.height - 16 - (v / max) * (cv.height - 34); i? ctx.lineTo(x, y) : ctx.moveTo(x, y); });
+ ctx.strokeStyle = '#c62828'; ctx.lineWidth = 2; ctx.stroke();
+ ctx.fillStyle = '#8a8171'; ctx.font = '10px sans-serif';
+ ctx.fillText('PM2.5, maks ' + max, 10, 12);
+}
+function renderSimReport() {
+ const box = $('#sim-report'); if (!box) return;
+ const ambil = f => fetch(f).then(r => r.ok? r.json() : Promise.reject()).catch(() => null);
+ Promise.all([ambil('sim/results.json'), ambil('sim/feature-results.json'), ambil('sim/fuzz-results.json')]).then(([a, ft, fz]) => {
+ let h = '<h3>Laboratorium MiroFish, hasil lengkap</h3>';
+ if (a) h += '<p><b>' + a.agents.toLocaleString('id-ID') + '</b> wisatawan virtual diuji dalam ' + a.scenarios + ' skenario langit. Mesin menimbang <b>' + a.totalNodes.toLocaleString('id-ID') + '</b> kemungkinan. Waktu proses ' + a.ms.toLocaleString('id-ID') + ' milidetik.</p>' +
+ '<ul>' + a.findings.map(f => '<li>' + f.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>') + '</li>').join('') + '</ul>';
+ if (ft) h += '<p><b>Penyapuan fitur:</b> ' + ft.ruangTeoretis + '. ' + ft.metode.split('ke')[0].trim() + '. Prioritas lanjutan: ' + ft.rekomendasiV1.slice(0, 5).join(', ') + '.</p>';
+ if (fz) h += '<p><b>Berburu bug:</b> ' + fz.sesi.toLocaleString('id-ID') + ' input jahat, status ' + fz.status + '. Crash: ' + fz.crashes + ', pelanggaran budget: ' + fz.pelanggaran.budget + ', duplikat: ' + fz.pelanggaran.duplikatDestinasi + '.</p>';
+ if (!a && !ft && !fz) h += '<p class="muted">File hasil simulasi belum ada. Jalankan node sim/agents.mjs, sim/features.mjs, dan sim/fuzz.mjs lalu muat ulang.</p>';
+ h += '<p class="muted small">Angka di panel ini dari simulasi deterministik, bisa diulang siapa saja.</p>';
+ box.innerHTML = h;
+ });
+}
+
+/* ---------- FOTO KONDISI (pasfoto) + WAALERT + TRIPSHARE ---------- */
+function fotoKey(id) { return 'raun_foto_' + id; }
+function pasfotoHtml(id) {
+ let saved = null;
+ try { saved = localStorage.getItem(fotoKey(id)); } catch (e) {}
+ return '<div style="margin:.7rem 0">' +
+ '<b class="small">Kondisi terkini dari pengunjung</b>' +
+ (saved? '<div style="margin:.4rem 0"><img src="' + saved + '" alt="Foto kondisi" style="max-width:100%;border-radius:12px;border:1px solid var(--line)"></div>' :
+ '<p class="muted small" style="margin:.3rem 0">Belum ada foto. Jadi orang pertama yang dokumentasi!</p>') +
+ '<input type="file" accept="image/*" id="pasfoto-input" style="font-size:.8rem">' +
+ (saved? '<button class="chip" data-act="fotodel" data-id="' + id + '" style="margin-left:.4rem">Hapus foto</button>' : '') +
+ '</div>';
+}
+function pasfotoBind(id) {
+ const inp = document.getElementById('pasfoto-input');
+ if (!inp) return;
+ inp.onchange = () => {
+ const f = inp.files && inp.files[0];
+ if (!f) return;
+ if (f.size > 400000) { toast('Fotonya kegedean (>400 KB). Ambil yang lebih kecil ya.'); return; }
+ const rd = new FileReader();
+ rd.onload = () => {
+ try { localStorage.setItem(fotoKey(id), String(rd.result)); } catch (e) { toast('Penyimpanan penuh, hapus foto lain dulu.'); return; }
+ toast('Makasih. Foto kondisinya tersimpan di perangkat ini, masih demo komunitas.');
+ openDetail(id);
+ };
+ rd.readAsDataURL(f);
+ };
+}
+let waAlertTimer = null, lastWorst = null;
+function waAlertToggle() {
+ if (waAlertTimer) { clearInterval(waAlertTimer); waAlertTimer = null; toast('Pantauan langit dimatikan.'); return; }
+ const start = () => {
+ lastWorst = ENV.worst();
+ waAlertTimer = setInterval(() => {
+ const w = ENV.worst();
+ if (w!== lastWorst) {
+ const d0 = ENV.days[0] || {};
+ const msg = 'Langit berubah: ' + (ENV.catLabel[w] || w) + ', PM2.5 sekitar ' + d0.pm25;
+ if (window.Notification && Notification.permission === 'granted') try { new Notification('Si Buru Raun', { body: msg }); } catch (e) {}
+ toast('' + msg + ', cek itinerary-mu!');
+ lastWorst = w;
+ }
+ }, 60000);
+ toast('Siap! Aku ingatkan kalau langitnya berubah (cek tiap 1 menit).');
+ };
+ if (window.Notification && Notification.permission!== 'granted') {
+ Notification.requestPermission().then(p => { if (p === 'granted') start(); else { toast('Notifikasi ditolak, pantauan tetap jalan lewat toast.'); start(); } });
+ } else start();
+}
+function waStatus() {
+ const d0 = ENV.days[0] || {};
+ const msg = '[Si Buru Raun] Langit PKY: ' + (ENV.catLabel[d0.cat] || '') + ' , PM2.5 sekitar ' + d0.pm25 + ', hujan ' + (d0.rain || 0) + ' mm. Cek itinerary-mu di Raun Kalteng.';
+ window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank', 'noopener');
+}
+function loadSharedPlan() {
+ if (!location.hash.startsWith('#plan=')) return false;
+ try {
+ const payload = JSON.parse(decodeURIComponent(escape(atob(location.hash.slice(6)))));
+ if (!payload ||!Array.isArray(payload.s) ||!payload.s.length) return false;
+ state.params = payload.p || { days: 2, budget: 250000, prefs: ['alam'] };
+ state.variant = payload.v || 0;
+ const slots = CORE.SLOTS;
+ state.plan = {
+ variants: payload.s.map(x => ({
+ key: 'santai', nama: x.n || 'Trip', desk: 'itinerary hasil bagikan', cost: x.c || 0, score: 0,
+ plan: (x.plan || []).map(d => ({
+ cells: (d.i || []).map((ids, si) => ({
+ slot: slots[si] || slots[0],
+ items: ids.map(id => { const dd = byId(id); return { id, nama: dd? dd.nama : id, cost: dd? dd.cost : 0, sc: 1, pf: 1, env: 1, reasons: [], food: dd? dd.tags.includes('kuliner') : false }; })
+ })).filter(c => c.items.length)
+ }))
+ })),
+ visited: 0, space: 0, ms: 0
+ };
+ showView('view-plan'); renderPlan();
+ toast('Ini itinerary titipan temanmu. Cek dulu langitnya, baru berangkat.');
+ return true;
+ } catch (e) { return false; }
+}
+
+/* ---------- SHARE / PRINT / NAV ---------- */
+function sharePlan() {
+ if (!state.plan) return;
+ const payload = { p: state.params, v: state.variant, s: state.plan.variants.map(x => ({ n: x.nama, c: x.cost, plan: x.plan.map(d => ({ i: d.cells.map(c => c.items.map(i => i.id)) })) })) };
+ const hash = '#plan=' + btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+ history.replaceState(null, '', hash);
+ const url = location.href;
+ (navigator.clipboard? navigator.clipboard.writeText(url) : Promise.reject()).then(() => toast('Linknya sudah tersalin, tinggal kirim ke teman atau keluarga.')).catch(() => toast('Link itinerary ada di address bar, tinggal copy.'));
+}
+function showView(id) {
+ $$('.view').forEach(v => v.hidden = v.id!== id);
+ $$('.bottomnav.bn-item').forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + id.replace('view-', '').replace('destinasi', 'destinasi').replace('umkm', 'umkm').replace('data', 'data').replace('home', 'home')));
+ window.scrollTo({ top: 0 });
+ if (id === 'view-plan' && leafletMap) setTimeout(() => leafletMap.invalidateSize(), 200);
+}
+
+/* ---------- UTIL UI ---------- */
+function toast(msg) {
+ const t = $('#toast'); t.textContent = msg; t.hidden = false;
+ clearTimeout(t._h); t._h = setTimeout(() => t.hidden = true, 3200);
+}
+function showModal(id) { $('#' + id).hidden = false; }
+function closeModals() { $$('.modal').forEach(m => m.hidden = true); }
+
+/* ---------- MODE TOGGLES ---------- */
+function setMode(mode) {
+ ENV.mode = mode; $('#btn-live').hidden = mode === 'live';
+ $('#btn-replay').classList.toggle('active', mode === 'replay');
+ $('#btn-flood').classList.toggle('active', mode === 'flood');
+ ENV.refresh();
+ toast(mode === 'replay'? ' Replay 14 Okt 2026: langit merah, itinerary luar akan terdeteksi ' :
+ mode === 'flood'? ' Mode Banjir: area rendah dihindari mesin' : ' Mode live (Open-Meteo)');
+}
+function toggleFlood(on) { setMode(on || ENV.mode!== 'flood'? (ENV.mode === 'flood' &&!on? 'live' : 'flood') : 'live'); }
+
+/* ---------- INIT ---------- */
+document.addEventListener('click', e => {
+ const act = e.target.closest('[data-act]');
+ if (act) { doAction(act.dataset.act, act.dataset.id || '', act.dataset); return; }
+ const fv = e.target.closest('[data-fav]');
+ if (fv) { FAV.toggle(fv.dataset.fav); fv.classList.toggle('on'); fv.textContent = fv.classList.contains('on')? '' : ''; toast(FAV.has(fv.dataset.fav)? ' Masuk daftar favoritmu.' : 'Dihapus dari favorit.'); return; }
+ if (e.target.closest('[data-close]')) closeModals();
+ if (e.target.classList && e.target.classList.contains('modal')) closeModals();
+});
+$('#btn-wizard').onclick = openWizard;
+$('#form-wizard').onsubmit = runWizard;
+$('#btn-share').onclick = sharePlan;
+$('#btn-print').onclick = () => window.print();
+$('#btn-edit').onclick = openWizard;
+$('#btn-replay').onclick = () => setMode('replay');
+$('#btn-flood').onclick = () => setMode(ENV.mode === 'flood'? 'live' : 'flood');
+$('#btn-live').onclick = () => setMode('live');
+$('#btn-waalert').onclick = waAlertToggle;
+$('#btn-wastatus').onclick = waStatus;
+$('#bn-raun').onclick = e => { e.preventDefault(); openWizard(); };
+$('#pasraun-reset').onclick = () => PASRAUN.reset();
+$('#btn-darurat').onclick = () => showModal('modal-darurat');
+// slider budget tersinkron dengan angka
+const br = $('#wz-budget-range'), bn = $('#wz-budget'), bl = $('#wz-budget-label');
+br.oninput = () => { bn.value = br.value; bl.textContent = fmtRp(+br.value); };
+bn.oninput = () => { br.value = Math.min(1000000, Math.max(50000, +bn.value || 250000)); bl.textContent = fmtRp(+bn.value || 0); };
+$('#chat-fab').onclick = () => { const p = $('#chat-panel'); p.hidden =!p.hidden; if (!p.hidden &&!$('#chat-log').children.length) chatAdd('bot', 'Hai! Saya Raun Mau tanya langit hari ini, kuliner enak, urusan Sebangau, atau langsung <span class="mact" data-act="openwizard">susun itinerary</span>?'); };
+$('#chat-close').onclick = () => $('#chat-panel').hidden = true;
+$('#chat-form').onsubmit = e => { e.preventDefault(); const i = $('#chat-input'); const q = i.value.trim(); if (!q) return; chatAdd('user', q); i.value = ''; botReply(q); };
+$('#wz-prefs').addEventListener('click', e => { const c = e.target.closest('.chip'); if (c) c.classList.toggle('active'); });
+$$('#siap-filters.chip').forEach(c => c.onclick = () => { $$('#siap-filters.chip').forEach(x => x.classList.remove('active')); c.classList.add('active'); renderSiap(c.dataset.tema); });
+$$('#dest-filters.chip').forEach(c => c.onclick = () => { $$('#dest-filters.chip').forEach(x => x.classList.remove('active')); c.classList.add('active'); renderCatalog(c.dataset.tag); });
+$$('#kat-rail.chip').forEach(c => c.onclick = () => { showView('view-destinasi'); renderCatalog(c.dataset.kat); $$('#dest-filters.chip').forEach(x => x.classList.toggle('active', x.dataset.tag === c.dataset.kat)); });
+$$('[data-nav]').forEach(a => a.onclick = e => {
+ e.preventDefault();
+ const map = { '#home': 'view-home', '#siappakai': 'view-home', '#destinasi': 'view-destinasi', '#budaya': 'view-budaya', '#umkm': 'view-umkm', '#data': 'view-data' };
+ const target = map[a.getAttribute('href')] || 'view-home';
+ showView(target);
+ const anchor = document.querySelector(a.getAttribute('href'));
+ if (a.getAttribute('href') === '#siappakai' && anchor) anchor.scrollIntoView({ behavior: 'smooth' });
+});
+
+(() => {
+ const nb = document.getElementById('net-banner'); if (!nb) return;
+ const cek = () => { nb.hidden = navigator.onLine; };
+ window.addEventListener('online', cek); window.addEventListener('offline', cek); cek();
+})();
+
+renderSiap('semua'); renderCatalog('semua'); renderUmkm(); renderKuliner(); renderRegional(); renderTidurNgopi(); renderDashboard(); renderSimReport();
+PASRAUN.render();
+(() => { // badge stempel kecil di navbar
+ const b = document.querySelector('.nav-badge');
+ if (b) { const s = document.createElement('span'); s.id = 'stamp-badge'; s.style.marginLeft = '.5rem'; s.textContent = '0/5'; b.parentNode.appendChild(s); }
+})();
+if (!loadSharedPlan()) { /* buka biasa */ }
+ENV.refresh();
+if ('serviceWorker' in navigator && location.protocol === 'http') {
+ navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+
+</script>
+</body>
+</html>
