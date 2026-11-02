@@ -1,10 +1,20 @@
 {
   "name": "Raun Kalteng",
   "short_name": "Raun",
-  "description": "Asisten perjalanan cerdas Palangka Raya — itinerary adaptif langit (asap/banjir) + QRIS lokal.",
-  "start_url": ".",
+  "description": "Rencana jalan-jalan Palangka Raya yang membaca kondisi langit: cadangan saat asap atau banjir, plus QRIS warung lokal.",
+  "lang": "id",
+  "start_url": "./#beranda",
+  "scope": "./",
   "display": "standalone",
-  "background_color": "#faf6ee",
-  "theme_color": "#7a1f1f",
-  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+  "background_color": "#EEF0EA",
+  "theme_color": "#8B1E1E",
+  "categories": ["travel", "weather"],
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Susun rencana", "url": "./#raun" },
+    { "name": "Rencanaku", "url": "./#rencana" }
+  ]
 }

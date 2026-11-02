@@ -1,17 +1,19 @@
 /* RAUN KALTENG — core.js (mesin & skor, bebas DOM)
  * Dipakai app.js (browser) dan sim/fuzz.mjs (Node) — satu sumber kebenaran.
- * API: CORE.SLOTS, CORE.GROUPS, CORE.mulberry, CORE.catOf, CORE.catLabel,
- *      CORE.envScore(dest, day, mode), CORE.makeEnv(days, mode), CORE.generate(params, env)
+ * API: CORE.SLOTS, CORE.GROUPS, CORE.PREFS, CORE.mulberry, CORE.catOf, CORE.catLabel,
+ *      CORE.envScore(dest, day, mode), CORE.makeEnv(days, mode), CORE.generate(params, env),
+ *      CORE.esc(text), CORE.parseShared(payload, knownIds), CORE.pickHours(hourly, nowLocal, n)
  */
 (function (root) {
   'use strict';
 
   const SLOTS = [
-    { k: 'day', label: 'Pagi · 09–12', ok: ['any', 'day'] },
-    { k: 'noon', label: 'Siang · 12–14', ok: ['any', 'noon'] },
-    { k: 'day2', label: 'Sore · 14–17', ok: ['any', 'day'] },
-    { k: 'sunset', label: 'Senja · 17–19', ok: ['any', 'sunset'] }
+    { k: 'day', label: 'Pagi', jam: '09.00–12.00', ok: ['any', 'day'] },
+    { k: 'noon', label: 'Siang', jam: '12.00–14.00', ok: ['any', 'noon'] },
+    { k: 'day2', label: 'Sore', jam: '14.00–17.00', ok: ['any', 'day'] },
+    { k: 'sunset', label: 'Senja', jam: '17.00–19.00', ok: ['any', 'sunset'] }
   ];
+  const PREFS = ['alam', 'budaya', 'kuliner', 'keluarga', 'sunset', 'hiking', 'air', 'sejarah', 'indoor'];
   const GROUPS = { kota: [1, 2], tangkiling: [3], hulu: [4, 2] }; // hulu: jalur Bukit Rawi lewat Kahayan timur
   const catLabel = { ok: 'Baik', warn: 'Sedang', bad: 'Tidak sehat' };
 
@@ -131,7 +133,7 @@
 
     function dfs(dayIdx, slotIdx, sumCost, acc) {
       if (Date.now() - t0 > CAP_MS) return false;
-      if (sumCost > budget) { pruned++; return true; }
+      if (sumCost > budget) { pruned++; return false; } // pangkas cabang ini saja, bukan seluruh pencarian
       if (dayIdx === days) { evalLeaf(); return visited >= CAP_NODES; }
       const g = acc.groups[dayIdx];
       const slot = SLOTS[slotIdx];
@@ -227,7 +229,54 @@
     return { variants, visited, space, pruned, ms: Math.round(Date.now() - t0) };
   }
 
-  const CORE = { SLOTS, GROUPS, catLabel, mulberry, catOf, envScore, makeEnv, generate };
+  // Escape teks sebelum masuk innerHTML. Semua data dari luar (input, URL, katalog) lewat sini.
+  function esc(v) {
+    return v == null ? '' : String(v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+
+  // Validasi rencana dari link bagikan (#plan=...). Link bisa dibuat siapa saja, jadi hanya id katalog yang lolos.
+  function parseShared(payload, knownIds) {
+    if (!payload || typeof payload !== 'object' || !Array.isArray(payload.s)) return null;
+    const known = id => typeof id === 'string' && knownIds.has(id);
+    const variants = payload.s.slice(0, 3).map(x => {
+      if (!x || !Array.isArray(x.plan)) return null;
+      const days = x.plan.slice(0, 3).map(d => SLOTS.map((_, si) => {
+        const ids = d && Array.isArray(d.i) && Array.isArray(d.i[si]) ? d.i[si] : [];
+        return ids.filter(known).slice(0, 3);
+      }));
+      if (!days.some(d => d.some(slot => slot.length))) return null;
+      return { nama: String(x.n || 'Rencana').slice(0, 40), days };
+    }).filter(Boolean);
+    if (!variants.length) return null;
+    const p = payload.p && typeof payload.p === 'object' ? payload.p : {};
+    const v = payload.v | 0;
+    return {
+      variant: v >= 0 && v < variants.length ? v : 0,
+      params: {
+        days: Math.max(1, Math.min(3, variants[0].days.length)),
+        budget: isFinite(+p.budget) && +p.budget > 0 ? Math.round(+p.budget) : 0,
+        pax: Math.max(1, Math.min(12, p.pax | 0 || 1)),
+        prefs: (Array.isArray(p.prefs) ? p.prefs : []).filter(x => PREFS.includes(x))
+      },
+      variants
+    };
+  }
+
+  // Ambil n jam ke depan dari respons hourly Open-Meteo, mulai jam lokal sekarang ("YYYY-MM-DDTHH:mm").
+  function pickHours(hourly, nowLocal, n) {
+    if (!hourly || !Array.isArray(hourly.time)) return [];
+    const from = String(nowLocal).slice(0, 13);
+    const i0 = hourly.time.findIndex(t => String(t).slice(0, 13) >= from);
+    if (i0 < 0) return [];
+    const temps = hourly.temperature_2m || [], pops = hourly.precipitation_probability || [];
+    return hourly.time.slice(i0, i0 + n).map((t, k) => ({
+      h: +String(t).slice(11, 13),
+      temp: temps[i0 + k] != null ? Math.round(temps[i0 + k]) : null,
+      pop: pops[i0 + k] != null ? pops[i0 + k] : null
+    }));
+  }
+
+  const CORE = { SLOTS, GROUPS, PREFS, catLabel, mulberry, catOf, envScore, makeEnv, generate, esc, parseShared, pickHours };
   root.RAUN_CORE = CORE;
   if (typeof module !== 'undefined' && module.exports) module.exports = CORE;
 })(typeof window !== 'undefined' ? window : globalThis);
