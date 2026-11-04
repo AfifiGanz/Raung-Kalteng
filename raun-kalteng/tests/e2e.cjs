@@ -142,6 +142,30 @@ async function axe(p, label) {
   check('service worker terdaftar (dulu tidak pernah)', reg);
   check('desktop tanpa error JavaScript', p.errors.length === 0, p.errors.join(' | '));
 
+  /* ---- Data live (respons Open-Meteo tiruan, tanpa internet) ---- */
+  const L = await page(browser, { viewport: { width: 1280, height: 900 } });
+  const json = body => route => route.fulfill({ status: 200, contentType: 'application/json', headers: { 'access-control-allow-origin': '*' }, body: JSON.stringify(body) });
+  const aq = { hourly: { pm2_5: Array.from({ length: 72 }, (_, i) => (i < 24 ? 150 : 30)) } };
+  const wx = { daily: { precipitation_sum: [8, 70, 0] }, hourly: { time: Array.from({ length: 72 }, (_, i) => '2026-11-0' + (4 + Math.floor(i / 24)) + 'T' + String(i % 24).padStart(2, '0') + ':00'), temperature_2m: Array(72).fill(29), precipitation_probability: Array(72).fill(40) } };
+  const liveRead = async () => { await L.waitForFunction(() => typeof ENV !== 'undefined' && ENV.updated, null, { timeout: 20000 }); return L.evaluate(() => ({ src: ENV.source, word: document.querySelector('#langit-state').textContent, days: document.querySelector('#langit-days').innerText })); };
+  await L.route(/air-quality-api\.open-meteo/, json(aq));
+  await L.route(/\/\/api\.open-meteo\.com/, json(wx));
+  await L.goto(BASE + '#beranda');
+  let lv = await liveRead();
+  check('live: PM2.5 150 tampil "Tidak sehat"', lv.word === 'Tidak sehat' && lv.src.startsWith('Live') && lv.days.includes('150'), JSON.stringify(lv));
+  check('live: hujan 70 mm besok menandai banjir', lv.days.includes('70 mm') && (await L.$$eval('#langit-days .dot', d => d[1].dataset.c)) === 'flood');
+  await L.unroute(/air-quality-api\.open-meteo/);
+  await L.route(/air-quality-api\.open-meteo/, r => r.abort());
+  await L.reload();
+  lv = await liveRead();
+  check('API udara gagal: status jujur "Udara belum terbaca", data hujan tetap tampil', lv.word === 'Udara belum terbaca' && lv.days.includes('8 mm'), JSON.stringify(lv));
+  await L.unroute(/open-meteo/); await L.unroute(/air-quality-api\.open-meteo/);
+  await L.route(/open-meteo/, r => r.abort());
+  await L.reload();
+  lv = await liveRead();
+  check('offline: pakai bacaan lengkap terakhir, bukan bacaan parsial', lv.src.startsWith('Offline') && lv.word === 'Tidak sehat' && lv.days.includes('150'), JSON.stringify(lv));
+  check('mode live tanpa error JavaScript', L.errors.length === 0, L.errors.join(' | '));
+
   /* ---- HP, gelap ---- */
   const m = await page(browser, { viewport: { width: 390, height: 844 }, colorScheme: 'dark', isMobile: true, hasTouch: true });
   await m.goto(BASE + '#beranda');

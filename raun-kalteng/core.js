@@ -2,7 +2,8 @@
  * Dipakai app.js (browser) dan sim/fuzz.mjs (Node) — satu sumber kebenaran.
  * API: CORE.SLOTS, CORE.GROUPS, CORE.PREFS, CORE.mulberry, CORE.catOf, CORE.catLabel,
  *      CORE.envScore(dest, day, mode), CORE.makeEnv(days, mode), CORE.generate(params, env),
- *      CORE.esc(text), CORE.parseShared(payload, knownIds), CORE.pickHours(hourly, nowLocal, n)
+ *      CORE.esc(text), CORE.parseShared(payload, knownIds), CORE.pickHours(hourly, nowLocal, n),
+ *      CORE.mergeLive(aq, wx, nowLocal)
  */
 (function (root) {
   'use strict';
@@ -276,7 +277,26 @@
     }));
   }
 
-  const CORE = { SLOTS, GROUPS, PREFS, catLabel, mulberry, catOf, envScore, makeEnv, generate, esc, parseShared, pickHours };
+  // Gabungkan respons Open-Meteo kualitas udara (aq) dan cuaca (wx). Salah satu boleh gagal (null):
+  // data yang berhasil tetap dipakai, yang hilang ditandai di `missing`. Keduanya gagal = null.
+  function mergeLive(aq, wx, nowLocal) {
+    const pm = aq && aq.hourly && Array.isArray(aq.hourly.pm2_5) ? aq.hourly.pm2_5 : null;
+    const rainArr = wx && wx.daily && Array.isArray(wx.daily.precipitation_sum) ? wx.daily.precipitation_sum : null;
+    if (!pm && !rainArr) return null;
+    const days = [0, 1, 2].map(i => {
+      const slice = pm ? pm.slice(i * 24, i * 24 + 24).filter(x => x != null && isFinite(x)) : [];
+      const pm25 = slice.length ? Math.round(slice.reduce((a, c) => a + c, 0) / slice.length) : null;
+      const r = rainArr ? rainArr[i] : null;
+      const rain = r != null && isFinite(r) ? Math.round(r * 10) / 10 : null;
+      return { pm25, cat: pm25 == null ? 'ok' : catOf(pm25), rain, flood: rain != null && rain >= 60 };
+    });
+    const missing = [];
+    if (!pm) missing.push('pm25');
+    if (!rainArr) missing.push('hujan');
+    return { days, hours: rainArr ? pickHours(wx.hourly, nowLocal, 8) : [], missing };
+  }
+
+  const CORE = { SLOTS, GROUPS, PREFS, catLabel, mulberry, catOf, envScore, makeEnv, generate, esc, parseShared, pickHours, mergeLive };
   root.RAUN_CORE = CORE;
   if (typeof module !== 'undefined' && module.exports) module.exports = CORE;
 })(typeof window !== 'undefined' ? window : globalThis);

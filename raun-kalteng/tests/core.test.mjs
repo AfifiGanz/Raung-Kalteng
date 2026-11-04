@@ -80,3 +80,34 @@ test('generate saat banjir tidak memilih area rendah yang skornya jatuh', () => 
     assert.equal(bad.length, 0, v.key + ': ' + bad.map(b => b.id));
   }
 });
+
+test('mergeLive: data udara gagal, data hujan tetap terpakai', () => {
+  const wx = { daily: { precipitation_sum: [3.21, 70, 0] }, hourly: { time: ['2026-11-04T10:00', '2026-11-04T11:00'], temperature_2m: [30, 31], precipitation_probability: [10, 20] } };
+  const out = CORE.mergeLive(null, wx, '2026-11-04T10:15');
+  assert.deepEqual(out.missing, ['pm25']);
+  assert.equal(out.days.length, 3);
+  assert.equal(out.days[0].pm25, null);
+  assert.equal(out.days[0].cat, 'ok');
+  assert.equal(out.days[0].rain, 3.2);
+  assert.equal(out.days[1].flood, true);
+  assert.equal(out.hours.length, 2);
+});
+
+test('mergeLive: data hujan gagal, PM2.5 tetap terpakai; keduanya gagal = null', () => {
+  const pm = Array.from({ length: 72 }, (_, i) => (i < 24 ? 150 : 20));
+  const out = CORE.mergeLive({ hourly: { pm2_5: pm } }, null, '2026-11-04T10:15');
+  assert.deepEqual(out.missing, ['hujan']);
+  assert.equal(out.days[0].pm25, 150);
+  assert.equal(out.days[0].cat, 'bad');
+  assert.equal(out.days[1].rain, null);
+  assert.deepEqual(out.hours, []);
+  assert.equal(CORE.mergeLive(null, null, '2026-11-04T10:15'), null);
+  assert.equal(CORE.mergeLive({ hourly: {} }, { daily: {} }, '2026-11-04T10:15'), null, 'respons kosong dianggap gagal');
+});
+
+test('envScore memperlakukan PM2.5 yang tidak terbaca (null) sebagai tidak diketahui, bukan udara bersih', () => {
+  const outdoor = { id: 'x', indoor: false, lowland: false };
+  const e = CORE.envScore(outdoor, { pm25: null, rain: 0 }, 'live');
+  assert.equal(e.s, 1, 'tanpa data, jangan menghukum tempat outdoor');
+  assert.deepEqual(e.reasons, []);
+});

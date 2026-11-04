@@ -1,4 +1,4 @@
-/* RAUN KALTENG v0.5, aplikasi (tanpa framework)
+/* RAUN KALTENG v0.6, aplikasi (tanpa framework)
  * Modul: STORE, ENV (langit), ROUTER, RENCANA + PETA, KATALOG, DIALOG (detail, QRIS, wizard),
  *        TRANSPORT, ASISTEN, DASBOR, PWA. Mesin & skor ada di core.js.
  * Aturan: semua teks dinamis yang masuk innerHTML lewat esc().
@@ -23,6 +23,7 @@ const nowLocal = () => new Intl.DateTimeFormat('sv-SE', { timeZone: TZ, year: 'n
 const clockLocal = d => new Intl.DateTimeFormat('id-ID', { timeZone: TZ, hour: '2-digit', minute: '2-digit' }).format(d);
 const TAG = { alam: 'Alam', budaya: 'Budaya', kuliner: 'Kuliner', keluarga: 'Keluarga', sunset: 'Senja', hiking: 'Mendaki', air: 'Wisata air', indoor: 'Indoor', sejarah: 'Sejarah', foto: 'Spot foto', campur: 'Campuran' };
 const tagLabel = t => TAG[t] || t;
+const extLink = (href, label) => '<a class="chip" target="_blank" rel="noopener" href="' + href + '">' + esc(label) + '</a>';
 
 /* ---------- STORE (localStorage, aman saat diblokir) ---------- */
 function store(key, def) {
@@ -34,25 +35,29 @@ const STATS = store('raun_stats_v0', { gen: 0, queries: {}, destViews: {}, qr: 0
 const bump = (k, sub) => { if (sub) STATS.s[k][sub] = (STATS.s[k][sub] || 0) + 1; else STATS.s[k]++; STATS.save(); };
 const FAV = store('raun_fav_v1', { ids: [] });
 const PAS = store('raun_pasraun_v1', { stamps: [] });
+const LAST = store('raun_env_last_v1', { t: 0, days: null });
+const val = (v, unit) => (v == null ? '–' : esc(v) + (unit || ''));
 if (!Array.isArray(FAV.s.ids)) FAV.s.ids = [];
 if (!Array.isArray(PAS.s.stamps)) PAS.s.stamps = [];
 
 /* ---------- ENV: membaca langit ---------- */
-const STATE_WORD = { ok: 'Baik', warn: 'Sedang', bad: 'Tidak sehat', flood: 'Waspada banjir' };
+const STATE_WORD = { ok: 'Baik', warn: 'Sedang', bad: 'Tidak sehat', flood: 'Waspada banjir', unknown: 'Udara belum terbaca' };
 const ADVICE = {
   ok: 'Aman untuk kegiatan di luar. Tetap bawa air minum.',
   warn: 'Kegiatan luar ruang yang singkat masih oke. Bawa masker.',
   bad: 'Pilih tempat indoor dan pakai masker N95. Raun menandai titik outdoor di rencanamu.',
-  flood: 'Hindari tepi danau dan bantaran rendah. Raun melewatkan area rawan luapan.'
+  flood: 'Hindari tepi danau dan bantaran rendah. Raun melewatkan area rawan luapan.',
+  unknown: 'Data asap belum masuk. Bawa masker untuk berjaga-jaga dan cek lagi sebentar.'
 };
 const DAY_NAME = ['Hari ini', 'Besok', 'Lusa', 'Hari ke-4'];
 const ENV = {
   mode: 'live', days: [], hours: [], updated: null, source: '',
-  scoreFor(dest, dayIdx) {
-    const day = this.days[Math.max(0, Math.min(dayIdx | 0, this.days.length - 1))] || { pm25: 40, rain: 0 };
-    return CORE.envScore(dest, day, this.mode);
+  scoreFor(dest, dayIdx) { return CORE.makeEnv(this.days, this.mode).scoreFor(dest, dayIdx); },
+  state(day) {
+    const d = day || this.days[0] || {};
+    if (d.flood || this.mode === 'flood') return 'flood';
+    return d.pm25 == null ? 'unknown' : (d.cat || 'ok'); // PM2.5 tak terbaca bukan berarti udara bersih
   },
-  state(day) { const d = day || this.days[0] || {}; return d.flood || this.mode === 'flood' ? 'flood' : (d.cat || 'ok'); },
   async refresh() {
     const mode = this.mode;
     if (mode === 'replay') {
@@ -64,30 +69,30 @@ const ENV = {
       this.hours = []; this.source = 'Simulasi hujan ekstrem dan luapan Kahayan';
     } else {
       const q = 'latitude=-2.2088&longitude=113.9213&timezone=Asia%2FJakarta&forecast_days=3';
-      const get = u => fetch(u, { signal: AbortSignal.timeout ? AbortSignal.timeout(9000) : undefined }).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); });
-      try {
-        const [a, w] = await Promise.all([
-          get('https://air-quality-api.open-meteo.com/v1/air-quality?hourly=pm2_5&' + q),
-          get('https://api.open-meteo.com/v1/forecast?hourly=temperature_2m,precipitation_probability&daily=precipitation_sum&' + q)
-        ]);
-        if (this.mode !== mode) return; // pengguna sudah pindah mode saat data live masih dimuat
-        const pm = (a.hourly && a.hourly.pm2_5) || [];
-        this.days = [0, 1, 2].map(i => {
-          const slice = pm.slice(i * 24, i * 24 + 24).filter(x => x != null);
-          const pm25 = slice.length ? Math.round(slice.reduce((p, c) => p + c, 0) / slice.length) : 40;
-          const rain = Math.round(((w.daily && w.daily.precipitation_sum[i]) || 0) * 10) / 10;
-          return { pm25, cat: CORE.catOf(pm25), rain, flood: rain >= 60 };
-        });
-        this.hours = CORE.pickHours(w.hourly, nowLocal(), 8);
-        this.source = 'Live dari Open-Meteo, ' + clockLocal(new Date());
-      } catch (e) {
-        if (this.mode !== mode) return;
+      const once = u => fetch(u, { signal: AbortSignal.timeout ? AbortSignal.timeout(8000) : undefined }).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); });
+      const get = u => once(u).catch(() => once(u)); // sinyal HP sering putus sesaat: coba sekali lagi
+      const [a, w] = await Promise.allSettled([
+        get('https://air-quality-api.open-meteo.com/v1/air-quality?hourly=pm2_5&' + q),
+        get('https://api.open-meteo.com/v1/forecast?hourly=temperature_2m,precipitation_probability&daily=precipitation_sum&' + q)
+      ]);
+      if (this.mode !== mode) return; // pengguna sudah pindah mode saat data live masih dimuat
+      const live = CORE.mergeLive(a.status === 'fulfilled' ? a.value : null, w.status === 'fulfilled' ? w.value : null, nowLocal());
+      if (live) {
+        this.days = live.days; this.hours = live.hours;
+        this.source = 'Live dari Open-Meteo, ' + clockLocal(new Date()) +
+          (live.missing.includes('pm25') ? '. PM2.5 belum terbaca' : '') + (live.missing.includes('hujan') ? '. Data hujan belum terbaca' : '');
+        if (!live.missing.length || !LAST.s.t) { LAST.s.t = Date.now(); LAST.s.days = live.days; LAST.save(); } // simpan hanya bacaan lengkap
+      } else if (LAST.s.t && Date.now() - LAST.s.t < 86400000 && Array.isArray(LAST.s.days)) {
+        // Offline: pakai bacaan live terakhir (maks. 24 jam), jangan angka karangan.
+        this.days = LAST.s.days; this.hours = [];
+        this.source = 'Offline. Data terakhir pukul ' + clockLocal(new Date(LAST.s.t));
+      } else {
         this.days = [0, 2, 4].map(rain => ({ pm25: 40, cat: 'ok', rain, flood: false }));
         this.hours = []; this.source = 'Data contoh. Open-Meteo tidak terjangkau.';
       }
     }
     this.updated = new Date();
-    if (mode === 'live' && this.source.startsWith('Live')) { STATS.s.envHist = (STATS.s.envHist || []).slice(-30).concat([{ t: Date.now(), v: this.days[0].pm25 }]); STATS.save(); }
+    if (mode === 'live' && this.source.startsWith('Live') && this.days[0].pm25 != null) { STATS.s.envHist = (STATS.s.envHist || []).slice(-30).concat([{ t: Date.now(), v: this.days[0].pm25 }]); STATS.save(); }
     this.paint();
   },
   paint() {
@@ -97,7 +102,7 @@ const ENV = {
     $('#langit-src').textContent = this.source;
     $('#langit-advice').textContent = ADVICE[st];
     $('#langit-days').innerHTML = this.days.slice(0, 3).map((d, i) =>
-      '<li><b><i class="dot" data-c="' + this.state(d) + '"></i>' + DAY_NAME[i] + '</b><span>PM2.5 ' + esc(d.pm25) + '</span><span>Hujan ' + esc(d.rain) + ' mm</span></li>').join('');
+      '<li><b><i class="dot" data-c="' + this.state(d) + '"></i>' + DAY_NAME[i] + '</b><span>PM2.5 ' + val(d.pm25) + '</span><span>Hujan ' + val(d.rain, ' mm') + '</span></li>').join('');
     $('#hours').innerHTML = this.hours.map(h =>
       '<div class="hour"><b>' + String(h.h).padStart(2, '0') + '.00</b>' + (h.temp != null ? esc(h.temp) + '°C' : '') + '<br>hujan ' + (h.pop != null ? esc(h.pop) + '%' : '?') + '</div>').join('');
     $$('.seg-btn').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.mode === this.mode)));
@@ -185,7 +190,7 @@ function renderPlan() {
         (e.reasons.length ? '<div class="warnline">Perhatian: ' + esc(e.reasons.join(', ')) + '</div>' : '') +
         '<div class="acts">' +
         '<button type="button" class="chip" data-act="detail" data-id="' + esc(d.id) + '">Detail</button>' +
-        '<a class="chip" target="_blank" rel="noopener" href="' + mapsDir(d) + '">Rute</a>' +
+        extLink(mapsDir(d), 'Rute') +
         '<button type="button" class="chip" data-act="swap" data-day="' + di + '" data-cell="' + ci + '" data-k="' + k + '">Ganti tempat</button>' +
         '<details class="more"><summary class="chip">Lainnya</summary><div class="more-list">' +
         '<button type="button" class="chip" data-act="qris" data-id="' + esc(d.id) + '">QRIS</button>' +
@@ -194,7 +199,7 @@ function renderPlan() {
         '</div></details></div></div></div></div>';
     }).join('')).join('');
     return '<article class="day"><div class="day-head"><h3>Hari ' + (di + 1) + '</h3>' +
-      '<span class="day-env"><i class="dot" data-c="' + ENV.state(envd) + '"></i>PM2.5 ' + esc(envd.pm25) + ', hujan ' + esc(envd.rain) + ' mm' + (envd.flood ? ', waspada luapan' : '') + '</span></div>' +
+      '<span class="day-env"><i class="dot" data-c="' + ENV.state(envd) + '"></i>PM2.5 ' + val(envd.pm25) + ', hujan ' + val(envd.rain, ' mm') + (envd.flood ? ', waspada luapan' : '') + '</span></div>' +
       slots + '<div class="day-foot"><span>' + n + ' tempat, ' + (food ? 'sudah termasuk makan' : 'belum ada tempat makan') + '</span><span>Subtotal ' + fmtRp(sub) + '</span></div></article>';
   }).join('');
   drawMap(v);
@@ -212,13 +217,15 @@ function swapItem(di, ci, k) {
   const pool = D.DESTINASI.filter(d => GROUPS[g].includes(d.zone) && cell.slot.ok.includes(d.slot) && !used.has(d.id) &&
     !(ENV.state(ENV.days[state.offset + di]) === 'flood' && d.lowland));
   if (!pool.length) { toast('Belum ada pengganti yang aman di area ini. Coba ganti di slot lain.'); return; }
-  const rank = d => ENV.scoreFor(d, state.offset + di).s + (d.tags.some(t => prefs.includes(t)) ? 0.2 : 0);
-  const best = pool.sort((a, b) => rank(b) - rank(a))[0];
+  // Skor langit + bonus minat, dihitung sekali per kandidat.
+  const pick = pool.map(d => { const sky = ENV.scoreFor(d, state.offset + di).s; return { d, s: sky, rank: sky + (d.tags.some(t => prefs.includes(t)) ? 0.2 : 0) }; })
+    .reduce((a, b) => (b.rank > a.rank ? b : a));
+  const best = pick.d;
   cell.items[k] = Object.assign(mkItem(best, di), { swapped: true });
   v.cost = planCost(v.plan);
   bump('swap');
   renderPlan();
-  toast('Diganti dengan ' + best.nama + '. Skor langit ' + Math.round(ENV.scoreFor(best, state.offset + di).s * 100) + ' dari 100.');
+  toast('Diganti dengan ' + best.nama + '. Skor langit ' + Math.round(pick.s * 100) + ' dari 100.');
 }
 
 /* ---------- PETA (Leaflet + OSM; skematik bila offline) ---------- */
@@ -310,7 +317,7 @@ function cardDest(d, focusTag) {
     '<p>' + esc(potong(d.desc, 110)) + '</p>' +
     '<div class="meta">' + fmtCost(d.cost) + ', ' + esc(d.jam) + (d.indoor ? ', indoor' : '') + '</div>' +
     '<div class="acts"><button type="button" class="chip" data-act="detail" data-id="' + esc(d.id) + '">Detail</button>' +
-    '<a class="chip" target="_blank" rel="noopener" href="' + mapsDir(d) + '">Rute</a></div></div></article>';
+    extLink(mapsDir(d), 'Rute') + '</div></div></article>';
 }
 let destFilter = 'semua';
 function setDestFilter(f) {
@@ -339,7 +346,6 @@ function textCard(title, body, meta, actHtml, extra) {
   return '<article class="card card-text"><h3>' + esc(title) + '</h3>' + (extra || '') + '<p>' + esc(body) + '</p>' +
     (meta ? '<div class="meta">' + esc(meta) + '</div>' : '') + '<div class="acts">' + actHtml + '</div></article>';
 }
-const extLink = (href, label) => '<a class="chip" target="_blank" rel="noopener" href="' + href + '">' + esc(label) + '</a>';
 function renderStatic() {
   $('#kuliner-grid').innerHTML = D.KULINER.map(x => textCard(x.nama, x.desc, x.tips, extLink(mapsSearch(x.nama + ' Palangka Raya'), 'Cari penjual di Maps'))).join('');
   $('#hotel-grid').innerHTML = D.HOTEL.map(x => textCard(x.nama, x.catatan, x.area + ', ' + x.rentang, extLink(mapsSearch(x.nama + ' Palangka Raya', x.lat, x.lng), 'Cari di Maps'))).join('');
@@ -526,7 +532,7 @@ function otsokOrder(d) {
 }
 function waStatus() {
   const d0 = ENV.days[0] || {};
-  const msg = 'Langit Palangka Raya: ' + STATE_WORD[ENV.state()] + ', PM2.5 sekitar ' + d0.pm25 + ', hujan ' + (d0.rain || 0) + ' mm. ' + ADVICE[ENV.state()] + ' (Raun Kalteng)';
+  const msg = 'Langit Palangka Raya: ' + STATE_WORD[ENV.state()] + ', PM2.5 sekitar ' + (d0.pm25 == null ? 'belum terbaca' : d0.pm25) + ', hujan ' + (d0.rain == null ? 'belum terbaca' : d0.rain + ' mm') + '. ' + ADVICE[ENV.state()] + ' (Raun Kalteng)';
   window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank', 'noopener');
 }
 let watchTimer = null;
@@ -568,7 +574,7 @@ function botReply(q) {
   let cat = 'lain';
   if (has('asap', 'udara', 'pm2', 'ispu', 'karhutla', 'kabut', 'langit')) {
     cat = 'udara'; const d0 = ENV.days[0] || {}; const st = ENV.state();
-    chatAdd('bot', 'Langit Palangka Raya sekarang <b>' + esc(STATE_WORD[st]) + '</b>: PM2.5 sekitar ' + esc(d0.pm25) + ', hujan ' + esc(d0.rain || 0) + ' mm. ' + esc(ADVICE[st]), st === 'ok' ? '' : actBtn('openwizard', 'Susun rencana aman'));
+    chatAdd('bot', 'Langit Palangka Raya sekarang <b>' + esc(STATE_WORD[st]) + '</b>: PM2.5 sekitar ' + val(d0.pm25) + ', hujan ' + val(d0.rain, ' mm') + '. ' + esc(ADVICE[st]), st === 'ok' ? '' : actBtn('openwizard', 'Susun rencana aman'));
   } else if (has('banjir', 'luapan', 'hujan')) {
     cat = 'banjir';
     chatAdd('bot', 'Luapan Kahayan biasanya naik saat hujan di atas 60 mm sehari, seperti Desember 2023 dan 2024 di sekitar Jl. Anoi. Mode Banjir melewatkan area rendah.', actBtn('flood', 'Coba mode Banjir'));

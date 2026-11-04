@@ -1,0 +1,16 @@
+{
+  "name": "raun-kalteng",
+  "version": "0.6.0",
+  "private": true,
+  "description": "Asisten raun Palangka Raya: rencana perjalanan yang membaca kondisi langit (asap/banjir) + QRIS warung lokal.",
+  "scripts": {
+    "test": "node --test tests/core.test.mjs",
+    "test:e2e": "node tests/e2e.cjs",
+    "build": "node build.mjs",
+    "fuzz": "node sim/fuzz.mjs"
+  },
+  "devDependencies": {
+    "axe-core": "4.10.2",
+    "playwright": "1.63.0"
+  }
+}

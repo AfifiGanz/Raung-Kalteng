@@ -155,6 +155,8 @@ main:focus { outline: none; }
 .hero[data-env="warn"] .langit { --state: var(--warn); }
 .hero[data-env="bad"] .langit { --state: var(--bad); }
 .hero[data-env="flood"] .langit { --state: var(--flood); }
+.hero[data-env="unknown"] .langit { --state: var(--ink-2); }
+.hero[data-env="unknown"] { --haze: .2; }
 .langit-top { display: flex; justify-content: space-between; align-items: baseline; gap: var(--s-3); flex-wrap: wrap; }
 .langit-top h2 { font-size: var(--t-md); font-family: var(--f-body); font-weight: 700; letter-spacing: 0; margin: 0; color: var(--ink-2); }
 .langit-src { font-size: var(--t-xs); color: var(--ink-2); }
@@ -174,6 +176,7 @@ main:focus { outline: none; }
 .dot[data-c="warn"] { background: var(--warn); }
 .dot[data-c="bad"] { background: var(--bad); }
 .dot[data-c="flood"] { background: var(--flood); }
+.dot[data-c="unknown"] { background: transparent; box-shadow: inset 0 0 0 2px var(--ink-2); }
 .hours { display: flex; gap: var(--s-2); overflow-x: auto; margin: 0 0 var(--s-4); padding-bottom: 2px; scrollbar-width: none; overscroll-behavior-x: contain; }
 .hours::-webkit-scrollbar { display: none; }
 .hours:empty { display: none; }
@@ -304,6 +307,7 @@ main:focus { outline: none; }
 .pin { width: 24px; height: 24px; border-radius: 50% 50% 50% 4px; transform: rotate(-45deg); border: 2px solid #fff; box-shadow: 0 3px 8px rgba(0, 0, 0, .3); background: #B9AE97; }
 .pin.on { background: #8B1E1E; }
 .leaflet-container { font: inherit; }
+.leaflet-control-attribution a { text-decoration: underline; }
 
 /* ===== DIALOG (lembar bawah di HP) ===== */
 dialog.sheet {

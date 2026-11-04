@@ -1,9 +1,9 @@
-/* Raun Kalteng v0.5 — service worker
+/* Raun Kalteng v0.6 — service worker
  * Halaman: network-first (versi baru langsung terpakai), cadangan cache saat offline.
  * Aset lain: stale-while-revalidate. Hanya respons sukses dari origin sendiri yang disimpan.
  */
-const CACHE = 'raun-v0-5';
-const ASSETS = ['./', './index.html', './styles.css', './data.js', './core.js', './app.js', './vendor/qrcode.js', './manifest.json', './icon.svg'];
+const CACHE = 'raun-v0-6';
+const ASSETS = ['./', './index.html', './styles.css', './data.js', './core.js', './app.js', './vendor/qrcode.js', './manifest.json', './icon.svg', './icons/icon-192.png'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));
